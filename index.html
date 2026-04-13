@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- RESTORED MAP & ZOOM CSS --- */
+        /* Restored Original Map & Zoom CSS */
         .map-frame { 
             width: 100%; border-radius: 16px; overflow: hidden; 
             border: 1px solid var(--border); background: #000; 
@@ -22,7 +22,7 @@
         .map-frame.zoomed #map-img, .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
         #sketch-canvas { touch-action: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
-        /* --- SCOPED LIVE VIEW STYLES --- */
+        /* Scoped Live View Styles */
         .live-grid { display: grid; gap: 10px; margin-top: 20px; }
         .match-card { background: var(--card-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border); border-left: 5px solid var(--primary); }
         .m-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--sub-text); margin-bottom: 8px; }
@@ -83,7 +83,9 @@
             <button class="tab-b" id="tab-rankings" onclick="switchLiveTab('rankings')">Rankings</button>
             <button class="tab-b" id="tab-skills" onclick="switchLiveTab('skills')">Skills</button>
         </div>
-        <div id="live-content" class="live-grid"><div style="text-align:center; padding:40px; color:var(--sub-text)">Waiting for SKU...</div></div>
+        <div id="live-content" class="live-grid">
+            <div style="text-align:center; padding:40px; color:var(--sub-text)">Waiting for SKU...</div>
+        </div>
     </section>
 
     <section id="view-field" class="view">
@@ -110,7 +112,6 @@
                 <button class="save-btn" onclick="saveSketch()">SAVE</button>
             </div>
         </div>
-        <div id="saved-view" style="display:none;"><div id="sketch-list"></div></div>
         <div class="sub-nav">
             <button id="sub-std" class="sub-btn active" onclick="setFieldMode('standard')">VIEW</button>
             <button id="sub-draw" class="sub-btn" onclick="setFieldMode('draw')">DRAW</button>
@@ -118,63 +119,7 @@
         </div>
     </section>
 
-    <section id="view-calc" class="view">
-        <div class="welcome-header"><h1>Score<span>Calc</span></h1><p>Match Scoring</p></div>
-        <div class="auton-group">
-            <button class="auton-btn" id="at-red" onclick="setAt('red')">RED</button>
-            <button class="auton-btn" id="at-tie" onclick="setAt('tie')">TIE</button>
-            <button class="auton-btn" id="at-blue" onclick="setAt('blue')">BLUE</button>
-        </div>
-        <div class="side-container">
-            <div class="alliance-box red">
-                <div class="counter"><label>E1</label><div class="ctrls"><button class="btn-math" onclick="add('red',0,1)">+</button><span class="val-display" id="r0">0</span><button class="btn-math" onclick="add('red',0,-1)">-</button></div></div>
-            </div>
-            <div class="alliance-box blue">
-                <div class="counter"><label>E1</label><div class="ctrls"><button class="btn-math" onclick="add('blue',0,1)">+</button><span class="val-display" id="b0">0</span><button class="btn-math" onclick="add('blue',0,-1)">-</button></div></div>
-            </div>
-            <div class="score-footer"><div>RED: <span id="tot-red">0</span></div><div>BLUE: <span id="tot-blue">0</span></div></div>
-        </div>
-        <button class="save-btn" style="background: var(--input-bg); margin-top: 15px;" onclick="resetC()">RESET</button>
-    </section>
-
-    <section id="view-home" class="view">
-        <div class="welcome-header"><h1>Scout<span>Notes</span></h1><p>Database</p></div>
-        <div class="sort-container">
-            <button id="sort-team" class="sort-btn active" onclick="setSort('team')">TEAM #</button>
-            <button id="sort-event" class="sort-btn" onclick="setSort('event')">EVENT</button>
-        </div>
-        <input type="text" id="noteSearch" class="search-bar" placeholder="Quick search..." oninput="drawNotes()">
-        <div id="noteList"></div>
-    </section>
-
-    <section id="view-settings" class="view">
-        <div class="welcome-header"><h1>System<span>Settings</span></h1><p>Configuration</p></div>
-        <div class="setting-group">
-            <label>Color Mode</label>
-            <select id="set-theme" onchange="updateSettings()"><option value="theme-dark">Dark Mode</option><option value="theme-light">Light Mode</option></select>
-        </div>
-        <div class="setting-group" style="margin-top:20px;">
-            <label>UI Style</label>
-            <select id="set-style" onchange="updateSettings()"><option value="style-classic">Classic</option><option value="style-modern">Modern (Glass)</option></select>
-        </div>
-    </section>
-
-    <section id="view-form" class="view">
-        <button onclick="nav('home')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px;">← CANCEL</button>
-        <h2>New Report</h2>
-        <input type="hidden" id="editIdx">
-        <input type="text" id="f-event" placeholder="Event Name">
-        <input type="text" id="f-team" placeholder="Team Number">
-        <div style="display:flex; gap:10px;"><select id="f-res"><option>Win</option><option>Loss</option><option>Tie</option></select><select id="f-autores"><option>Auto Win</option><option>Auto Loss</option></select></div>
-        <textarea id="f-notes" rows="5" placeholder="Notes..."></textarea>
-        <button class="save-btn" onclick="save()">SAVE</button>
-    </section>
-
-    <section id="view-detail" class="view">
-        <button onclick="nav('home')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px;">← BACK</button>
-        <h2 id="detName">Detail</h2><div id="detHistory"></div>
-    </section>
-</div>
+    </div>
 
 <div class="dock-bar">
     <button class="dock-btn" onclick="nav('settings')">⚙</button>
