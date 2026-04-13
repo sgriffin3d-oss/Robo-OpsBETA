@@ -6,23 +6,25 @@
     <title>Paragon Core X</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Live View Specific Styles */
-        .live-grid { display: grid; gap: 10px; margin-top: 20px; }
-        .match-card { background: var(--card-bg); padding: 15px; border-radius: var(--radius); border-left: 5px solid var(--primary); }
-        .m-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--sub-text); margin-bottom: 8px; }
-        .alliances { display: flex; align-items: center; justify-content: space-between; font-weight: 900; font-size: 1.1rem; }
-        .red-t { color: var(--red); width: 40%; }
-        .blue-t { color: var(--blue); width: 40%; text-align: right; }
-        .vs-box { background: var(--input-bg); padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; }
-        .rank-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        .rank-table th { text-align: left; color: var(--sub-text); padding: 8px; border-bottom: 1px solid var(--border); }
-        .rank-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
-        .live-tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tab-b { flex: 1; padding: 10px; border-radius: 10px; border: none; background: var(--input-bg); color: var(--text); font-size: 0.8rem; cursor: pointer; }
+        .live-grid { display: grid; gap: 12px; margin-top: 15px; }
+        .match-card { 
+            background: var(--card-bg); 
+            padding: 15px; 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            border-left: 4px solid var(--primary);
+        }
+        .m-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--sub-text); margin-bottom: 5px; }
+        .alliances { display: flex; align-items: center; justify-content: space-between; }
+        .red-t { color: var(--red); font-weight: bold; width: 35%; }
+        .blue-t { color: var(--blue); font-weight: bold; width: 35%; text-align: right; }
+        .vs-box { background: var(--input-bg); padding: 5px 10px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border); }
+        .live-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .tab-b { 
+            flex: 1; padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); 
+            background: var(--input-bg); color: var(--text); cursor: pointer; font-size: 0.8rem;
+        }
         .tab-b.active { background: var(--primary); color: #000; font-weight: bold; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .live-dot { color: #ff4d4d; animation: pulse 1.5s infinite; margin-right: 5px; }
-        .back-link { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0; margin-bottom: 15px; font-weight: bold; }
     </style>
 </head>
 <body class="style-modern">
@@ -48,7 +50,7 @@
                 <b>Score Calc</b>
             </div>
             <div class="hub-card" onclick="nav('live')" style="border: 1px solid rgba(255,77,77,0.3)">
-                <span class="icon"><span class="live-dot">●</span></span>
+                <span class="icon"><span class="live-dot" style="color:#ff4d4d; animation: pulse 1.5s infinite;">●</span></span>
                 <b>Live Events</b>
             </div>
         </div>
@@ -57,13 +59,13 @@
     <section id="view-live" class="view">
         <button onclick="nav('hub')" class="back-link">← BACK TO HUB</button>
         <div class="welcome-header">
-            <h1>Live Event</h1>
+            <h1>Live<span>Events</span></h1>
             <p id="refresh-status">Enter SKU to begin</p>
         </div>
-
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <input type="text" id="sku-input" placeholder="RE-VRC-24-XXXX" style="margin:0">
-            <button class="save-btn" style="width:80px; padding:0;" onclick="startLiveRefresh()">GO</button>
+        
+        <div class="search-box" style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="text" id="sku-input" placeholder="RE-VRC-24-XXXX" style="margin:0; flex:1;">
+            <button class="save-btn" style="width:70px; margin:0;" onclick="startLiveRefresh()">GO</button>
         </div>
 
         <div class="live-tabs">
@@ -73,9 +75,7 @@
         </div>
 
         <div id="live-content" class="live-grid">
-            <div style="text-align:center; padding:40px; color:var(--sub-text)">
-                Waiting for Event SKU...
-            </div>
+            <div style="text-align:center; padding:40px; color:var(--sub-text)">Waiting for Event SKU...</div>
         </div>
     </section>
 
@@ -93,29 +93,26 @@
         <div id="noteList"></div>
     </section>
 
-    <section id="view-detail" class="view">
-        <button onclick="nav('home')" class="back-link">← BACK TO LIST</button>
-        <h2 id="detName" style="margin-bottom:5px;">Team Name</h2>
-        <p style="color:var(--sub-text); font-size:0.8rem; margin-bottom:20px;">Performance History</p>
-        <div id="detHistory"></div>
-    </section>
-
     <section id="view-form" class="view">
         <button onclick="nav('home')" class="back-link">← CANCEL</button>
-        <h2>Scout Report</h2>
+        <div class="welcome-header"><h1>New<span>Report</span></h1></div>
         <input type="hidden" id="editIdx">
-        <input type="text" id="f-team" placeholder="Team # (Required)">
-        <input type="text" id="f-event" placeholder="Event Name">
-        <select id="f-res"><option value="W">Win</option><option value="L">Loss</option><option value="T">Tie</option></select>
-        <select id="f-autores"><option value="Auton Win">Auton Win</option><option value="Auton Loss">Auton Loss</option><option value="Auton Tie">Auton Tie</option></select>
-        <input type="text" id="f-partner" placeholder="Partner Team">
-        <input type="text" id="f-opp" placeholder="Opponents">
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="f-score" placeholder="Our Score">
-            <input type="number" id="f-oppscore" placeholder="Opp Score">
+        <div class="form-group">
+            <input type="text" id="f-team" placeholder="Team #">
+            <input type="text" id="f-event" placeholder="Event Name">
+            <div style="display:flex; gap:10px;">
+                <select id="f-res" style="flex:1;"><option value="W">Win</option><option value="L">Loss</option><option value="T">Tie</option></select>
+                <select id="f-autores" style="flex:2;"><option value="Auton Win">Auton Win</option><option value="Auton Loss">Auton Loss</option><option value="Auton Tie">Auton Tie</option></select>
+            </div>
+            <input type="text" id="f-partner" placeholder="Partner Team">
+            <input type="text" id="f-opp" placeholder="Opponent Teams">
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="f-score" placeholder="Our Score">
+                <input type="number" id="f-oppscore" placeholder="Opp Score">
+            </div>
+            <textarea id="f-notes" rows="5" placeholder="Strategic notes..."></textarea>
+            <button class="save-btn" onclick="save()">SAVE REPORT</button>
         </div>
-        <textarea id="f-notes" placeholder="Detailed notes, weaknesses, strengths..." rows="4"></textarea>
-        <button class="save-btn" onclick="save()">SAVE REPORT</button>
     </section>
 
     <section id="view-field" class="view">
@@ -124,42 +121,36 @@
             <h1>Field<span>Viewer</span></h1>
             <p id="field-subtitle">Strategic Layout</p>
         </div>
-
         <div class="sort-container">
             <button id="sub-std" class="sort-btn active" onclick="setFieldMode('standard')">INFO</button>
             <button id="sub-draw" class="sort-btn" onclick="setFieldMode('draw')">DRAW</button>
             <button id="sub-saved" class="sort-btn" onclick="setFieldMode('saved')">SAVED</button>
         </div>
-
         <div id="standard-view">
             <div class="auton-group">
                 <button id="btn-field-match" class="auton-btn active" onclick="toggleMap('match')">MATCH</button>
                 <button id="btn-field-skills" class="auton-btn" onclick="toggleMap('skills')">SKILLS</button>
             </div>
             <div class="map-frame" id="map-frame" onclick="toggleZoom('map-frame')">
-                <img id="map-img" src="images/field.png" style="width:100%; border-radius:10px;">
+                <img id="map-img" src="images/field.png" style="width:100%; border-radius:var(--radius);">
             </div>
         </div>
-
         <div id="draw-view" style="display:none;">
-            <input type="text" id="sketch-name" placeholder="Strategy Name (e.g. Left Side Rush)">
-            <div class="canvas-container" style="position:relative; width:100%; aspect-ratio: 8/5; background: #222; border-radius:15px; overflow:hidden;">
-                <canvas id="sketch-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:2; background-size: cover;"></canvas>
+            <input type="text" id="sketch-name" placeholder="Strategy Name">
+            <div style="position:relative; width:100%; aspect-ratio: 8/5; background: #000; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border);">
+                <canvas id="sketch-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
             </div>
             <div style="display:flex; justify-content:space-between; margin:15px 0;">
-                <div style="display:flex; gap:10px;">
-                    <button onclick="setPen('white')" style="width:30px; height:30px; border-radius:50%; background:white; border:2px solid var(--primary);"></button>
-                    <button onclick="setPen('#ff4d4d')" style="width:30px; height:30px; border-radius:50%; background:#ff4d4d; border:none;"></button>
-                    <button onclick="setPen('#4d94ff')" style="width:30px; height:30px; border-radius:50%; background:#4d94ff; border:none;"></button>
+                <div style="display:flex; gap:12px;">
+                    <button onclick="setPen('white')" style="width:34px; height:34px; border-radius:50%; background:white; border:2px solid var(--primary);"></button>
+                    <button onclick="setPen('#ff4d4d')" style="width:34px; height:34px; border-radius:50%; background:#ff4d4d; border:none;"></button>
+                    <button onclick="setPen('#4d94ff')" style="width:34px; height:34px; border-radius:50%; background:#4d94ff; border:none;"></button>
                 </div>
                 <button onclick="clearCanvas()" style="background:none; border:none; color:var(--red); font-weight:bold;">CLEAR</button>
             </div>
             <button class="save-btn" onclick="saveSketch()">SAVE STRATEGY</button>
         </div>
-
-        <div id="saved-view" style="display:none;">
-            <div id="sketch-list"></div>
-        </div>
+        <div id="saved-view" style="display:none;"><div id="sketch-list"></div></div>
     </section>
 
     <section id="view-calc" class="view">
@@ -174,40 +165,38 @@
             <button id="at-blue" class="auton-btn" onclick="setAt('blue')">BLUE</button>
         </div>
         <div class="side-container">
-            <div class="alliance-box red">
-                <div class="counter"><label>Mobile</label><div class="ctrls"><button class="btn-math" onclick="add('red',0,-1)">-</button><span class="val-display" id="r0">0</span><button class="btn-math" onclick="add('red',0,1)">+</button></div></div>
-                <div class="counter"><label>Zones</label><div class="ctrls"><button class="btn-math" onclick="add('red',1,-1)">-</button><span class="val-display" id="r1">0</span><button class="btn-math" onclick="add('red',1,1)">+</button></div></div>
-                <div class="counter"><label>Park</label><div class="ctrls"><button class="btn-math" onclick="add('red',2,-1)">-</button><span class="val-display" id="r2">0</span><button class="btn-math" onclick="add('red',2,1)">+</button></div></div>
+            <div class="alliance-box red" style="background: rgba(255, 77, 77, 0.1); padding:15px; border-radius:var(--radius); margin-bottom:10px; border:1px solid rgba(255,77,77,0.2);">
+                <div class="counter" style="display:flex; justify-content:space-between; align-items:center;">
+                    <label>Mobile Goals</label>
+                    <div class="ctrls"><button onclick="add('red',0,-1)">-</button><span id="r0">0</span><button onclick="add('red',0,1)">+</button></div>
+                </div>
             </div>
-            <div class="alliance-box blue">
-                <div class="counter"><label>Mobile</label><div class="ctrls"><button class="btn-math" onclick="add('blue',0,-1)">-</button><span class="val-display" id="b0">0</span><button class="btn-math" onclick="add('blue',0,1)">+</button></div></div>
-                <div class="counter"><label>Zones</label><div class="ctrls"><button class="btn-math" onclick="add('blue',1,-1)">-</button><span class="val-display" id="b1">0</span><button class="btn-math" onclick="add('blue',1,1)">+</button></div></div>
-                <div class="counter"><label>Park</label><div class="ctrls"><button class="btn-math" onclick="add('blue',2,-1)">-</button><span class="val-display" id="b2">0</span><button class="btn-math" onclick="add('blue',2,1)">+</button></div></div>
-            </div>
-            <div class="score-footer">
-                <div>RED: <span id="tot-red">0</span></div>
-                <button onclick="resetC()" style="background:rgba(0,0,0,0.2); border:none; color:black; padding:5px 10px; border-radius:5px; font-weight:bold;">RESET</button>
-                <div>BLUE: <span id="tot-blue">0</span></div>
+            <div class="score-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; font-weight:bold; font-size:1.2rem;">
+                <div style="color:var(--red)">RED: <span id="tot-red">0</span></div>
+                <button onclick="resetC()" style="font-size:0.8rem; opacity:0.6;">RESET</button>
+                <div style="color:var(--blue)">BLUE: <span id="tot-blue">0</span></div>
             </div>
         </div>
     </section>
 
     <section id="view-settings" class="view">
         <button onclick="nav('hub')" class="back-link">← BACK</button>
-        <div class="welcome-header">
-            <h1>System<span>Settings</span></h1>
-            <p>Customization & Data</p>
+        <div class="welcome-header"><h1>Settings</h1></div>
+        <div class="form-group">
+            <label>Theme</label>
+            <select id="set-theme" onchange="updateSettings()"><option value="theme-dark">Midnight Dark</option><option value="theme-light">Clean Light</option></select>
+            <label>Style</label>
+            <select id="set-style" onchange="updateSettings()"><option value="style-modern">Modern Glass</option><option value="style-classic">Classic Solid</option></select>
+            <button class="save-btn" onclick="exportData()" style="margin-top:20px; background:var(--input-bg);">EXPORT (.paragon)</button>
         </div>
-        <label>Visual Theme</label>
-        <select id="set-theme" onchange="updateSettings()"><option value="theme-dark">Midnight Dark</option><option value="theme-light">Clean Light</option></select>
-        <label>Interface Style</label>
-        <select id="set-style" onchange="updateSettings()"><option value="style-modern">Modern Glass</option><option value="style-classic">Classic Solid</option></select>
-        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
-        <button class="save-btn" style="background:var(--border); color:var(--text); margin-bottom:10px;" onclick="exportData()">EXPORT BACKUP (.paragon)</button>
-        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
-        <button class="save-btn" style="background:var(--border); color:var(--text);" onclick="document.getElementById('importFile').click()">IMPORT BACKUP</button>
     </section>
 
+</div>
+
+<div class="dock-bar">
+    <button class="dock-btn" onclick="nav('settings')">⚙</button>
+    <button class="dock-btn" onclick="nav('hub')">⌂</button>
+    <button class="dock-btn alt" onclick="toggleFab()">+</button>
 </div>
 
 <div class="fab-menu" id="fabMenu">
@@ -215,23 +204,13 @@
     <div class="menu-item" onclick="setFieldMode('draw'); nav('field');">New Strategy Sketch</div>
 </div>
 
-<div class="dock-bar">
-    <button class="dock-btn" onclick="nav('settings')">⚙</button>
-    <button class="dock-btn" onclick="nav('hub')">⌂</button>
-    <button class="dock-btn alt" id="fabToggle" onclick="toggleFab()">+</button>
-</div>
-
 <script src="app.js"></script>
 <script src="calc.js"></script>
 <script src="view.js"></script>
-<script src="live.js"></script> 
-
+<script src="live.js"></script>
 <script>
-    // Small addition to handle the FAB toggle since it wasn't in your previous JS
-    function toggleFab() {
-        document.getElementById('fabMenu').classList.toggle('show');
-    }
+    function toggleFab() { document.getElementById('fabMenu').classList.toggle('show'); }
+    // Ensure navigation works correctly with your existing app.js logic
 </script>
-
 </body>
 </html>
