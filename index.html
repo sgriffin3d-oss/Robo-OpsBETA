@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Restored Original Map & Zoom CSS */
+        /* --- RESTORED MAP FRAME & DRAWING --- */
         .map-frame { 
             width: 100%; border-radius: 16px; overflow: hidden; 
             border: 1px solid var(--border); background: #000; 
@@ -18,18 +18,35 @@
             transition: background 0.3s ease; cursor: pointer;
         }
         .theme-light .map-frame { background: #ffffff; }
-        #map-img, #sketch-canvas { width: 100%; display: block; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        #map-img, #sketch-canvas { 
+            width: 100%; display: block; 
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        }
         .map-frame.zoomed #map-img, .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
         #sketch-canvas { touch-action: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
-        /* Scoped Live View Styles (Added Feature) */
+        .draw-tools { 
+            display: flex; gap: 12px; margin: 15px 0; padding: 10px; 
+            background: var(--input-bg); border-radius: 16px; 
+            border: 1px solid var(--border); justify-content: center; align-items: center;
+        }
+        .color-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
+        .draw-actions { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        .draw-actions input { margin-bottom: 0 !important; flex: 2; }
+        .draw-actions .save-btn { flex: 1; padding: 14px; font-size: 0.8rem; margin: 0; }
+
+        .sub-nav { display: flex; gap: 5px; margin-top: 15px; background: var(--input-bg); padding: 5px; border-radius: 12px; }
+        .sub-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--sub-text); font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 0.85rem; }
+        .sub-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        /* --- LIVE VIEW STYLES --- */
         .live-grid { display: grid; gap: 10px; margin-top: 20px; }
         .match-card { background: var(--card-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border); border-left: 5px solid var(--primary); }
         .m-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--sub-text); margin-bottom: 8px; }
         .alliances { display: flex; align-items: center; justify-content: space-between; font-weight: 900; font-size: 1.1rem; }
         .red-t { color: var(--red); width: 40%; }
         .blue-t { color: var(--blue); width: 40%; text-align: right; }
-        .vs-box { background: var(--input-bg); padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; border: 1px solid var(--border); }
+        .vs-box { background: var(--input-bg); padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; }
         .live-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
         .tab-b { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.8rem; cursor: pointer; }
         .tab-b.active { background: var(--primary); color: #000; font-weight: bold; }
@@ -101,6 +118,8 @@
                 <div class="color-dot" style="background:red" onclick="setPen('red')"></div>
                 <div class="color-dot" style="background:blue" onclick="setPen('blue')"></div>
                 <div class="color-dot" style="background:white" onclick="setPen('white')"></div>
+                <div class="color-dot" style="background:yellow" onclick="setPen('yellow')"></div>
+                <div class="color-dot" style="background:black; border: 1px solid #444;" onclick="setPen('black')"></div>
                 <button onclick="clearCanvas()" style="background:none; border:none; color:var(--red); font-weight:bold; cursor:pointer; font-size:0.75rem;">CLEAR</button>
             </div>
             <div class="draw-actions">
@@ -108,53 +127,11 @@
                 <button class="save-btn" onclick="saveSketch()">SAVE</button>
             </div>
         </div>
+        <div id="saved-view" style="display:none; margin-top:10px;"><div id="sketch-list"></div></div>
         <div class="sub-nav">
             <button id="sub-std" class="sub-btn active" onclick="setFieldMode('standard')">VIEW</button>
             <button id="sub-draw" class="sub-btn" onclick="setFieldMode('draw')">DRAW</button>
             <button id="sub-saved" class="sub-btn" onclick="setFieldMode('saved')">SAVED</button>
-        </div>
-    </section>
-
-    <section id="view-calc" class="view">
-        <div class="welcome-header"><h1>Calculator</h1><p>Match Scoring</p></div>
-        <div class="auton-group">
-            <button class="auton-btn" id="at-red" onclick="setAt('red')">RED</button>
-            <button class="auton-btn" id="at-tie" onclick="setAt('tie')">TIE</button>
-            <button class="auton-btn" id="at-blue" onclick="setAt('blue')">BLUE</button>
-        </div>
-        <div class="side-container">
-            <div class="alliance-box red">
-                <div class="counter"><label>E1</label><div class="ctrls"><button class="btn-math" onclick="add('red',0,1)">+</button><span class="val-display" id="r0">0</span><button class="btn-math" onclick="add('red',0,-1)">-</button></div></div>
-                <div class="counter"><label>E2</label><div class="ctrls"><button class="btn-math" onclick="add('red',1,1)">+</button><span class="val-display" id="r1">0</span><button class="btn-math" onclick="add('red',1,-1)">-</button></div></div>
-            </div>
-            <div class="alliance-box blue">
-                <div class="counter"><label>E1</label><div class="ctrls"><button class="btn-math" onclick="add('blue',0,1)">+</button><span class="val-display" id="b0">0</span><button class="btn-math" onclick="add('blue',0,-1)">-</button></div></div>
-                <div class="counter"><label>E2</label><div class="ctrls"><button class="btn-math" onclick="add('blue',1,1)">+</button><span class="val-display" id="b1">0</span><button class="btn-math" onclick="add('blue',1,-1)">-</button></div></div>
-            </div>
-            <div class="score-footer"><div>RED: <span id="tot-red">0</span></div><div>BLUE: <span id="tot-blue">0</span></div></div>
-        </div>
-        <button class="save-btn" style="background: var(--input-bg); margin-top: 15px;" onclick="resetC()">RESET</button>
-    </section>
-
-    <section id="view-home" class="view">
-        <div class="welcome-header"><h1>Notes</h1><p>Database</p></div>
-        <div class="sort-container">
-            <button id="sort-team" class="sort-btn active" onclick="setSort('team')">TEAM #</button>
-            <button id="sort-event" class="sort-btn" onclick="setSort('event')">EVENT</button>
-        </div>
-        <input type="text" id="noteSearch" class="search-bar" placeholder="Quick search..." oninput="drawNotes()">
-        <div id="noteList"></div>
-    </section>
-
-    <section id="view-settings" class="view">
-        <div class="welcome-header"><h1>Settings</h1><p>Configuration</p></div>
-        <div class="setting-group">
-            <label>Color Mode</label>
-            <select id="set-theme" onchange="updateSettings()"><option value="theme-dark">Dark Mode</option><option value="theme-light">Light Mode</option></select>
-        </div>
-        <div class="setting-group" style="margin-top:20px;">
-            <label>UI Style</label>
-            <select id="set-style" onchange="updateSettings()"><option value="style-classic">Classic</option><option value="style-modern">Modern</option></select>
         </div>
     </section>
 
@@ -163,15 +140,21 @@
         <input type="hidden" id="editIdx">
         <input type="text" id="f-event" placeholder="Event Name">
         <input type="text" id="f-team" placeholder="Team Number">
-        <textarea id="f-notes" rows="5" placeholder="Notes..."></textarea>
+        <div style="display:flex; gap:10px;">
+            <select id="f-res"><option>Win</option><option>Loss</option><option>Tie</option></select>
+            <select id="f-autores"><option>Auto Win</option><option>Auto Loss</option></select>
+        </div>
+        <input type="text" id="f-partner" placeholder="Partner Team">
+        <input type="text" id="f-opp" placeholder="Opponent Teams">
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="f-score" placeholder="Our Score">
+            <input type="number" id="f-oppscore" placeholder="Opp Score">
+        </div>
+        <textarea id="f-notes" rows="5" placeholder="Strategic notes..."></textarea>
         <button class="save-btn" onclick="save()">SAVE REPORT</button>
     </section>
 
-    <section id="view-detail" class="view">
-        <button onclick="nav('home')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px;">← BACK</button>
-        <h2 id="detName">Detail</h2><div id="detHistory"></div>
-    </section>
-</div>
+    </div>
 
 <div class="fab-menu" id="fabMenu">
     <div class="menu-item" onclick="exportData()">Export (.paragon)</div>
