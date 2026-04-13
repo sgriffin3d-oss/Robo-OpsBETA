@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Restored Original Map & Zoom CSS */
+        /* --- RESTORED ORIGINAL MAP & DRAWING CSS --- */
         .map-frame { 
             width: 100%; border-radius: 16px; overflow: hidden; 
             border: 1px solid var(--border); background: #000; 
@@ -22,7 +22,7 @@
         .map-frame.zoomed #map-img, .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
         #sketch-canvas { touch-action: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
-        /* Scoped Live View Styles */
+        /* --- INTEGRATED LIVE VIEW STYLES --- */
         .live-grid { display: grid; gap: 10px; margin-top: 20px; }
         .match-card { background: var(--card-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border); border-left: 5px solid var(--primary); }
         .m-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--sub-text); margin-bottom: 8px; }
@@ -51,7 +51,7 @@
 
             <div class="hub-card" onclick="nav('calc')">
                 <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg></span>
-                <b>Score Calc</b>
+                <b>Score Calculator</b>
             </div>
 
             <div class="hub-card" onclick="nav('field')">
@@ -72,7 +72,7 @@
     </section>
 
     <section id="view-live" class="view">
-        <button onclick="nav('hub')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px; cursor:pointer;">← BACK</button>
+        <button onclick="nav('hub')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px; cursor:pointer;">← BACK TO HUB</button>
         <div class="welcome-header"><h1>Live<span>Event</span></h1><p id="refresh-status">Enter SKU to begin</p></div>
         <div style="display:flex; gap:10px; margin-bottom:20px;">
             <input type="text" id="sku-input" placeholder="RE-VRC-24-XXXX" style="margin:0; flex:1;">
@@ -83,13 +83,11 @@
             <button class="tab-b" id="tab-rankings" onclick="switchLiveTab('rankings')">Rankings</button>
             <button class="tab-b" id="tab-skills" onclick="switchLiveTab('skills')">Skills</button>
         </div>
-        <div id="live-content" class="live-grid">
-            <div style="text-align:center; padding:40px; color:var(--sub-text)">Waiting for SKU...</div>
-        </div>
+        <div id="live-content" class="live-grid"><div style="text-align:center; padding:40px; color:var(--sub-text)">Waiting for SKU...</div></div>
     </section>
 
     <section id="view-field" class="view">
-        <div class="welcome-header"><h1>Field<span>Viewer</span></h1><p id="field-subtitle">Strategic Layout</p></div>
+        <div class="welcome-header"><h1>Field Viewer</h1><p id="field-subtitle">Strategic Layout</p></div>
         <div class="sort-container">
             <button id="btn-field-match" class="sort-btn active" onclick="toggleMap('match')">MATCH</button>
             <button id="btn-field-skills" class="sort-btn" onclick="toggleMap('skills')">SKILLS</button>
@@ -105,6 +103,8 @@
                 <div class="color-dot" style="background:red" onclick="setPen('red')"></div>
                 <div class="color-dot" style="background:blue" onclick="setPen('blue')"></div>
                 <div class="color-dot" style="background:white" onclick="setPen('white')"></div>
+                <div class="color-dot" style="background:yellow" onclick="setPen('yellow')"></div>
+                <div class="color-dot" style="background:black; border: 1px solid #444;" onclick="setPen('black')"></div>
                 <button onclick="clearCanvas()" style="background:none; border:none; color:var(--red); font-weight:bold; cursor:pointer; font-size:0.75rem;">CLEAR</button>
             </div>
             <div class="draw-actions">
@@ -119,12 +119,10 @@
         </div>
     </section>
 
-    </div>
-
-<div class="dock-bar">
-    <button class="dock-btn" onclick="nav('settings')">⚙</button>
-    <button class="dock-btn alt" onclick="nav('hub')">⌂</button>
-    <button class="dock-btn" id="fabBtn" onclick="toggleFab()">^</button>
+    <section id="view-calc" class="view">...</section>
+    <section id="view-home" class="view">...</section>
+    <section id="view-settings" class="view">...</section>
+    <section id="view-form" class="view">...</section>
 </div>
 
 <div class="fab-menu" id="fabMenu">
@@ -133,12 +131,15 @@
     <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
 </div>
 
+<div class="dock-bar">
+    <button class="dock-btn" onclick="nav('settings')">⚙</button>
+    <button class="dock-btn alt" onclick="nav('hub')">⌂</button>
+    <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
+</div>
+
 <script src="app.js"></script>
 <script src="calc.js"></script>
 <script src="view.js"></script>
 <script src="live.js"></script>
-<script>
-    function toggleFab() { document.getElementById('fabMenu').classList.toggle('show'); }
-</script>
 </body>
 </html>
