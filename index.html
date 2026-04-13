@@ -51,15 +51,6 @@
 
         .sketch-item { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
         .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: #000; object-fit: contain; border: 1px solid var(--border); }
-
-        /* --- LIVE VIEW SPECIFIC STYLES --- */
-        .live-grid { display: grid; gap: 10px; margin-top: 20px; }
-        .match-card { background: var(--card-bg); padding: 15px; border-radius: 16px; border-left: 5px solid var(--primary); }
-        .live-tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; }
-        .tab-b { flex: 1; padding: 10px; border-radius: 10px; border: none; background: var(--input-bg); color: var(--text); font-size: 0.8rem; cursor: pointer; }
-        .tab-b.active { background: var(--primary); color: #000; font-weight: bold; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .live-dot { color: #ff4d4d; animation: pulse 1.5s infinite; margin-right: 5px; }
     </style>
 </head>
 <body class="theme-dark style-classic">
@@ -89,33 +80,11 @@
             <b>Field Viewer</b>
         </div>
 
-        <div class="hub-card" onclick="nav('live')" style="border: 1px solid rgba(255,77,77,0.3)">
-            <span class="icon"><span class="live-dot">●</span></span>
-            <b>Live Events</b>
-        </div>
-
         <div class="hub-card" onclick="openNew()">
             <span class="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </span>
             <b>New Match Report</b>
-        </div>
-    </section>
-
-    <section id="view-live" class="view">
-        <button onclick="nav('hub')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px;">← BACK</button>
-        <div class="welcome-header"><h1>Live<span>Event</span></h1><p id="refresh-status">Enter SKU</p></div>
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <input type="text" id="sku-input" placeholder="RE-VRC-24-XXXX" style="margin:0; flex:1;">
-            <button class="save-btn" style="width:70px; padding:0;" onclick="startLiveRefresh()">GO</button>
-        </div>
-        <div class="live-tabs">
-            <button class="tab-b active" id="tab-matches" onclick="switchLiveTab('matches')">Matches</button>
-            <button class="tab-b" id="tab-rankings" onclick="switchLiveTab('rankings')">Rankings</button>
-            <button class="tab-b" id="tab-skills" onclick="switchLiveTab('skills')">Skills</button>
-        </div>
-        <div id="live-content" class="live-grid">
-            <div style="text-align:center; padding:40px; color:var(--sub-text)">Waiting for SKU...</div>
         </div>
     </section>
 
@@ -253,6 +222,5 @@
 <script src="app.js"></script>
 <script src="calc.js"></script>
 <script src="view.js"></script>
-<script src="live.js"></script>
 </body>
 </html>
