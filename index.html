@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- RESTORED MAP FRAME & DRAWING --- */
+        /* --- RESTORED FIELD VIEWER STYLES --- */
         .map-frame { 
             width: 100%; border-radius: 16px; overflow: hidden; 
             border: 1px solid var(--border); background: #000; 
@@ -18,10 +18,7 @@
             transition: background 0.3s ease; cursor: pointer;
         }
         .theme-light .map-frame { background: #ffffff; }
-        #map-img, #sketch-canvas { 
-            width: 100%; display: block; 
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
-        }
+        #map-img, #sketch-canvas { width: 100%; display: block; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .map-frame.zoomed #map-img, .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
         #sketch-canvas { touch-action: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
@@ -31,24 +28,15 @@
             border: 1px solid var(--border); justify-content: center; align-items: center;
         }
         .color-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
-        .draw-actions { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
-        .draw-actions input { margin-bottom: 0 !important; flex: 2; }
-        .draw-actions .save-btn { flex: 1; padding: 14px; font-size: 0.8rem; margin: 0; }
-
         .sub-nav { display: flex; gap: 5px; margin-top: 15px; background: var(--input-bg); padding: 5px; border-radius: 12px; }
         .sub-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--sub-text); font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 0.85rem; }
         .sub-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
         /* --- LIVE VIEW STYLES --- */
         .live-grid { display: grid; gap: 10px; margin-top: 20px; }
-        .match-card { background: var(--card-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border); border-left: 5px solid var(--primary); }
-        .m-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--sub-text); margin-bottom: 8px; }
-        .alliances { display: flex; align-items: center; justify-content: space-between; font-weight: 900; font-size: 1.1rem; }
-        .red-t { color: var(--red); width: 40%; }
-        .blue-t { color: var(--blue); width: 40%; text-align: right; }
-        .vs-box { background: var(--input-bg); padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; }
+        .match-card { background: var(--card-bg); padding: 15px; border-radius: 16px; border-left: 5px solid var(--primary); }
         .live-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-        .tab-b { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.8rem; cursor: pointer; }
+        .tab-b { flex: 1; padding: 10px; border-radius: 10px; border: none; background: var(--input-bg); color: var(--text); font-size: 0.8rem; cursor: pointer; }
         .tab-b.active { background: var(--primary); color: #000; font-weight: bold; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .live-dot { color: #ff4d4d; animation: pulse 1.5s infinite; margin-right: 5px; }
@@ -59,46 +47,32 @@
 <div class="container">
     <section id="view-hub" class="view active">
         <div class="welcome-header"><h1>Paragon<span>Core X</span></h1><p>Strategic Command</p></div>
-        
-        <div class="hub-card" onclick="nav('home')">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span>
-            <b>Scout Notes</b>
-        </div>
-
-        <div class="hub-card" onclick="nav('calc')">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg></span>
-            <b>Score Calculator</b>
-        </div>
-
-        <div class="hub-card" onclick="nav('field')">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg></span>
-            <b>Field Viewer</b>
-        </div>
-
-        <div class="hub-card" onclick="nav('live')" style="border: 1px solid rgba(255,77,77,0.3)">
-            <span class="icon" style="display:flex; align-items:center; justify-content:center;"><span class="live-dot">●</span></span>
-            <b>Live Events</b>
-        </div>
-
-        <div class="hub-card" onclick="openNew()">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
-            <b>New Match Report</b>
+        <div class="hub-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="hub-card" onclick="nav('home')"><b>Scout Notes</b></div>
+            <div class="hub-card" onclick="nav('calc')"><b>Score Calc</b></div>
+            <div class="hub-card" onclick="nav('field')"><b>Field Viewer</b></div>
+            <div class="hub-card" onclick="nav('live')" style="border: 1px solid rgba(255,77,77,0.3)">
+                <span class="live-dot">●</span><b>Live Events</b>
+            </div>
+            <div class="hub-card" onclick="openNew()" style="grid-column: span 2; border-color: var(--primary);">
+                <b>New Match Report</b>
+            </div>
         </div>
     </section>
 
     <section id="view-live" class="view">
-        <button onclick="nav('hub')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px; cursor:pointer;">← BACK</button>
-        <div class="welcome-header"><h1>Live<span>Event</span></h1><p id="refresh-status">Enter SKU to begin</p></div>
+        <button onclick="nav('hub')" style="background:none; border:none; color:var(--primary); margin-bottom:15px;">← BACK</button>
+        <div class="welcome-header"><h1>Live<span>Event</span></h1><p id="refresh-status">Enter SKU</p></div>
         <div style="display:flex; gap:10px; margin-bottom:20px;">
             <input type="text" id="sku-input" placeholder="RE-VRC-24-XXXX" style="margin:0; flex:1;">
             <button class="save-btn" style="width:70px; padding:0;" onclick="startLiveRefresh()">GO</button>
         </div>
         <div class="live-tabs">
-            <button class="tab-b active" id="tab-matches" onclick="switchLiveTab('matches')">Matches</button>
-            <button class="tab-b" id="tab-rankings" onclick="switchLiveTab('rankings')">Rankings</button>
-            <button class="tab-b" id="tab-skills" onclick="switchLiveTab('skills')">Skills</button>
+            <button class="tab-b active" onclick="switchLiveTab('matches')">Matches</button>
+            <button class="tab-b" onclick="switchLiveTab('rankings')">Rankings</button>
+            <button class="tab-b" onclick="switchLiveTab('skills')">Skills</button>
         </div>
-        <div id="live-content" class="live-grid"><div style="text-align:center; padding:40px; color:var(--sub-text)">Waiting...</div></div>
+        <div id="live-content" class="live-grid"></div>
     </section>
 
     <section id="view-field" class="view">
@@ -119,15 +93,14 @@
                 <div class="color-dot" style="background:blue" onclick="setPen('blue')"></div>
                 <div class="color-dot" style="background:white" onclick="setPen('white')"></div>
                 <div class="color-dot" style="background:yellow" onclick="setPen('yellow')"></div>
-                <div class="color-dot" style="background:black; border: 1px solid #444;" onclick="setPen('black')"></div>
+                <div class="color-dot" style="background:black; border:1px solid #444;" onclick="setPen('black')"></div>
                 <button onclick="clearCanvas()" style="background:none; border:none; color:var(--red); font-weight:bold; cursor:pointer; font-size:0.75rem;">CLEAR</button>
             </div>
-            <div class="draw-actions">
-                <input type="text" id="sketch-name" placeholder="Name strategy...">
-                <button class="save-btn" onclick="saveSketch()">SAVE</button>
+            <div class="draw-actions" style="display:flex; gap:10px;">
+                <input type="text" id="sketch-name" placeholder="Name strategy..." style="flex:2;">
+                <button class="save-btn" onclick="saveSketch()" style="flex:1;">SAVE</button>
             </div>
         </div>
-        <div id="saved-view" style="display:none; margin-top:10px;"><div id="sketch-list"></div></div>
         <div class="sub-nav">
             <button id="sub-std" class="sub-btn active" onclick="setFieldMode('standard')">VIEW</button>
             <button id="sub-draw" class="sub-btn" onclick="setFieldMode('draw')">DRAW</button>
@@ -154,7 +127,10 @@
         <button class="save-btn" onclick="save()">SAVE REPORT</button>
     </section>
 
-    </div>
+    <section id="view-calc" class="view">...</section>
+    <section id="view-home" class="view">...</section>
+    <section id="view-settings" class="view">...</section>
+</div>
 
 <div class="fab-menu" id="fabMenu">
     <div class="menu-item" onclick="exportData()">Export (.paragon)</div>
