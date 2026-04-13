@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- ORIGINAL MAP FRAME & ZOOM STYLES --- */
+        /* --- KEEPING YOUR ORIGINAL MAP & DRAW STYLES --- */
         .map-frame { 
             width: 100%; border-radius: 16px; overflow: hidden; 
             border: 1px solid var(--border); background: #000; 
@@ -21,8 +21,6 @@
         #map-img, #sketch-canvas { width: 100%; display: block; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .map-frame.zoomed #map-img, .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
         #sketch-canvas { touch-action: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
-
-        /* --- ORIGINAL DRAWING UI --- */
         .draw-tools { display: flex; gap: 12px; margin: 15px 0; padding: 10px; background: var(--input-bg); border-radius: 16px; border: 1px solid var(--border); justify-content: center; align-items: center; }
         .color-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
         .draw-actions { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
@@ -32,7 +30,7 @@
         .sub-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--sub-text); font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 0.85rem; }
         .sub-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        /* --- ADDED LIVE VIEW STYLES --- */
+        /* --- ADDING NEW LIVE VIEW STYLES --- */
         .live-grid { display: grid; gap: 10px; margin-top: 20px; }
         .match-card { background: var(--card-bg); padding: 15px; border-radius: 16px; border-left: 5px solid var(--primary); margin-bottom: 10px; }
         .live-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
@@ -51,9 +49,11 @@
         <div class="hub-card" onclick="nav('home')"><b>Scout Notes</b></div>
         <div class="hub-card" onclick="nav('calc')"><b>Score Calculator</b></div>
         <div class="hub-card" onclick="nav('field')"><b>Field Viewer</b></div>
+        
         <div class="hub-card" onclick="nav('live')" style="border: 1px solid rgba(255,77,77,0.3)">
             <span class="live-dot">●</span> <b>Live Events</b>
         </div>
+
         <div class="hub-card" onclick="openNew()"><b>New Match Report</b></div>
     </section>
 
@@ -91,6 +91,7 @@
                 <div class="color-dot" style="background:white" onclick="setPen('white')"></div>
                 <div class="color-dot" style="background:yellow" onclick="setPen('yellow')"></div>
                 <div class="color-dot" style="background:black; border: 1px solid #444;" onclick="setPen('black')"></div>
+                <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;"></div>
                 <button onclick="clearCanvas()" style="background:none; border:none; color:var(--red); font-weight:bold; cursor:pointer; font-size:0.75rem;">CLEAR</button>
             </div>
             <div class="draw-actions">
@@ -128,6 +129,8 @@
         <textarea id="f-notes" rows="5" placeholder="Strategic notes..."></textarea>
         <button class="save-btn" onclick="save()">SAVE REPORT</button>
     </section>
+
+    <section id="view-detail" class="view"><button onclick="nav('home')">← BACK</button><h2 id="detName"></h2><div id="detHistory"></div></section>
 </div>
 
 <div class="dock-bar">
