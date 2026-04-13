@@ -4,223 +4,234 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Paragon Core X</title>
-    <link rel="icon" type="image/png" href="images/icon.png">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- MAP FRAME & ZOOM --- */
-        .map-frame { 
-            width: 100%; border-radius: 16px; overflow: hidden; 
-            border: 1px solid var(--border); background: #000; 
-            position: relative; margin: 15px 0; padding: 80px 0;
-            transition: background 0.3s ease; cursor: pointer;
-        }
-        .theme-light .map-frame { background: #ffffff; }
-
-        #map-img, #sketch-canvas { 
-            width: 100%; display: block; 
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
-        }
-
-        .map-frame.zoomed #map-img,
-        .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
-
-        #sketch-canvas { 
-            touch-action: none; background-size: contain; 
-            background-repeat: no-repeat; background-position: center; 
-        }
-
-        /* --- DRAWING UI FIXES --- */
-        .draw-tools { 
-            display: flex; gap: 12px; margin: 15px 0; 
-            padding: 10px; background: var(--input-bg); 
-            border-radius: 16px; border: 1px solid var(--border);
-            justify-content: center; align-items: center;
-        }
-        .color-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
-        
-        .draw-actions { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
-        .draw-actions input { margin-bottom: 0 !important; flex: 2; }
-        .draw-actions .save-btn { flex: 1; padding: 14px; font-size: 0.8rem; margin: 0; }
-
-        .sub-nav { display: flex; gap: 5px; margin-top: 15px; background: var(--input-bg); padding: 5px; border-radius: 12px; }
-        .sub-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--sub-text); font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 0.85rem; }
-        .sub-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-
-        .sketch-item { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
-        .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: #000; object-fit: contain; border: 1px solid var(--border); }
+        /* Live View Specific Styles */
+        .live-grid { display: grid; gap: 10px; margin-top: 20px; }
+        .match-card { background: var(--card-bg); padding: 15px; border-radius: var(--radius); border-left: 5px solid var(--primary); }
+        .m-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--sub-text); margin-bottom: 8px; }
+        .alliances { display: flex; align-items: center; justify-content: space-between; font-weight: 900; font-size: 1.1rem; }
+        .red-t { color: var(--red); width: 40%; }
+        .blue-t { color: var(--blue); width: 40%; text-align: right; }
+        .vs-box { background: var(--input-bg); padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; }
+        .rank-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        .rank-table th { text-align: left; color: var(--sub-text); padding: 8px; border-bottom: 1px solid var(--border); }
+        .rank-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+        .live-tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-b { flex: 1; padding: 10px; border-radius: 10px; border: none; background: var(--input-bg); color: var(--text); font-size: 0.8rem; cursor: pointer; }
+        .tab-b.active { background: var(--primary); color: #000; font-weight: bold; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .live-dot { color: #ff4d4d; animation: pulse 1.5s infinite; margin-right: 5px; }
+        .back-link { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0; margin-bottom: 15px; font-weight: bold; }
     </style>
 </head>
-<body class="theme-dark style-classic">
+<body class="style-modern">
 
 <div class="container">
+    
     <section id="view-hub" class="view active">
-        <div class="welcome-header"><h1>Paragon Core X</h1><p>Strategic Command</p></div>
-        
-        <div class="hub-card" onclick="nav('home')">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            </span>
-            <b>Scout Notes</b>
+        <div class="welcome-header">
+            <h1>Paragon<span>Core X</span></h1>
+            <p>Competitive Robotics Suite</p>
         </div>
-
-        <div class="hub-card" onclick="nav('calc')">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
-            </span>
-            <b>Score Calculator</b>
-        </div>
-
-        <div class="hub-card" onclick="nav('field')">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-            </span>
-            <b>Field Viewer</b>
-        </div>
-
-        <div class="hub-card" onclick="openNew()">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </span>
-            <b>New Match Report</b>
+        <div class="hub-grid">
+            <div class="hub-card" onclick="nav('home')">
+                <span class="icon">📝</span>
+                <b>Scout Notes</b>
+            </div>
+            <div class="hub-card" onclick="nav('field')">
+                <span class="icon">🗺️</span>
+                <b>Field Viewer</b>
+            </div>
+            <div class="hub-card" onclick="nav('calc')">
+                <span class="icon">🔢</span>
+                <b>Score Calc</b>
+            </div>
+            <div class="hub-card" onclick="nav('live')" style="border: 1px solid rgba(255,77,77,0.3)">
+                <span class="icon"><span class="live-dot">●</span></span>
+                <b>Live Events</b>
+            </div>
         </div>
     </section>
 
-    <section id="view-field" class="view">
-        <div class="welcome-header"><h1>Field Viewer</h1><p id="field-subtitle">Strategic Layout</p></div>
-        <div class="sort-container">
-            <button id="btn-field-match" class="sort-btn active" onclick="toggleMap('match')">MATCH</button>
-            <button id="btn-field-skills" class="sort-btn" onclick="toggleMap('skills')">SKILLS</button>
+    <section id="view-live" class="view">
+        <button onclick="nav('hub')" class="back-link">← BACK TO HUB</button>
+        <div class="welcome-header">
+            <h1>Live Event</h1>
+            <p id="refresh-status">Enter SKU to begin</p>
         </div>
-        <div id="standard-view">
-            <div class="map-frame" id="std-frame" onclick="toggleZoom('std-frame')">
-                <img id="map-img" src="images/field.png" alt="Field Map">
-            </div>
-        </div>
-        <div id="draw-view" style="display:none;">
-            <div class="map-frame zoomed" id="draw-frame">
-                <canvas id="sketch-canvas"></canvas>
-            </div>
-            <div class="draw-tools">
-                <div class="color-dot" style="background:red" onclick="setPen('red')"></div>
-                <div class="color-dot" style="background:blue" onclick="setPen('blue')"></div>
-                <div class="color-dot" style="background:white" onclick="setPen('white')"></div>
-                <div class="color-dot" style="background:yellow" onclick="setPen('yellow')"></div>
-                <div class="color-dot" style="background:black; border: 1px solid #444;" onclick="setPen('black')"></div>
-                <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;"></div>
-                <button onclick="clearCanvas()" style="background:none; border:none; color:var(--red); font-weight:bold; cursor:pointer; font-size:0.75rem;">CLEAR</button>
-            </div>
-            <div class="draw-actions">
-                <input type="text" id="sketch-name" placeholder="Name strategy...">
-                <button class="save-btn" onclick="saveSketch()">SAVE</button>
-            </div>
-        </div>
-        <div id="saved-view" style="display:none; margin-top:10px;">
-            <div id="sketch-list"></div>
-        </div>
-        <div class="sub-nav">
-            <button id="sub-std" class="sub-btn active" onclick="setFieldMode('standard')">VIEW</button>
-            <button id="sub-draw" class="sub-btn" onclick="setFieldMode('draw')">DRAW</button>
-            <button id="sub-saved" class="sub-btn" onclick="setFieldMode('saved')">SAVED</button>
-        </div>
-    </section>
 
-    <section id="view-calc" class="view">
-        <div class="welcome-header"><h1>Calculator</h1><p>Match Scoring</p></div>
-        <div class="auton-group">
-            <button class="auton-btn" id="at-red" onclick="setAt('red')">RED</button>
-            <button class="auton-btn" id="at-tie" onclick="setAt('tie')">TIE</button>
-            <button class="auton-btn" id="at-blue" onclick="setAt('blue')">BLUE</button>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="text" id="sku-input" placeholder="RE-VRC-24-XXXX" style="margin:0">
+            <button class="save-btn" style="width:80px; padding:0;" onclick="startLiveRefresh()">GO</button>
         </div>
-        <div class="side-container">
-            <div class="alliance-box red">
-                <div class="counter"><label>E1</label><div class="ctrls"><button class="btn-math" onclick="add('red',0,1)">+</button><span class="val-display" id="r0">0</span><button class="btn-math" onclick="add('red',0,-1)">-</button></div></div>
-                <div class="counter"><label>E2</label><div class="ctrls"><button class="btn-math" onclick="add('red',1,1)">+</button><span class="val-display" id="r1">0</span><button class="btn-math" onclick="add('red',1,-1)">-</button></div></div>
-                <div class="counter"><label>E3</label><div class="ctrls"><button class="btn-math" onclick="add('red',2,1)">+</button><span class="val-display" id="r2">0</span><button class="btn-math" onclick="add('red',2,-1)">-</button></div></div>
-            </div>
-            <div class="alliance-box blue">
-                <div class="counter"><label>E1</label><div class="ctrls"><button class="btn-math" onclick="add('blue',0,1)">+</button><span class="val-display" id="b0">0</span><button class="btn-math" onclick="add('blue',0,-1)">-</button></div></div>
-                <div class="counter"><label>E2</label><div class="ctrls"><button class="btn-math" onclick="add('blue',1,1)">+</button><span class="val-display" id="b1">0</span><button class="btn-math" onclick="add('blue',1,-1)">-</button></div></div>
-                <div class="counter"><label>E3</label><div class="ctrls"><button class="btn-math" onclick="add('blue',2,1)">+</button><span class="val-display" id="b2">0</span><button class="btn-math" onclick="add('blue',2,-1)">-</button></div></div>
-            </div>
-            <div class="score-footer">
-                <div>RED: <span id="tot-red">0</span></div>
-                <div>BLUE: <span id="tot-blue">0</span></div>
+
+        <div class="live-tabs">
+            <button class="tab-b active" id="tab-matches" onclick="switchLiveTab('matches')">Matches</button>
+            <button class="tab-b" id="tab-rankings" onclick="switchLiveTab('rankings')">Rankings</button>
+            <button class="tab-b" id="tab-skills" onclick="switchLiveTab('skills')">Skills</button>
+        </div>
+
+        <div id="live-content" class="live-grid">
+            <div style="text-align:center; padding:40px; color:var(--sub-text)">
+                Waiting for Event SKU...
             </div>
         </div>
-        <button class="save-btn" style="background: var(--input-bg); color: var(--text); margin-top: 15px; border: 1px solid var(--border);" onclick="resetC()">RESET SCORES</button>
     </section>
 
     <section id="view-home" class="view">
-        <div class="welcome-header"><h1>Notes</h1><p>Database</p></div>
-        <div class="sort-container">
-            <button id="sort-team" class="sort-btn active" onclick="setSort('team')">TEAM #</button>
-            <button id="sort-event" class="sort-btn" onclick="setSort('event')">EVENT</button>
+        <button onclick="nav('hub')" class="back-link">← BACK</button>
+        <div class="welcome-header">
+            <h1>Scout<span>Notes</span></h1>
+            <p>Team Intel & Reports</p>
         </div>
-        <input type="text" id="noteSearch" class="search-bar" placeholder="Quick search..." oninput="drawNotes()">
+        <div class="sort-container">
+            <button id="sort-team" class="sort-btn active" onclick="setSort('team')">BY TEAM</button>
+            <button id="sort-event" class="sort-btn" onclick="setSort('event')">BY EVENT</button>
+        </div>
+        <input type="text" id="noteSearch" placeholder="Search teams or events..." onkeyup="drawNotes()">
         <div id="noteList"></div>
     </section>
 
-    <section id="view-settings" class="view">
-        <div class="welcome-header"><h1>Settings</h1><p>Configuration</p></div>
-        <div class="setting-group">
-            <label>Color Mode</label>
-            <select id="set-theme" onchange="updateSettings()">
-                <option value="theme-dark">Dark Mode</option>
-                <option value="theme-light">Light Mode</option>
-            </select>
-        </div>
-        <div class="setting-group" style="margin-top:20px;">
-            <label>UI Interface Style</label>
-            <select id="set-style" onchange="updateSettings()">
-                <option value="style-classic">Classic (Standard)</option>
-                <option value="style-modern">Modern (Glassmorphism)</option>
-            </select>
-        </div>
+    <section id="view-detail" class="view">
+        <button onclick="nav('home')" class="back-link">← BACK TO LIST</button>
+        <h2 id="detName" style="margin-bottom:5px;">Team Name</h2>
+        <p style="color:var(--sub-text); font-size:0.8rem; margin-bottom:20px;">Performance History</p>
+        <div id="detHistory"></div>
     </section>
 
     <section id="view-form" class="view">
-        <h2>New Report</h2>
+        <button onclick="nav('home')" class="back-link">← CANCEL</button>
+        <h2>Scout Report</h2>
         <input type="hidden" id="editIdx">
+        <input type="text" id="f-team" placeholder="Team # (Required)">
         <input type="text" id="f-event" placeholder="Event Name">
-        <input type="text" id="f-team" placeholder="Team Number">
-        <div style="display:flex; gap:10px;">
-            <select id="f-res"><option>Win</option><option>Loss</option><option>Tie</option></select>
-            <select id="f-autores"><option>Auto Win</option><option>Auto Loss</option></select>
-        </div>
+        <select id="f-res"><option value="W">Win</option><option value="L">Loss</option><option value="T">Tie</option></select>
+        <select id="f-autores"><option value="Auton Win">Auton Win</option><option value="Auton Loss">Auton Loss</option><option value="Auton Tie">Auton Tie</option></select>
         <input type="text" id="f-partner" placeholder="Partner Team">
-        <input type="text" id="f-opp" placeholder="Opponent Teams">
+        <input type="text" id="f-opp" placeholder="Opponents">
         <div style="display:flex; gap:10px;">
             <input type="number" id="f-score" placeholder="Our Score">
             <input type="number" id="f-oppscore" placeholder="Opp Score">
         </div>
-        <textarea id="f-notes" rows="5" placeholder="Strategic notes..."></textarea>
+        <textarea id="f-notes" placeholder="Detailed notes, weaknesses, strengths..." rows="4"></textarea>
         <button class="save-btn" onclick="save()">SAVE REPORT</button>
     </section>
 
-    <section id="view-detail" class="view">
-        <button onclick="nav('home')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px;">← BACK</button>
-        <h2 id="detName">Detail</h2>
-        <div id="detHistory"></div>
+    <section id="view-field" class="view">
+        <button onclick="nav('hub')" class="back-link">← BACK</button>
+        <div class="welcome-header">
+            <h1>Field<span>Viewer</span></h1>
+            <p id="field-subtitle">Strategic Layout</p>
+        </div>
+
+        <div class="sort-container">
+            <button id="sub-std" class="sort-btn active" onclick="setFieldMode('standard')">INFO</button>
+            <button id="sub-draw" class="sort-btn" onclick="setFieldMode('draw')">DRAW</button>
+            <button id="sub-saved" class="sort-btn" onclick="setFieldMode('saved')">SAVED</button>
+        </div>
+
+        <div id="standard-view">
+            <div class="auton-group">
+                <button id="btn-field-match" class="auton-btn active" onclick="toggleMap('match')">MATCH</button>
+                <button id="btn-field-skills" class="auton-btn" onclick="toggleMap('skills')">SKILLS</button>
+            </div>
+            <div class="map-frame" id="map-frame" onclick="toggleZoom('map-frame')">
+                <img id="map-img" src="images/field.png" style="width:100%; border-radius:10px;">
+            </div>
+        </div>
+
+        <div id="draw-view" style="display:none;">
+            <input type="text" id="sketch-name" placeholder="Strategy Name (e.g. Left Side Rush)">
+            <div class="canvas-container" style="position:relative; width:100%; aspect-ratio: 8/5; background: #222; border-radius:15px; overflow:hidden;">
+                <canvas id="sketch-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:2; background-size: cover;"></canvas>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin:15px 0;">
+                <div style="display:flex; gap:10px;">
+                    <button onclick="setPen('white')" style="width:30px; height:30px; border-radius:50%; background:white; border:2px solid var(--primary);"></button>
+                    <button onclick="setPen('#ff4d4d')" style="width:30px; height:30px; border-radius:50%; background:#ff4d4d; border:none;"></button>
+                    <button onclick="setPen('#4d94ff')" style="width:30px; height:30px; border-radius:50%; background:#4d94ff; border:none;"></button>
+                </div>
+                <button onclick="clearCanvas()" style="background:none; border:none; color:var(--red); font-weight:bold;">CLEAR</button>
+            </div>
+            <button class="save-btn" onclick="saveSketch()">SAVE STRATEGY</button>
+        </div>
+
+        <div id="saved-view" style="display:none;">
+            <div id="sketch-list"></div>
+        </div>
     </section>
+
+    <section id="view-calc" class="view">
+        <button onclick="nav('hub')" class="back-link">← BACK</button>
+        <div class="welcome-header">
+            <h1>Score<span>Calc</span></h1>
+            <p>Live Scoring Assistant</p>
+        </div>
+        <div class="auton-group">
+            <button id="at-red" class="auton-btn" onclick="setAt('red')">RED</button>
+            <button id="at-tie" class="auton-btn" onclick="setAt('tie')">TIE</button>
+            <button id="at-blue" class="auton-btn" onclick="setAt('blue')">BLUE</button>
+        </div>
+        <div class="side-container">
+            <div class="alliance-box red">
+                <div class="counter"><label>Mobile</label><div class="ctrls"><button class="btn-math" onclick="add('red',0,-1)">-</button><span class="val-display" id="r0">0</span><button class="btn-math" onclick="add('red',0,1)">+</button></div></div>
+                <div class="counter"><label>Zones</label><div class="ctrls"><button class="btn-math" onclick="add('red',1,-1)">-</button><span class="val-display" id="r1">0</span><button class="btn-math" onclick="add('red',1,1)">+</button></div></div>
+                <div class="counter"><label>Park</label><div class="ctrls"><button class="btn-math" onclick="add('red',2,-1)">-</button><span class="val-display" id="r2">0</span><button class="btn-math" onclick="add('red',2,1)">+</button></div></div>
+            </div>
+            <div class="alliance-box blue">
+                <div class="counter"><label>Mobile</label><div class="ctrls"><button class="btn-math" onclick="add('blue',0,-1)">-</button><span class="val-display" id="b0">0</span><button class="btn-math" onclick="add('blue',0,1)">+</button></div></div>
+                <div class="counter"><label>Zones</label><div class="ctrls"><button class="btn-math" onclick="add('blue',1,-1)">-</button><span class="val-display" id="b1">0</span><button class="btn-math" onclick="add('blue',1,1)">+</button></div></div>
+                <div class="counter"><label>Park</label><div class="ctrls"><button class="btn-math" onclick="add('blue',2,-1)">-</button><span class="val-display" id="b2">0</span><button class="btn-math" onclick="add('blue',2,1)">+</button></div></div>
+            </div>
+            <div class="score-footer">
+                <div>RED: <span id="tot-red">0</span></div>
+                <button onclick="resetC()" style="background:rgba(0,0,0,0.2); border:none; color:black; padding:5px 10px; border-radius:5px; font-weight:bold;">RESET</button>
+                <div>BLUE: <span id="tot-blue">0</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-settings" class="view">
+        <button onclick="nav('hub')" class="back-link">← BACK</button>
+        <div class="welcome-header">
+            <h1>System<span>Settings</span></h1>
+            <p>Customization & Data</p>
+        </div>
+        <label>Visual Theme</label>
+        <select id="set-theme" onchange="updateSettings()"><option value="theme-dark">Midnight Dark</option><option value="theme-light">Clean Light</option></select>
+        <label>Interface Style</label>
+        <select id="set-style" onchange="updateSettings()"><option value="style-modern">Modern Glass</option><option value="style-classic">Classic Solid</option></select>
+        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+        <button class="save-btn" style="background:var(--border); color:var(--text); margin-bottom:10px;" onclick="exportData()">EXPORT BACKUP (.paragon)</button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+        <button class="save-btn" style="background:var(--border); color:var(--text);" onclick="document.getElementById('importFile').click()">IMPORT BACKUP</button>
+    </section>
+
 </div>
 
 <div class="fab-menu" id="fabMenu">
-    <div class="menu-item" onclick="exportData()">Export (.paragon)</div>
-    <div class="menu-item" onclick="document.getElementById('importFile').click()">Import (.paragon)</div>
-    <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
+    <div class="menu-item" onclick="openNew()">New Scout Report</div>
+    <div class="menu-item" onclick="setFieldMode('draw'); nav('field');">New Strategy Sketch</div>
 </div>
 
 <div class="dock-bar">
     <button class="dock-btn" onclick="nav('settings')">⚙</button>
-    <button class="dock-btn alt" onclick="nav('hub')">⌂</button>
-    <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
+    <button class="dock-btn" onclick="nav('hub')">⌂</button>
+    <button class="dock-btn alt" id="fabToggle" onclick="toggleFab()">+</button>
 </div>
 
 <script src="app.js"></script>
 <script src="calc.js"></script>
 <script src="view.js"></script>
+<script src="live.js"></script> 
+
+<script>
+    // Small addition to handle the FAB toggle since it wasn't in your previous JS
+    function toggleFab() {
+        document.getElementById('fabMenu').classList.toggle('show');
+    }
+</script>
+
 </body>
 </html>
