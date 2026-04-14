@@ -1,22 +1,18 @@
-// --- DATABASE & STATE ---
 let db = JSON.parse(localStorage.getItem('paragon_db')) || [];
 let sketches = JSON.parse(localStorage.getItem('paragon_sketches')) || [];
 let currentSort = 'team';
 let currentField = 'match';
 let editingSketchId = null;
 
-// --- ROBOT EVENTS CONFIGURATION ---
-// IMPORTANT: Paste your Bearer Token from robotevents.com/api/v2 inside the quotes
-const RE_KEY = "YOUR_API_KEY_HERE"; 
-
 // Drawing State
 let canvas, ctx, drawing = false, penColor = 'white';
 
+// INITIALIZATION
 window.onload = function() {
     loadSettings();
     drawNotes();
     initCanvas();
-    nav('hub');
+    nav('hub'); // Start the app at the Strategic Command Hub
 };
 
 function initCanvas() {
@@ -61,8 +57,25 @@ function initCanvas() {
     canvas.addEventListener('touchend', end);
 }
 
+// NAVIGATION LOGIC
+function nav(v) {
+    document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+    const target = document.getElementById('view-' + v);
+    if(target) target.classList.add('active');
+    
+    // Trigger specific logic for views
+    if (v === 'events' && typeof loadEvents === 'function') {
+        loadEvents(); // Initial load of current/upcoming events
+    }
+    if (v === 'home') drawNotes();
+    
+    window.scrollTo(0, 0);
+    closeMenu();
+}
+
+// STRATEGY / DRAWING FUNCTIONS
 function setPen(c) { penColor = c; }
-function clearCanvas() { if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height); }
+function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 function saveSketch() {
     const name = document.getElementById('sketch-name').value || "Unnamed Strategy";
@@ -76,7 +89,6 @@ function saveSketch() {
             sketches[idx].field = currentField;
         }
         editingSketchId = null;
-        alert("Strategy Updated!");
     } else {
         const newItem = {
             id: Date.now().toString(),
@@ -86,13 +98,13 @@ function saveSketch() {
             img: imgData
         };
         sketches.push(newItem);
-        alert("Strategy Saved!");
     }
 
     localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
     clearCanvas();
     document.getElementById('sketch-name').value = '';
     setFieldMode('saved'); 
+    drawSketches();
 }
 
 function loadSketch(id) {
@@ -127,7 +139,6 @@ function drawSketches() {
                     <small style="color:var(--sub-text)">${s.date} • ${s.field.toUpperCase()}</small>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:5px;">
-                    <button onclick="loadSketch('${s.id}')" style="background:var(--primary); color:#000; border:none; padding:5px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold;">Edit</button>
                     <button onclick="deleteSketch('${s.id}')" style="background:#400; color:white; border:none; padding:5px 8px; border-radius:5px; font-size:0.7rem;">Del</button>
                 </div>
             </div>`;
@@ -142,165 +153,25 @@ function deleteSketch(id) {
     }
 }
 
-function nav(v) {
-    document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-    const target = document.getElementById('view-' + v);
-    if(target) target.classList.add('active');
-    if (v === 'home') drawNotes();
-    if (v === 'events') loadOngoingEvents();
-    window.scrollTo(0, 0);
-    closeMenu();
-}
-
-// --- ROBOT EVENTS LOGIC (REPAIRED) ---
-async function fetchRE(path, params = {}) {
-    const url = new URL(`https://www.robotevents.com/api/v2/${path}`);
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-    
-    try {
-        const res = await fetch(url, {
-            headers: { 
-                'Authorization': `Bearer ${RE_KEY}`,
-                'Accept': 'application/json'
-            }
-        });
-        return await res.json();
-    } catch (err) {
-        console.error("API Error:", err);
-        return { data: [] };
-    }
-}
-
-async function loadOngoingEvents() {
-    const list = document.getElementById('event-list');
-    list.innerHTML = '<p style="text-align:center; padding:20px;">Loading live events...</p>';
-    // Program 1 = V5RC
-    const data = await fetchRE('events', { 'program[]': 1, 'start': new Date().toISOString(), 'limit': 15 });
-    renderEvents(data.data);
-}
-
-async function searchEvents() {
-    const q = document.getElementById('event-search').value;
-    if(q.length < 3) return;
-    const list = document.getElementById('event-list');
-    list.innerHTML = '<p style="text-align:center;">Searching...</p>';
-    const data = await fetchRE('events', { 'name[]': q, 'limit': 15 });
-    renderEvents(data.data);
-}
-
-function renderEvents(events) {
-    const list = document.getElementById('event-list');
-    if(!events || events.length === 0) { list.innerHTML = '<p style="text-align:center;">No events found.</p>'; return; }
-    list.innerHTML = events.map(e => `
-        <div class="event-card" onclick="loadEventMatches('${e.sku}', '${e.name.replace(/'/g, "")}')">
-            <div style="color:var(--primary); font-weight:bold;">${e.name}</div>
-            <div style="font-size:0.85rem; color:var(--sub-text); margin-top:4px;">${e.location.city}, ${e.location.region}</div>
-            <div style="font-size:0.8rem; margin-top:8px; opacity:0.8;">${new Date(e.start).toLocaleDateString()} • ${e.sku}</div>
-        </div>
-    `).join('');
-}
-
-// Fixed: Now displays match results for a specific event
-async function loadEventMatches(sku, name) {
-    const list = document.getElementById('event-list');
-    list.innerHTML = `<p style="text-align:center; padding:20px;">Loading matches for ${name}...</p>`;
-    
-    const data = await fetchRE(`events/${sku}/matches`);
-    
-    if(!data.data || data.data.length === 0) {
-        list.innerHTML = `<div style="text-align:center; padding:20px;">
-            <p>No match data released yet.</p>
-            <button onclick="loadOngoingEvents()" style="margin-top:10px; color:var(--primary); background:none; border:none; font-weight:bold;">← BACK</button>
-        </div>`;
-        return;
-    }
-
-    let html = `<div style="padding:10px; font-weight:bold; color:var(--primary); display:flex; justify-content:space-between; align-items:center;">
-                    <span>Matches: ${sku}</span>
-                    <button onclick="loadOngoingEvents()" style="background:var(--border); color:var(--text); border:none; padding:5px 10px; border-radius:8px; font-size:0.7rem;">CLOSE</button>
-                </div>`;
-    
-    html += data.data.map(m => {
-        const red = m.alliances.find(a => a.color === 'red');
-        const blue = m.alliances.find(a => a.color === 'blue');
-        return `
-            <div class="event-card" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-size:0.8rem; font-weight:bold; width:60px;">${m.name}</div>
-                <div style="flex:1; display:flex; justify-content:center; gap:10px; font-size:0.85rem;">
-                    <span style="color:var(--red); font-weight:${red.score > blue.score ? '900' : '400'}">${red.score}</span>
-                    <span style="opacity:0.3">VS</span>
-                    <span style="color:var(--blue); font-weight:${blue.score > red.score ? '900' : '400'}">${blue.score}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    list.innerHTML = html;
-}
-
-async function loadGlobalSkills() {
-    const list = document.getElementById('event-list');
-    list.innerHTML = '<p style="text-align:center; padding:20px;">Loading World Standings...</p>';
-    // Program 1 is V5RC, Season 190 is High Stakes (current)
-    const data = await fetchRE('programs/1/rankings', { 'season[]': 190 });
-    
-    if(!data.data) {
-        list.innerHTML = '<p style="text-align:center;">Failed to load skills.</p>';
-        return;
-    }
-
-    list.innerHTML = data.data.slice(0, 50).map((r, i) => `
-        <div class="event-card" style="display:flex; justify-content:space-between; align-items:center;">
-            <div><span style="color:var(--primary); margin-right:10px;">#${i+1}</span><b>${r.team.name}</b></div>
-            <div style="font-weight:900;">${r.score}</div>
-        </div>
-    `).join('');
-}
-
-function switchEventTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('tab-' + tab);
-    if(btn) btn.classList.add('active');
-    if(tab === 'ongoing') loadOngoingEvents();
-    if(tab === 'skills') loadGlobalSkills();
-}
-
-function updateSettings() {
-    const theme = document.getElementById('set-theme').value;
-    const style = document.getElementById('set-style').value;
-    document.body.className = `${theme} ${style}`;
-    localStorage.setItem('paragon_settings_v2', JSON.stringify({ theme, style }));
-}
-
-function loadSettings() {
-    const saved = JSON.parse(localStorage.getItem('paragon_settings_v2'));
-    if (saved) {
-        document.getElementById('set-theme').value = saved.theme;
-        document.getElementById('set-style').value = saved.style;
-        document.body.className = `${saved.theme} ${saved.style}`;
-    } else {
-        document.body.className = "theme-dark style-classic";
-    }
-}
-
-function toggleMenu() { document.getElementById('fabMenu').classList.toggle('show'); }
-function closeMenu() { document.getElementById('fabMenu').classList.remove('show'); }
-
+// SCOUTING NOTES LOGIC
 function setSort(s) {
     currentSort = s;
     document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('sort-' + s).classList.add('active');
+    const btn = document.getElementById('sort-' + s);
+    if(btn) btn.classList.add('active');
     drawNotes();
 }
 
 function drawNotes() {
     const list = document.getElementById('noteList');
     if (!list) return;
-    const searchVal = document.getElementById('noteSearch') ? document.getElementById('noteSearch').value.toUpperCase() : "";
+    const query = (document.getElementById('noteSearch')?.value || "").toUpperCase();
     list.innerHTML = '';
+    
     let keys = [...new Set(db.map(item => currentSort === 'team' ? item.team : item.event))].sort();
+    
     keys.forEach(k => {
-        if (k.toUpperCase().includes(searchVal)) {
+        if (k.toUpperCase().includes(query)) {
             let count = db.filter(d => (currentSort === 'team' ? d.team : d.event) === k).length;
             list.innerHTML += `
                 <div class="note-card" onclick="showDet('${k}')">
@@ -357,7 +228,6 @@ function openNew() {
 
 function edit(id) {
     const d = db.find(x => x.id === id);
-    if(!d) return;
     document.getElementById('editIdx').value = d.id;
     document.getElementById('f-team').value = d.team;
     document.getElementById('f-event').value = d.event;
@@ -379,6 +249,7 @@ function del(id, val) {
     }
 }
 
+// DATA EXPORT/IMPORT
 function exportData() {
     const payload = { db: db, sketches: sketches };
     const dataStr = JSON.stringify(payload);
@@ -397,12 +268,40 @@ function importData(event) {
     reader.onload = function(e) {
         try {
             const raw = JSON.parse(e.target.result);
-            if (raw.db && raw.sketches) { db = raw.db; sketches = raw.sketches; } else { db = raw; sketches = []; }
+            if (raw.db && raw.sketches) {
+                db = raw.db;
+                sketches = raw.sketches;
+            } else {
+                db = raw;
+                sketches = [];
+            }
             localStorage.setItem('paragon_db', JSON.stringify(db));
             localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
             drawNotes();
-            alert("Import Successful: Reports and Sketches loaded.");
-        } catch (err) { alert("Error: Invalid .paragon file."); }
+            alert("Import Successful.");
+        } catch (err) {
+            alert("Error: Invalid .paragon file.");
+        }
     };
     reader.readAsText(file);
 }
+
+// THEME & SETTINGS
+function updateSettings() {
+    const theme = document.getElementById('set-theme').value;
+    const style = document.getElementById('set-style').value;
+    document.body.className = `${theme} ${style}`;
+    localStorage.setItem('paragon_settings_v2', JSON.stringify({ theme, style }));
+}
+
+function loadSettings() {
+    const saved = JSON.parse(localStorage.getItem('paragon_settings_v2'));
+    if (saved) {
+        document.getElementById('set-theme').value = saved.theme;
+        document.getElementById('set-style').value = saved.style;
+        document.body.className = `${saved.theme} ${saved.style}`;
+    }
+}
+
+function toggleMenu() { document.getElementById('fabMenu').classList.toggle('show'); }
+function closeMenu() { document.getElementById('fabMenu').classList.remove('show'); }
