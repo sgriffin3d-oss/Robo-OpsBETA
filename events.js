@@ -2,31 +2,35 @@ async function loadEvents(query = '') {
     const list = document.getElementById('event-list');
     if (!list) return;
 
-    list.innerHTML = '<p style="text-align:center; color:var(--sub-text); margin-top:20px;">Searching RobotEvents...</p>';
+    list.innerHTML = '<p style="text-align:center; color:var(--sub-text); margin-top:20px;">Accessing RobotEvents...</p>';
 
-    // Look back 2 weeks to show current/recent events
+    // Go back 30 days instead of 14 to ensure we catch recently finished events
     const now = new Date();
-    const twoWeeksAgo = new Date(now.getTime() - (14 * 24 * 60 * 60 * 1000)).toISOString();
+    const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+    const dateString = thirtyDaysAgo.toISOString().split('T')[0] + 'T00:00:00Z';
 
     try {
-        const response = await fetch(`/api/robotevents?search=${query}&start=${twoWeeksAgo}`);
+        const response = await fetch(`/api/robotevents?search=${encodeURIComponent(query)}&start=${dateString}`);
         const result = await response.json();
 
         if (result.data && result.data.length > 0) {
             const events = result.data.map(e => ({
                 name: e.name,
-                location: `${e.location.city}, ${e.location.region}`,
+                location: `${e.location.city || ''}, ${e.location.region || ''}`,
                 date: new Date(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
                 status: getStatus(e.start, e.end),
                 sku: e.sku
             }));
             renderEvents(events);
         } else {
-            list.innerHTML = '<p style="text-align:center; color:var(--sub-text);">No events found in this range.</p>';
+            list.innerHTML = `
+                <div style="text-align:center; padding:20px;">
+                    <p style="color:var(--sub-text);">No events found.</p>
+                    <small style="color:#555">Try searching for a state like "Tennessee" or "Texas"</small>
+                </div>`;
         }
     } catch (err) {
-        console.error(err);
-        list.innerHTML = '<p style="color:var(--red); text-align:center;">API Error. Check Vercel Logs.</p>';
+        list.innerHTML = '<p style="color:var(--red); text-align:center;">Connection lost. Check your internet or Vercel logs.</p>';
     }
 }
 
@@ -56,6 +60,5 @@ function renderEvents(events) {
 }
 
 function viewEventDetails(sku) {
-    // Next feature: Fetching /matches and /skills for this SKU
-    alert("SKU Selected: " + sku);
+    alert("Viewing Matches for: " + sku);
 }
