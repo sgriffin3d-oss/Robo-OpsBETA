@@ -154,4 +154,4 @@ input, select, textarea { width: 100%; background: var(--input-bg); border: 1px 
 .fab-menu { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; width: 220px; padding: 8px; z-index: 1001; display: none; flex-direction: column; }
 .fab-menu.show { display: flex !important; }
 .menu-item { padding: 14px; text-align: center; font-weight: 700; cursor: pointer; border-radius: 10px; color: var(--text); }
-.note-card { background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }s
+.note-card { background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
