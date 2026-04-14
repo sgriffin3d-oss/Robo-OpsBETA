@@ -8,7 +8,12 @@ function toggleMap(type) {
     const path = type === 'match' ? 'images/field.png' : 'images/skills.png';
 
     if(img) img.src = path;
-    if(canvas) canvas.style.backgroundImage = `url('${path}')`;
+    if(canvas) {
+        canvas.style.backgroundImage = `url('${path}')`;
+        canvas.style.backgroundSize = 'contain';
+        canvas.style.backgroundRepeat = 'no-repeat';
+        canvas.style.backgroundPosition = 'center';
+    }
 
     if (type === 'match') {
         if(matchBtn) matchBtn.classList.add('active');
@@ -24,10 +29,10 @@ function setFieldMode(mode) {
     const draw = document.getElementById('draw-view');
     const saved = document.getElementById('saved-view');
     const subtitle = document.getElementById('field-subtitle');
-    const saveBtn = document.querySelector('#draw-view .save-btn');
     
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
+    // Hide all
     if(std) std.style.display = 'none';
     if(draw) draw.style.display = 'none';
     if(saved) saved.style.display = 'none';
@@ -37,29 +42,16 @@ function setFieldMode(mode) {
         document.getElementById('sub-std').classList.add('active');
         if(subtitle) subtitle.innerText = "Strategic Layout";
     } else if (mode === 'draw') {
-        // Handle UI labeling for Edit vs New
-        if (!editingSketchId) {
-            clearCanvas();
-            document.getElementById('sketch-name').value = '';
-            if(saveBtn) saveBtn.innerText = "SAVE STRATEGY";
-        } else {
-            if(saveBtn) saveBtn.innerText = "UPDATE STRATEGY";
-        }
-        
         if(draw) draw.style.display = 'block';
         document.getElementById('sub-draw').classList.add('active');
-        if(subtitle) subtitle.innerText = editingSketchId ? "Edit Strategy" : "Draw Strategy";
+        if(subtitle) subtitle.innerText = "Draw Strategy";
+        
+        // CRITICAL: Refresh the background when entering draw mode
         toggleMap(currentField); 
     } else if (mode === 'saved') {
-        editingSketchId = null; // Clear edit state when exiting
         if(saved) saved.style.display = 'block';
         document.getElementById('sub-saved').classList.add('active');
         if(subtitle) subtitle.innerText = "Saved Strategies";
         drawSketches();
     }
-}
-
-function toggleZoom(frameId) {
-    const frame = document.getElementById(frameId);
-    if(frame) frame.classList.toggle('zoomed');
 }
