@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- MAP FRAME & ZOOM --- */
+        /* --- RESTORED DRAWING STYLES --- */
         .map-frame { 
             width: 100%; border-radius: 16px; overflow: hidden; 
             border: 1px solid var(--border); background: #000; 
@@ -32,7 +32,6 @@
             background-repeat: no-repeat; background-position: center; 
         }
 
-        /* --- DRAWING UI FIXES --- */
         .draw-tools { 
             display: flex; gap: 12px; margin: 15px 0; 
             padding: 10px; background: var(--input-bg); 
@@ -52,10 +51,9 @@
         .sketch-item { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
         .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: #000; object-fit: contain; border: 1px solid var(--border); }
 
-        /* --- NEW EVENTS UI --- */
+        /* --- EVENTS UI --- */
         .event-card { background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; }
-        .event-card:active { transform: scale(0.98); }
-        .search-box { width: 100%; padding: 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); margin-bottom: 15px; font-family: inherit; }
+        .search-box { width: 100%; padding: 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); margin-bottom: 15px; }
         .tab-row { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; scrollbar-width: none; }
         .tab-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--input-bg); color: var(--sub-text); white-space: nowrap; cursor: pointer; font-weight: bold; }
         .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
@@ -68,50 +66,48 @@
         <div class="welcome-header"><h1>Paragon Core X</h1><p>Strategic Command</p></div>
         
         <div class="hub-card" onclick="nav('home')">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            </span>
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span>
             <b>Scout Notes</b>
         </div>
 
         <div class="hub-card" onclick="nav('events')">
             <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
             </span>
             <b>Robot Events</b>
         </div>
 
         <div class="hub-card" onclick="nav('calc')">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
-            </span>
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg></span>
             <b>Score Calculator</b>
         </div>
 
         <div class="hub-card" onclick="nav('field')">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-            </span>
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg></span>
             <b>Field Viewer</b>
         </div>
 
         <div class="hub-card" onclick="openNew()">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </span>
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
             <b>New Match Report</b>
         </div>
     </section>
 
     <section id="view-events" class="view">
+        <button onclick="nav('hub')" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px;">← BACK</button>
         <div class="welcome-header"><h1>Events</h1><p id="event-subtitle">Live via RobotEvents</p></div>
         <input type="text" id="event-search" class="search-box" placeholder="Search name or region..." oninput="searchEvents()">
-        
         <div class="tab-row">
             <button id="tab-ongoing" class="tab-btn active" onclick="switchEventTab('ongoing')">Ongoing</button>
             <button id="tab-skills" class="tab-btn" onclick="switchEventTab('skills')">World Skills</button>
         </div>
-
         <div id="event-list"></div>
     </section>
 
@@ -121,11 +117,13 @@
             <button id="btn-field-match" class="sort-btn active" onclick="toggleMap('match')">MATCH</button>
             <button id="btn-field-skills" class="sort-btn" onclick="toggleMap('skills')">SKILLS</button>
         </div>
+        
         <div id="standard-view">
             <div class="map-frame" id="std-frame" onclick="toggleZoom('std-frame')">
                 <img id="map-img" src="images/field.png" alt="Field Map">
             </div>
         </div>
+
         <div id="draw-view" style="display:none;">
             <div class="map-frame zoomed" id="draw-frame">
                 <canvas id="sketch-canvas"></canvas>
@@ -144,9 +142,11 @@
                 <button class="save-btn" onclick="saveSketch()">SAVE</button>
             </div>
         </div>
+
         <div id="saved-view" style="display:none; margin-top:10px;">
             <div id="sketch-list"></div>
         </div>
+
         <div class="sub-nav">
             <button id="sub-std" class="sub-btn active" onclick="setFieldMode('standard')">VIEW</button>
             <button id="sub-draw" class="sub-btn" onclick="setFieldMode('draw')">DRAW</button>
@@ -199,13 +199,6 @@
                 <option value="theme-light">Light Mode</option>
             </select>
         </div>
-        <div class="setting-group" style="margin-top:20px;">
-            <label>UI Interface Style</label>
-            <select id="set-style" onchange="updateSettings()">
-                <option value="style-classic">Classic (Standard)</option>
-                <option value="style-modern">Modern (Glassmorphism)</option>
-            </select>
-        </div>
     </section>
 
     <section id="view-form" class="view">
@@ -213,16 +206,10 @@
         <input type="hidden" id="editIdx">
         <input type="text" id="f-event" placeholder="Event Name">
         <input type="text" id="f-team" placeholder="Team Number">
-        <div style="display:flex; gap:10px;">
-            <select id="f-res"><option>Win</option><option>Loss</option><option>Tie</option></select>
-            <select id="f-autores"><option>Auto Win</option><option>Auto Loss</option></select>
-        </div>
+        <div style="display:flex; gap:10px;"><select id="f-res"><option>Win</option><option>Loss</option><option>Tie</option></select><select id="f-autores"><option>Auto Win</option><option>Auto Loss</option></select></div>
         <input type="text" id="f-partner" placeholder="Partner Team">
         <input type="text" id="f-opp" placeholder="Opponent Teams">
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="f-score" placeholder="Our Score">
-            <input type="number" id="f-oppscore" placeholder="Opp Score">
-        </div>
+        <div style="display:flex; gap:10px;"><input type="number" id="f-score" placeholder="Our Score"><input type="number" id="f-oppscore" placeholder="Opp Score"></div>
         <textarea id="f-notes" rows="5" placeholder="Strategic notes..."></textarea>
         <button class="save-btn" onclick="save()">SAVE REPORT</button>
     </section>
@@ -243,7 +230,6 @@
 <div class="dock-bar">
     <button class="dock-btn" onclick="nav('settings')">⚙</button>
     <button class="dock-btn alt" onclick="nav('hub')">⌂</button>
-    <button class="dock-btn" onclick="nav('events')">🏆</button>
     <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
 </div>
 
