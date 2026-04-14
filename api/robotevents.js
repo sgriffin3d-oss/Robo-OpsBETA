@@ -3,13 +3,18 @@ export default async function handler(req, res) {
     const token = process.env.ROBOT_EVENTS_TOKEN;
 
     if (!token) {
-        return res.status(500).json({ error: "API Token not found in Vercel" });
+        return res.status(500).json({ error: "API Token missing in Vercel Environment Variables" });
     }
 
-    // Build the RobotEvents URL
-    // We filter by name/region and ensure we only get events starting after our date
-    let url = `https://www.robotevents.com/api/v2/events?start=${start}`;
-    if (search) url += `&name[]=${encodeURIComponent(search)}`;
+    // Default to a 50-event limit to ensure we see results
+    let url = `https://www.robotevents.com/api/v2/events?per_page=50`;
+    
+    if (start) url += `&start=${start}`;
+    
+    // RobotEvents requires name filters to be passed as name[]
+    if (search && search.trim() !== "") {
+        url += `&name[]=${encodeURIComponent(search)}`;
+    }
 
     try {
         const response = await fetch(url, {
@@ -19,9 +24,14 @@ export default async function handler(req, res) {
             }
         });
 
+        if (!response.ok) {
+            const errBody = await response.text();
+            return res.status(response.status).json({ error: "RobotEvents Error", details: errBody });
+        }
+
         const data = await response.json();
         res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch from RobotEvents" });
+        res.status(500).json({ error: "Server Error", message: error.message });
     }
 }
