@@ -1,9 +1,11 @@
-const CACHE_NAME = 'paragon-v2';
+const CACHE_NAME = 'paragon-v3';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
+  './events.css', // Add this
   './app.js',
+  './events.js',  // Add this
   './calc.js',
   './view.js',
   './manifest.json',
