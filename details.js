@@ -1,7 +1,6 @@
 /**
  * details.js - Paragon Core X
- * Handles fetching and rendering specific event data (Matches & Skills)
- * Fixed: Division iteration safety check
+ * Fixed: Robust skills attempt handling and division iteration
  */
 
 async function loadEventDeepData(sku) {
@@ -18,21 +17,17 @@ async function loadEventDeepData(sku) {
         // 1. Get Divisions
         const divRes = await fetch(`/api/robotevents?sku=${sku}&type=divisions`);
         const divJson = await divRes.json();
-        
-        // Safety Check: RobotEvents API usually wraps the array in a 'data' property
         let divisions = divJson.data || divJson; 
-        if (!Array.isArray(divisions)) {
-            divisions = [divisions]; // Force into array if it's a single object
-        }
+        if (!Array.isArray(divisions)) divisions = [divisions];
 
-        // 2. Get Skills (Event-wide)
+        // 2. Get Skills
         const skillsRes = await fetch(`/api/robotevents?sku=${sku}&type=skills`);
         const skillsData = await skillsRes.json();
 
         // 3. Get Matches for each division
         let allMatches = [];
         for (const div of divisions) {
-            if (!div.id) continue;
+            if (!div || !div.id) continue;
             const mRes = await fetch(`/api/robotevents?sku=${sku}&type=matches&divisionId=${div.id}`);
             const mData = await mRes.json();
             if (mData.data && Array.isArray(mData.data)) {
@@ -52,13 +47,19 @@ function renderDeepData(matches, skills) {
     const container = document.getElementById('detHistory');
     container.innerHTML = '';
 
-    // 1. Improved Skills Standings (Driver + Programming + Total)
+    // 1. Skills Leaderboard with Driver/Prog Breakdown
     if (skills && skills.length > 0) {
         let skillsHtml = `<h3>Skills Leaderboard</h3>`;
-        // Sort by highest total score
+        
+        // Sort by total score descending
         skills.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 10).forEach(s => {
-            const driver = s.attempts.find(a => a.type === 'driver')?.score || 0;
-            const prog = s.attempts.find(a => a.type === 'programming')?.score || 0;
+            // SAFE ATTACK: Convert attempts to array if it isn't one
+            let attempts = s.attempts;
+            if (!Array.isArray(attempts)) attempts = attempts ? [attempts] : [];
+
+            // Find specific scores
+            const driver = attempts.find(a => a.type === 'driver')?.score || 0;
+            const prog = attempts.find(a => a.type === 'programming')?.score || 0;
             const total = s.score || (driver + prog);
 
             skillsHtml += `
@@ -76,18 +77,21 @@ function renderDeepData(matches, skills) {
         container.innerHTML += skillsHtml;
     }
 
-    // 2. Match Schedule & Results
+    // 2. Match Results
     if (matches && matches.length > 0) {
         let matchHtml = `<h3 style="margin-top:25px;">Match Results</h3>`;
-        // Sort matches by scheduled time
+        
+        // Sort matches by time
         matches.sort((a, b) => new Date(a.scheduled) - new Date(b.scheduled)).forEach(m => {
             const redAlliance = m.alliances.find(a => a.color === 'red');
             const blueAlliance = m.alliances.find(a => a.color === 'blue');
             
+            if (!redAlliance || !blueAlliance) return;
+
             const redTeams = redAlliance.teams.map(t => t.team.name).join(' & ');
             const blueTeams = blueAlliance.teams.map(t => t.team.name).join(' & ');
-            const redScore = redAlliance.score;
-            const blueScore = blueAlliance.score;
+            const redScore = redAlliance.score || 0;
+            const blueScore = blueAlliance.score || 0;
             const isDone = redScore > 0 || blueScore > 0;
 
             matchHtml += `
@@ -110,6 +114,6 @@ function renderDeepData(matches, skills) {
         });
         container.innerHTML += matchHtml;
     } else {
-        container.innerHTML += `<p style="text-align:center; padding:20px; color:var(--sub-text);">No matches found for these divisions.</p>`;
+        container.innerHTML += `<p style="text-align:center; padding:20px; color:var(--sub-text);">Waiting for matches to be posted...</p>`;
     }
 }
