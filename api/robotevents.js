@@ -5,24 +5,22 @@ export default async function handler(req, res) {
     const { search, start, sku, type } = req.query;
     const token = process.env.ROBOT_EVENTS_TOKEN;
 
-    if (!token) return res.status(500).json({ error: "Server Configuration Error" });
+    if (!token) return res.status(500).json({ error: "Token Missing" });
 
     let apiUrl;
 
-    // Route logic: Determine which RobotEvents endpoint to hit
+    // Route to specific sub-resource if SKU and TYPE are provided
     if (sku && type === 'matches') {
         apiUrl = `https://www.robotevents.com/api/v2/events/${sku}/matches`;
     } else if (sku && type === 'skills') {
         apiUrl = `https://www.robotevents.com/api/v2/events/${sku}/skills`;
     } else {
-        // Default: Fetch event list
-        apiUrl = new URL('https://www.robotevents.com/api/v2/events');
-        apiUrl.searchParams.append('per_page', '50');
-        apiUrl.searchParams.append('sort', 'start');
-        apiUrl.searchParams.append('order', 'desc');
-        if (start) apiUrl.searchParams.append('start', start);
-        if (search) apiUrl.searchParams.append('name[]', search.trim());
-        apiUrl = apiUrl.toString();
+        // Default: List events
+        const urlObj = new URL('https://www.robotevents.com/api/v2/events');
+        urlObj.searchParams.append('per_page', '50');
+        if (start) urlObj.searchParams.append('start', start);
+        if (search) urlObj.searchParams.append('name[]', search.trim());
+        apiUrl = urlObj.toString();
     }
 
     try {
@@ -33,8 +31,6 @@ export default async function handler(req, res) {
                 'User-Agent': 'ParagonCoreX_V1'
             }
         });
-
-        if (!response.ok) return res.status(response.status).json({ error: "API Error" });
 
         const data = await response.json();
         return res.status(200).json(data);
