@@ -1,6 +1,6 @@
 /**
  * details.js - Paragon Core X
- * Fixed: Robust skills attempt handling and division iteration
+ * Final Polish: Aggressive Match Discovery & Robust Skills Breakdown
  */
 
 async function loadEventDeepData(sku) {
@@ -17,21 +17,31 @@ async function loadEventDeepData(sku) {
         // 1. Get Divisions
         const divRes = await fetch(`/api/robotevents?sku=${sku}&type=divisions`);
         const divJson = await divRes.json();
+        
+        // Robust check for divisions data shape
         let divisions = divJson.data || divJson; 
-        if (!Array.isArray(divisions)) divisions = [divisions];
+        if (!Array.isArray(divisions)) {
+            divisions = (divisions && typeof divisions === 'object') ? [divisions] : [];
+        }
 
-        // 2. Get Skills
+        // 2. Get Skills (Event-wide)
         const skillsRes = await fetch(`/api/robotevents?sku=${sku}&type=skills`);
         const skillsData = await skillsRes.json();
 
         // 3. Get Matches for each division
         let allMatches = [];
         for (const div of divisions) {
-            if (!div || !div.id) continue;
-            const mRes = await fetch(`/api/robotevents?sku=${sku}&type=matches&divisionId=${div.id}`);
+            // Ensure we have a valid ID before fetching matches
+            const divId = div.id || (divJson.data && divJson.data[0] ? divJson.data[0].id : null);
+            if (!divId) continue;
+
+            const mRes = await fetch(`/api/robotevents?sku=${sku}&type=matches&divisionId=${divId}`);
             const mData = await mRes.json();
+            
             if (mData.data && Array.isArray(mData.data)) {
                 allMatches = allMatches.concat(mData.data);
+            } else if (Array.isArray(mData)) {
+                allMatches = allMatches.concat(mData);
             }
         }
 
@@ -53,11 +63,10 @@ function renderDeepData(matches, skills) {
         
         // Sort by total score descending
         skills.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 10).forEach(s => {
-            // SAFE ATTACK: Convert attempts to array if it isn't one
+            // Convert attempts to array safely
             let attempts = s.attempts;
             if (!Array.isArray(attempts)) attempts = attempts ? [attempts] : [];
 
-            // Find specific scores
             const driver = attempts.find(a => a.type === 'driver')?.score || 0;
             const prog = attempts.find(a => a.type === 'programming')?.score || 0;
             const total = s.score || (driver + prog);
@@ -81,13 +90,13 @@ function renderDeepData(matches, skills) {
     if (matches && matches.length > 0) {
         let matchHtml = `<h3 style="margin-top:25px;">Match Results</h3>`;
         
-        // Sort matches by time
-        matches.sort((a, b) => new Date(a.scheduled) - new Date(b.scheduled)).forEach(m => {
+        // Filter out matches that don't have alliance data and sort by schedule
+        const validMatches = matches.filter(m => m.alliances && m.alliances.length >= 2);
+        
+        validMatches.sort((a, b) => new Date(a.scheduled) - new Date(b.scheduled)).forEach(m => {
             const redAlliance = m.alliances.find(a => a.color === 'red');
             const blueAlliance = m.alliances.find(a => a.color === 'blue');
             
-            if (!redAlliance || !blueAlliance) return;
-
             const redTeams = redAlliance.teams.map(t => t.team.name).join(' & ');
             const blueTeams = blueAlliance.teams.map(t => t.team.name).join(' & ');
             const redScore = redAlliance.score || 0;
@@ -114,6 +123,6 @@ function renderDeepData(matches, skills) {
         });
         container.innerHTML += matchHtml;
     } else {
-        container.innerHTML += `<p style="text-align:center; padding:20px; color:var(--sub-text);">Waiting for matches to be posted...</p>`;
+        container.innerHTML += `<p style="text-align:center; padding:20px; color:var(--sub-text);">No matches found for this event SKU.</p>`;
     }
 }
