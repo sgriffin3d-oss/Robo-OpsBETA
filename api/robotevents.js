@@ -1,5 +1,8 @@
+/**
+ * robotevents.js - Updated to handle nested API routes (Divisions, Matches, Skills)
+ */
 export default async function handler(req, res) {
-    const { search, start, sku, type } = req.query;
+    const { search, start, sku, type, divisionId } = req.query;
     const token = process.env.ROBOT_EVENTS_TOKEN;
 
     if (!token) {
@@ -8,9 +11,17 @@ export default async function handler(req, res) {
 
     let url = `https://www.robotevents.com/api/v2/events`;
     
-    // Case 1: Fetching specific event details (Matches or Skills)
-    if (sku && type) {
-        url += `/${sku}/${type}?per_page=100`;
+    // Case 1: Fetching specific data types (Matches/Skills) for a division or event
+    if (sku) {
+        if (type === 'divisions') {
+            url += `/${sku}/divisions`;
+        } else if (type === 'skills') {
+            url += `/${sku}/skills?per_page=100`;
+        } else if (type === 'matches' && divisionId) {
+            url += `/${sku}/divisions/${divisionId}/matches?per_page=100`;
+        } else {
+            url += `/${sku}`;
+        }
     } 
     // Case 2: Standard Event Search
     else {
