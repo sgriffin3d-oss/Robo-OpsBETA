@@ -1,33 +1,36 @@
 /**
  * details.js - Paragon Core X
- * Handles fetching and rendering specific event data (Matches & Skills)
+ * Improved to handle Divisions and detailed Skills breakdown
  */
 
 async function loadEventDeepData(sku) {
     const container = document.getElementById('detHistory');
     if (!container) return;
 
-    // Show loading state in the detail view
-    container.innerHTML = `
-        <div style="text-align:center; padding:20px; color:var(--sub-text);">
-            <div class="loading-spinner"></div>
-            <p>Fetching Match & Skills Data...</p>
-        </div>`;
+    container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--sub-text);"><div class="loading-spinner"></div><p>Scanning Divisions & Results...</p></div>`;
 
     try {
-        // Fetch Matches and Skills in parallel
-        const [matchRes, skillsRes] = await Promise.all([
-            fetch(`/api/robotevents?sku=${sku}&type=matches`),
-            fetch(`/api/robotevents?sku=${sku}&type=skills`)
-        ]);
+        // 1. Get Divisions first
+        const divRes = await fetch(`/api/robotevents?sku=${sku}&type=divisions`);
+        const divData = await divRes.json();
+        const divisions = divData.data || divData; // Handle different API response shapes
 
-        const matches = await matchRes.json();
-        const skills = await skillsRes.json();
+        // 2. Get Skills (Event-wide)
+        const skillsRes = await fetch(`/api/robotevents?sku=${sku}&type=skills`);
+        const skillsData = await skillsRes.json();
 
-        renderDeepData(matches.data || [], skills.data || []);
+        // 3. Get Matches for each division
+        let allMatches = [];
+        for (const div of divisions) {
+            const mRes = await fetch(`/api/robotevents?sku=${sku}&type=matches&divisionId=${div.id}`);
+            const mData = await mRes.json();
+            if (mData.data) allMatches = allMatches.concat(mData.data);
+        }
+
+        renderDeepData(allMatches, skillsData.data || []);
 
     } catch (err) {
-        container.innerHTML = `<p style="color:var(--red)">Failed to load event details: ${err.message}</p>`;
+        container.innerHTML = `<p style="color:var(--red)">Deep Scan Failed: ${err.message}</p>`;
     }
 }
 
@@ -35,49 +38,59 @@ function renderDeepData(matches, skills) {
     const container = document.getElementById('detHistory');
     container.innerHTML = '';
 
-    // 1. Skills Rankings Section
+    // 1. Improved Skills Standings (Driver + Programming + Total)
     if (skills.length > 0) {
-        let skillsHtml = `<h3>Skills Standings</h3><div class="skills-grid" style="display:grid; gap:10px; margin-bottom:20px;">`;
-        // Sort by rank and take top 5 for brevity
-        skills.sort((a, b) => a.rank - b.rank).slice(0, 8).forEach(s => {
+        let skillsHtml = `<h3>Skills Leaderboard</h3>`;
+        skills.sort((a, b) => (b.attempts[0]?.score || 0) - (a.attempts[0]?.score || 0)).slice(0, 10).forEach(s => {
+            const driver = s.attempts.find(a => a.type === 'driver')?.score || 0;
+            const prog = s.attempts.find(a => a.type === 'programming')?.score || 0;
+            const total = s.score || (driver + prog);
+
             skillsHtml += `
-                <div class="note-card" style="padding:10px; font-size:0.8rem;">
-                    <div style="display:flex; justify-content:space-between; width:100%;">
-                        <b>#${s.rank} ${s.team.name}</b>
-                        <span style="color:var(--primary)">Score: ${s.score}</span>
+                <div class="note-card" style="margin-bottom:8px; padding:12px; display:block;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <b style="color:var(--primary)">${s.team.name}</b>
+                        <b style="font-size:1.1rem;">Total: ${total}</b>
+                    </div>
+                    <div style="display:flex; gap:15px; font-size:0.75rem; opacity:0.8;">
+                        <span>Driver: ${driver}</span>
+                        <span>Prog: ${prog}</span>
                     </div>
                 </div>`;
         });
-        skillsHtml += `</div>`;
         container.innerHTML += skillsHtml;
     }
 
-    // 2. Match Schedule / Results Section
+    // 2. Match Schedule & Results
     if (matches.length > 0) {
-        let matchHtml = `<h3>Match Schedule</h3>`;
-        // Sort matches by instance/number
-        matches.sort((a, b) => a.id - b.id).forEach(m => {
-            const isFinished = m.networks && m.networks.length > 0; // Check if score exists
+        let matchHtml = `<h3 style="margin-top:25px;">Match Results</h3>`;
+        matches.sort((a, b) => new Date(a.scheduled) - new Date(b.scheduled)).forEach(m => {
+            const redTeams = m.alliances.find(a => a.color === 'red').teams.map(t => t.team.name).join(' & ');
+            const blueTeams = m.alliances.find(a => a.color === 'blue').teams.map(t => t.team.name).join(' & ');
+            const redScore = m.alliances.find(a => a.color === 'red').score;
+            const blueScore = m.alliances.find(a => a.color === 'blue').score;
+            const isDone = redScore > 0 || blueScore > 0;
+
             matchHtml += `
                 <div class="note-card" style="flex-direction:column; align-items:flex-start; margin-bottom:10px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; font-size:0.75rem; opacity:0.7;">
+                    <div style="display:flex; justify-content:space-between; width:100%; font-size:0.7rem; opacity:0.6;">
                         <span>${m.name}</span>
-                        <span>${isFinished ? 'FINAL' : 'UPCOMING'}</span>
+                        <span>${isDone ? 'FINAL' : 'UPCOMING'}</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; width:100%; margin:8px 0;">
-                        <span style="color:#ff4d4d; font-weight:bold;">${m.alliances[0].teams.map(t => t.team.name).join(' & ')}</span>
-                        <span style="font-weight:bold;">VS</span>
-                        <span style="color:#4d94ff; font-weight:bold;">${m.alliances[1].teams.map(t => t.team.name).join(' & ')}</span>
+                    <div style="display:flex; justify-content:space-between; width:100%; margin:10px 0;">
+                        <div style="color:var(--red); font-weight:800; width:40%;">${redTeams}</div>
+                        <div style="width:10%; text-align:center; font-weight:bold;">VS</div>
+                        <div style="color:var(--blue); font-weight:800; width:40%; text-align:right;">${blueTeams}</div>
                     </div>
-                    ${isFinished ? `
-                    <div style="display:flex; justify-content:space-between; width:100%; border-top:1px solid var(--border); pt:5px;">
-                         <b style="color:#ff4d4d">${m.alliances[0].score}</b>
-                         <b style="color:#4d94ff">${m.alliances[1].score}</b>
+                    ${isDone ? `
+                    <div style="display:flex; justify-content:space-between; width:100%; padding-top:8px; border-top:1px solid var(--border);">
+                        <span style="color:var(--red); font-size:1.2rem; font-weight:900;">${redScore}</span>
+                        <span style="color:var(--blue); font-size:1.2rem; font-weight:900;">${blueScore}</span>
                     </div>` : ''}
                 </div>`;
         });
         container.innerHTML += matchHtml;
     } else {
-        container.innerHTML += `<p style="text-align:center; color:var(--sub-text);">No matches posted yet.</p>`;
+        container.innerHTML += `<p style="text-align:center; padding:20px; opacity:0.5;">Matches not yet posted for this division.</p>`;
     }
 }
