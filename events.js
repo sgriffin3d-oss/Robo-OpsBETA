@@ -42,7 +42,7 @@ async function loadEvents(query = '') {
             date: new Date(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
             status: getStatus(e.start, e.end),
             sku: e.sku,
-            id: e.id // CRITICAL: Need the ID for division lookups
+            id: e.id // Captured internal ID for API sub-routing
         }));
 
         renderEvents(events);
@@ -72,7 +72,7 @@ function renderEvents(events) {
     
     events.forEach(e => {
         const statusClass = e.status.toLowerCase();
-        // Passing ID instead of SKU for deep data fetching
+        // Passing the internal numeric ID to viewEventDetails
         list.innerHTML += `
             <div class="event-item" onclick="viewEventDetails('${e.id}', '${e.name.replace(/'/g, "\\'")}')">
                 <div class="event-meta">
