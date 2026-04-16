@@ -1,51 +1,57 @@
 export default async function handler(req, res) {
-    // 1. Set CORS headers so any device/browser can talk to this function
+    // 1. Force clear CORS headers so mobile/Safari don't block the request
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    // Handle the browser's "preflight" check
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
     const { search, start } = req.query;
     const token = process.env.ROBOT_EVENTS_TOKEN;
 
     if (!token) {
-        console.error("CRITICAL: ROBOT_EVENTS_TOKEN is missing in Vercel Environment Variables.");
-        return res.status(500).json({ error: "Server Configuration Error" });
+        console.error("Environment Variable ROBOT_EVENTS_TOKEN is missing.");
+        return res.status(500).json({ error: "Token Configuration Missing" });
     }
 
-    // 2. Use the WHATWG URL API (Fixes the [DEP0169] warning)
-    const apiUrl = new URL('https://www.robotevents.com/api/v2/events');
-    apiUrl.searchParams.append('per_page', '50');
-    apiUrl.searchParams.append('sort', 'start');
-    apiUrl.searchParams.append('order', 'desc');
+    // 2. Build the URL using the modern WHATWG API (prevents the Node warning)
+    const apiTarget = new URL('https://www.robotevents.com/api/v2/events');
+    apiTarget.searchParams.set('per_page', '50');
+    apiTarget.searchParams.set('sort', 'start');
+    apiTarget.searchParams.set('order', 'desc');
 
-    if (start) apiUrl.searchParams.append('start', start);
+    if (start) apiTarget.searchParams.set('start', start);
+    
+    // RobotEvents specifically requires the brackets for name filtering: name[]
     if (search && search.trim() !== "") {
-        apiUrl.searchParams.append('name[]', search.trim());
+        apiTarget.searchParams.set('name[]', search.trim());
     }
 
     try {
-        const response = await fetch(apiUrl.toString(), {
+        const response = await fetch(apiTarget.toString(), {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json',
-                // 3. Hardcoding a User-Agent prevents browsers from injecting 
-                // their own, which often triggers API firewalls.
-                'User-Agent': 'ParagonCoreX_V1_ScoutingApp'
+                // Explicitly defining a User-Agent is the #1 way to fix "Chrome vs Others" errors
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
         });
 
         if (!response.ok) {
-            const errorMsg = await response.text();
-            console.error(`RobotEvents API Rejected Request: ${response.status}`, errorMsg);
-            return res.status(response.status).json({ error: "RobotEvents API Error" });
+            const errorText = await response.text();
+            console.error(`RobotEvents API Error ${response.status}:`, errorText);
+            return res.status(response.status).json({ error: "API Rejected Request" });
         }
 
         const data = await response.json();
         return res.status(200).json(data);
 
-    } catch (error) {
-        console.error("Internal Function Error:", error.message);
+    } catch (err) {
+        console.error("Function Crash:", err.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
