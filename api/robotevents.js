@@ -1,57 +1,64 @@
-export default async function handler(req, res) {
-    // 1. Force clear CORS headers so mobile/Safari don't block the request
+const https = require('https');
+
+export default function handler(req, res) {
+    // 1. Setup CORS for all devices
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // Handle the browser's "preflight" check
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end();
 
     const { search, start } = req.query;
     const token = process.env.ROBOT_EVENTS_TOKEN;
 
+    // DEBUG: If this shows up on your phone, we know the Token is the problem
     if (!token) {
-        console.error("Environment Variable ROBOT_EVENTS_TOKEN is missing.");
-        return res.status(500).json({ error: "Token Configuration Missing" });
+        return res.status(500).json({ 
+            error: "TOKEN_MISSING", 
+            message: "The ROBOT_EVENTS_TOKEN variable is not set in Vercel Production Settings." 
+        });
     }
 
-    // 2. Build the URL using the modern WHATWG API (prevents the Node warning)
-    const apiTarget = new URL('https://www.robotevents.com/api/v2/events');
-    apiTarget.searchParams.set('per_page', '50');
-    apiTarget.searchParams.set('sort', 'start');
-    apiTarget.searchParams.set('order', 'desc');
+    // 2. Build the URL
+    const queryParams = new URLSearchParams({
+        per_page: '50',
+        sort: 'start',
+        order: 'desc'
+    });
+    if (start) queryParams.append('start', start);
+    if (search) queryParams.append('name[]', search);
 
-    if (start) apiTarget.searchParams.set('start', start);
-    
-    // RobotEvents specifically requires the brackets for name filtering: name[]
-    if (search && search.trim() !== "") {
-        apiTarget.searchParams.set('name[]', search.trim());
-    }
+    const options = {
+        hostname: 'www.robotevents.com',
+        path: `/api/v2/events?${queryParams.toString()}`,
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Vercel Serverless)'
+        }
+    };
 
-    try {
-        const response = await fetch(apiTarget.toString(), {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json',
-                // Explicitly defining a User-Agent is the #1 way to fix "Chrome vs Others" errors
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    // 3. Perform the request using HTTPS module (more stable than fetch in Node)
+    const request = https.request(options, (apiRes) => {
+        let data = '';
+        apiRes.on('data', (chunk) => { data += chunk; });
+        apiRes.on('end', () => {
+            if (apiRes.statusCode >= 200 && apiRes.statusCode < 300) {
+                res.status(200).json(JSON.parse(data));
+            } else {
+                res.status(apiRes.statusCode).json({ 
+                    error: "API_REJECTED", 
+                    status: apiRes.statusCode,
+                    details: data 
+                });
             }
         });
+    });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`RobotEvents API Error ${response.status}:`, errorText);
-            return res.status(response.status).json({ error: "API Rejected Request" });
-        }
+    request.on('error', (err) => {
+        res.status(500).json({ error: "CONNECTION_FAILED", message: err.message });
+    });
 
-        const data = await response.json();
-        return res.status(200).json(data);
-
-    } catch (err) {
-        console.error("Function Crash:", err.message);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
+    request.end();
 }
