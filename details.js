@@ -1,10 +1,21 @@
-window.loadEventDetails = async function(sku) {
-    const list = document.getElementById('event-list');
-    if (!list) return;
+/**
+ * details.js - Paragon Core X
+ * Handles fetching and rendering specific event data (Matches & Skills)
+ */
 
-    list.innerHTML = `<div style="text-align:center; padding:40px;"><div class="loading-spinner"></div><p>Syncing Live Match Data...</p></div>`;
+async function loadEventDeepData(sku) {
+    const container = document.getElementById('detHistory');
+    if (!container) return;
+
+    // Show loading state in the detail view
+    container.innerHTML = `
+        <div style="text-align:center; padding:20px; color:var(--sub-text);">
+            <div class="loading-spinner"></div>
+            <p>Fetching Match & Skills Data...</p>
+        </div>`;
 
     try {
+        // Fetch Matches and Skills in parallel
         const [matchRes, skillsRes] = await Promise.all([
             fetch(`/api/robotevents?sku=${sku}&type=matches`),
             fetch(`/api/robotevents?sku=${sku}&type=skills`)
@@ -13,9 +24,60 @@ window.loadEventDetails = async function(sku) {
         const matches = await matchRes.json();
         const skills = await skillsRes.json();
 
-        // IMPORTANT: RobotEvents data is always inside the .data array
-        renderDetailsView(sku, matches.data || [], skills.data || []);
+        renderDeepData(matches.data || [], skills.data || []);
+
     } catch (err) {
-        list.innerHTML = `<p style="color:var(--red); text-align:center;">Sync Failed: ${err.message}</p>`;
+        container.innerHTML = `<p style="color:var(--red)">Failed to load event details: ${err.message}</p>`;
     }
-};
+}
+
+function renderDeepData(matches, skills) {
+    const container = document.getElementById('detHistory');
+    container.innerHTML = '';
+
+    // 1. Skills Rankings Section
+    if (skills.length > 0) {
+        let skillsHtml = `<h3>Skills Standings</h3><div class="skills-grid" style="display:grid; gap:10px; margin-bottom:20px;">`;
+        // Sort by rank and take top 5 for brevity
+        skills.sort((a, b) => a.rank - b.rank).slice(0, 8).forEach(s => {
+            skillsHtml += `
+                <div class="note-card" style="padding:10px; font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <b>#${s.rank} ${s.team.name}</b>
+                        <span style="color:var(--primary)">Score: ${s.score}</span>
+                    </div>
+                </div>`;
+        });
+        skillsHtml += `</div>`;
+        container.innerHTML += skillsHtml;
+    }
+
+    // 2. Match Schedule / Results Section
+    if (matches.length > 0) {
+        let matchHtml = `<h3>Match Schedule</h3>`;
+        // Sort matches by instance/number
+        matches.sort((a, b) => a.id - b.id).forEach(m => {
+            const isFinished = m.networks && m.networks.length > 0; // Check if score exists
+            matchHtml += `
+                <div class="note-card" style="flex-direction:column; align-items:flex-start; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; font-size:0.75rem; opacity:0.7;">
+                        <span>${m.name}</span>
+                        <span>${isFinished ? 'FINAL' : 'UPCOMING'}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; width:100%; margin:8px 0;">
+                        <span style="color:#ff4d4d; font-weight:bold;">${m.alliances[0].teams.map(t => t.team.name).join(' & ')}</span>
+                        <span style="font-weight:bold;">VS</span>
+                        <span style="color:#4d94ff; font-weight:bold;">${m.alliances[1].teams.map(t => t.team.name).join(' & ')}</span>
+                    </div>
+                    ${isFinished ? `
+                    <div style="display:flex; justify-content:space-between; width:100%; border-top:1px solid var(--border); pt:5px;">
+                         <b style="color:#ff4d4d">${m.alliances[0].score}</b>
+                         <b style="color:#4d94ff">${m.alliances[1].score}</b>
+                    </div>` : ''}
+                </div>`;
+        });
+        container.innerHTML += matchHtml;
+    } else {
+        container.innerHTML += `<p style="text-align:center; color:var(--sub-text);">No matches posted yet.</p>`;
+    }
+}
