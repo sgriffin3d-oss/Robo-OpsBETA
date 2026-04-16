@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
     let url = `https://www.robotevents.com/api/v2/events`;
     
-    // NEW: Handle specific event sub-resource requests
+    // Logic to handle deep-data requests (Divisions, Matches, Skills)
     if (sku) {
         if (type === 'divisions') {
             url += `/${sku}/divisions`;
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             url += `/${sku}`;
         }
     } 
-    // Standard Event Search
+    // Logic for general event search
     else {
         url += `?per_page=50`;
         if (start) url += `&start=${start}`;
