@@ -21,7 +21,6 @@ async function loadEvents(query = '') {
 
     try {
         // 3. Fetch from your Vercel Proxy
-        // We encode the query to handle spaces and special characters
         const url = `/api/robotevents?search=${encodeURIComponent(query)}&start=${dateString}`;
         const response = await fetch(url);
         
@@ -101,8 +100,12 @@ function renderEvents(events) {
 
 /**
  * Action when clicking an event card
+ * NOW: Triggers actual data load from details.js
  */
 function viewEventDetails(sku) {
-    // Placeholder for next step: Loading Match List and Rankings
-    alert("SKU: " + sku + "\n\nLive match scouting for this event is coming soon!");
+    if (typeof loadEventDetails === "function") {
+        loadEventDetails(sku);
+    } else {
+        console.error("details.js not loaded");
+    }
 }
