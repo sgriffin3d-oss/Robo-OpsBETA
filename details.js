@@ -1,6 +1,6 @@
 /**
  * details.js - Paragon Core X
- * Final Polish: Aggressive Match Discovery & Robust Skills Breakdown
+ * Fixed match rendering logic and score detection
  */
 
 async function loadEventDeepData(sku) {
@@ -10,46 +10,22 @@ async function loadEventDeepData(sku) {
     container.innerHTML = `
         <div style="text-align:center; padding:20px; color:var(--sub-text);">
             <div class="loading-spinner"></div>
-            <p>Scanning Divisions & Results...</p>
+            <p>Fetching Match & Skills Data...</p>
         </div>`;
 
     try {
-        // 1. Get Divisions
-        const divRes = await fetch(`/api/robotevents?sku=${sku}&type=divisions`);
-        const divJson = await divRes.json();
-        
-        // Robust check for divisions data shape
-        let divisions = divJson.data || divJson; 
-        if (!Array.isArray(divisions)) {
-            divisions = (divisions && typeof divisions === 'object') ? [divisions] : [];
-        }
+        const [matchRes, skillsRes] = await Promise.all([
+            fetch(`/api/robotevents?sku=${sku}&type=matches`),
+            fetch(`/api/robotevents?sku=${sku}&type=skills`)
+        ]);
 
-        // 2. Get Skills (Event-wide)
-        const skillsRes = await fetch(`/api/robotevents?sku=${sku}&type=skills`);
-        const skillsData = await skillsRes.json();
+        const matches = await matchRes.json();
+        const skills = await skillsRes.json();
 
-        // 3. Get Matches for each division
-        let allMatches = [];
-        for (const div of divisions) {
-            // Ensure we have a valid ID before fetching matches
-            const divId = div.id || (divJson.data && divJson.data[0] ? divJson.data[0].id : null);
-            if (!divId) continue;
-
-            const mRes = await fetch(`/api/robotevents?sku=${sku}&type=matches&divisionId=${divId}`);
-            const mData = await mRes.json();
-            
-            if (mData.data && Array.isArray(mData.data)) {
-                allMatches = allMatches.concat(mData.data);
-            } else if (Array.isArray(mData)) {
-                allMatches = allMatches.concat(mData);
-            }
-        }
-
-        renderDeepData(allMatches, skillsData.data || []);
+        renderDeepData(matches.data || [], skills.data || []);
 
     } catch (err) {
-        console.error("Deep Scan Error:", err);
-        container.innerHTML = `<p style="color:var(--red); text-align:center;">Deep Scan Failed: ${err.message}</p>`;
+        container.innerHTML = `<p style="color:var(--red)">Failed to load event details: ${err.message}</p>`;
     }
 }
 
@@ -57,72 +33,55 @@ function renderDeepData(matches, skills) {
     const container = document.getElementById('detHistory');
     container.innerHTML = '';
 
-    // 1. Skills Leaderboard with Driver/Prog Breakdown
+    // 1. Skills Rankings Section
     if (skills && skills.length > 0) {
-        let skillsHtml = `<h3>Skills Leaderboard</h3>`;
-        
-        // Sort by total score descending
-        skills.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 10).forEach(s => {
-            // Convert attempts to array safely
-            let attempts = s.attempts;
-            if (!Array.isArray(attempts)) attempts = attempts ? [attempts] : [];
-
-            const driver = attempts.find(a => a.type === 'driver')?.score || 0;
-            const prog = attempts.find(a => a.type === 'programming')?.score || 0;
-            const total = s.score || (driver + prog);
-
+        let skillsHtml = `<h3>Top Skills</h3><div class="skills-grid" style="display:grid; gap:10px; margin-bottom:20px;">`;
+        skills.sort((a, b) => a.rank - b.rank).slice(0, 8).forEach(s => {
             skillsHtml += `
-                <div class="note-card" style="margin-bottom:8px; padding:12px; display:block; border-left: 4px solid var(--primary);">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <b style="color:var(--text)">${s.team.name}</b>
-                        <b style="font-size:1.1rem; color:var(--primary);">Total: ${total}</b>
-                    </div>
-                    <div style="display:flex; gap:15px; font-size:0.75rem; color:var(--sub-text);">
-                        <span>Driver: <b>${driver}</b></span>
-                        <span>Prog: <b>${prog}</b></span>
+                <div class="note-card" style="padding:10px; font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <b>#${s.rank} ${s.team.name}</b>
+                        <span style="color:var(--primary)">${s.score} pts</span>
                     </div>
                 </div>`;
         });
+        skillsHtml += `</div>`;
         container.innerHTML += skillsHtml;
     }
 
-    // 2. Match Results
+    // 2. Match Schedule / Results Section
     if (matches && matches.length > 0) {
-        let matchHtml = `<h3 style="margin-top:25px;">Match Results</h3>`;
-        
-        // Filter out matches that don't have alliance data and sort by schedule
-        const validMatches = matches.filter(m => m.alliances && m.alliances.length >= 2);
-        
-        validMatches.sort((a, b) => new Date(a.scheduled) - new Date(b.scheduled)).forEach(m => {
-            const redAlliance = m.alliances.find(a => a.color === 'red');
-            const blueAlliance = m.alliances.find(a => a.color === 'blue');
-            
-            const redTeams = redAlliance.teams.map(t => t.team.name).join(' & ');
-            const blueTeams = blueAlliance.teams.map(t => t.team.name).join(' & ');
-            const redScore = redAlliance.score || 0;
-            const blueScore = blueAlliance.score || 0;
-            const isDone = redScore > 0 || blueScore > 0;
+        let matchHtml = `<h3>Match Schedule</h3>`;
+        // Sort matches by match number (e.g., Qualifying 1, 2, 3)
+        matches.sort((a, b) => a.id - b.id).forEach(m => {
+            // FIXED: Improved check for finished matches based on score existence
+            const redScore = m.alliances[0].score || 0;
+            const blueScore = m.alliances[1].score || 0;
+            const isFinished = redScore > 0 || blueScore > 0;
 
             matchHtml += `
                 <div class="note-card" style="flex-direction:column; align-items:flex-start; margin-bottom:10px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; font-size:0.7rem; opacity:0.6; margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; font-size:0.75rem; opacity:0.7;">
                         <span>${m.name}</span>
-                        <span style="color:${isDone ? 'var(--primary)' : 'inherit'}">${isDone ? 'FINAL' : 'UPCOMING'}</span>
+                        <span style="color: ${isFinished ? 'var(--primary)' : 'var(--sub-text)'}">${isFinished ? 'FINAL' : 'UPCOMING'}</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px;">
-                        <div style="color:var(--red); font-weight:700; width:42%; font-size:0.85rem;">${redTeams}</div>
-                        <div style="width:10%; text-align:center; opacity:0.4; font-size:0.7rem;">VS</div>
-                        <div style="color:var(--blue); font-weight:700; width:42%; text-align:right; font-size:0.85rem;">${blueTeams}</div>
+                    <div style="display:flex; justify-content:space-between; width:100%; margin:8px 0;">
+                        <span style="color:#ff4d4d; font-weight:bold;">${m.alliances[0].teams.map(t => t.team.name).join(' & ')}</span>
+                        <span style="font-weight:bold; opacity:0.5;">VS</span>
+                        <span style="color:#4d94ff; font-weight:bold;">${m.alliances[1].teams.map(t => t.team.name).join(' & ')}</span>
                     </div>
-                    ${isDone ? `
-                    <div style="display:flex; justify-content:space-between; width:100%; padding-top:8px; border-top:1px solid var(--border);">
-                        <span style="color:var(--red); font-size:1.2rem; font-weight:900;">${redScore}</span>
-                        <span style="color:var(--blue); font-size:1.2rem; font-weight:900;">${blueScore}</span>
+                    ${isFinished ? `
+                    <div style="display:flex; justify-content:space-between; width:100%; border-top:1px solid var(--border); padding-top:8px;">
+                         <b style="color:#ff4d4d; font-size:1.1rem;">${redScore}</b>
+                         <b style="color:#4d94ff; font-size:1.1rem;">${blueScore}</b>
                     </div>` : ''}
                 </div>`;
         });
         container.innerHTML += matchHtml;
     } else {
-        container.innerHTML += `<p style="text-align:center; padding:20px; color:var(--sub-text);">No matches found for this event SKU.</p>`;
+        container.innerHTML += `
+            <div style="text-align:center; padding:20px; border: 1px dashed var(--border); border-radius:12px;">
+                <p style="color:var(--sub-text); margin:0;">No match data available yet.</p>
+            </div>`;
     }
 }
