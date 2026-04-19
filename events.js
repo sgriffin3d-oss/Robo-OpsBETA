@@ -1,6 +1,6 @@
 /**
  * events.js - Paragon Core X
- * Handles RobotEvents API integration via Vercel Serverless Proxy
+ * Updated to pass SKU for deep data lookups
  */
 
 async function loadEvents(query = '') {
@@ -42,7 +42,7 @@ async function loadEvents(query = '') {
             date: new Date(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
             status: getStatus(e.start, e.end),
             sku: e.sku,
-            id: e.id // Captured internal ID for API sub-routing
+            id: e.id 
         }));
 
         renderEvents(events);
@@ -72,9 +72,9 @@ function renderEvents(events) {
     
     events.forEach(e => {
         const statusClass = e.status.toLowerCase();
-        // Passing the internal numeric ID to viewEventDetails
+        // FIXED: Now passing e.sku instead of e.id
         list.innerHTML += `
-            <div class="event-item" onclick="viewEventDetails('${e.id}', '${e.name.replace(/'/g, "\\'")}')">
+            <div class="event-item" onclick="viewEventDetails('${e.sku}', '${e.name.replace(/'/g, "\\'")}')">
                 <div class="event-meta">
                     <span>${e.date}</span>
                     <span style="margin: 0 5px; opacity: 0.5;">•</span>
@@ -87,15 +87,10 @@ function renderEvents(events) {
     });
 }
 
-function viewEventDetails(id, name) {
-    const detName = document.getElementById('detName');
-    if (detName) detName.innerText = name;
-    
-    if (typeof nav === 'function') {
-        nav('detail');
-    }
-
+function viewEventDetails(sku, name) {
+    document.getElementById('detName').innerText = name;
+    nav('detail');
     if (typeof loadEventDeepData === 'function') {
-        loadEventDeepData(id);
+        loadEventDeepData(sku);
     }
 }
