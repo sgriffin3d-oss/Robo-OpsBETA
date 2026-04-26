@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
     let url = `https://www.robotevents.com/api/v2/events`;
     
-    // RobotEvents API requires the numerical ID for matches/skills sub-routes
+    // FIX: RobotEvents API v2 uses the numerical ID for matches/skills sub-routes
     const eventIdentifier = id || sku;
 
     if (eventIdentifier && type) {
