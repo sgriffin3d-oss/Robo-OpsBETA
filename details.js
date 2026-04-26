@@ -7,6 +7,7 @@ async function loadEventDeepData(id) {
     const container = document.getElementById('detHistory');
     if (!container) return;
 
+    // Show loading state
     container.innerHTML = `
         <div style="text-align:center; padding:20px; color:var(--sub-text);">
             <div class="loading-spinner"></div>
@@ -14,7 +15,7 @@ async function loadEventDeepData(id) {
         </div>`;
 
     try {
-        // Fetching using ID ensures we get the sub-route data (matches/skills)
+        // Fetch Matches and Skills in parallel using numerical ID
         const [matchRes, skillsRes] = await Promise.all([
             fetch(`/api/robotevents?id=${id}&type=matches`),
             fetch(`/api/robotevents?id=${id}&type=skills`)
@@ -37,6 +38,8 @@ function renderDeepData(matches, skills) {
     // 1. Skills Rankings Section
     if (skills.length > 0) {
         let skillsHtml = `<h3>Skills Standings</h3><div class="skills-grid" style="display:grid; gap:10px; margin-bottom:20px;">`;
+        
+        // Sort by rank and show top 8
         skills.sort((a, b) => a.rank - b.rank).slice(0, 8).forEach(s => {
             skillsHtml += `
                 <div class="note-card" style="padding:10px; font-size:0.8rem;">
@@ -53,8 +56,10 @@ function renderDeepData(matches, skills) {
     // 2. Match Schedule / Results Section
     if (matches.length > 0) {
         let matchHtml = `<h3>Match Schedule</h3>`;
+        
+        // Sort matches by their ID or sequence
         matches.sort((a, b) => a.id - b.id).forEach(m => {
-            // FIX: Accessing alliance scores properly to detect finished matches
+            // Check if scores exist to determine if it's finished
             const redScore = m.alliances[0].score;
             const blueScore = m.alliances[1].score;
             const isFinished = redScore > 0 || blueScore > 0;
@@ -79,6 +84,6 @@ function renderDeepData(matches, skills) {
         });
         container.innerHTML += matchHtml;
     } else {
-        container.innerHTML += `<p style="text-align:center; color:var(--sub-text); padding: 20px;">No match schedule found.</p>`;
+        container.innerHTML += `<p style="text-align:center; color:var(--sub-text); padding:20px;">No match data available for this event yet.</p>`;
     }
 }
