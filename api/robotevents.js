@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    const { search, start, sku, type, divisionId } = req.query;
+    const { search, start, sku, type, id } = req.query;
     const token = process.env.ROBOT_EVENTS_TOKEN;
 
     if (!token) {
@@ -8,19 +8,14 @@ export default async function handler(req, res) {
 
     let url = `https://www.robotevents.com/api/v2/events`;
     
-    // Logic to handle deep-data requests (Divisions, Matches, Skills)
-    if (sku) {
-        if (type === 'divisions') {
-            url += `/${sku}/divisions`;
-        } else if (type === 'skills') {
-            url += `/${sku}/skills?per_page=100`;
-        } else if (type === 'matches' && divisionId) {
-            url += `/${sku}/divisions/${divisionId}/matches?per_page=100`;
-        } else {
-            url += `/${sku}`;
-        }
+    // Use 'id' (numerical) if available, otherwise fall back to 'sku'
+    const eventIdentifier = id || sku;
+
+    // Case 1: Fetching specific event details (Matches or Skills) using the ID
+    if (eventIdentifier && type) {
+        url += `/${eventIdentifier}/${type}?per_page=100`;
     } 
-    // Logic for general event search
+    // Case 2: Standard Event Search
     else {
         url += `?per_page=50`;
         if (start) url += `&start=${start}`;
