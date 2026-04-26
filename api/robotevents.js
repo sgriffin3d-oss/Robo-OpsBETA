@@ -6,15 +6,19 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "API Token missing in Vercel Environment Variables" });
     }
 
+    // Base URL for events
     let url = `https://www.robotevents.com/api/v2/events`;
     
-    // FIX: RobotEvents API v2 uses the numerical ID for matches/skills sub-routes
+    // RobotEvents API v2 requires the numerical ID for sub-routes like /matches or /skills
+    // We prioritize 'id' if the frontend sends it
     const eventIdentifier = id || sku;
 
     if (eventIdentifier && type) {
+        // Correct path: /events/{id}/{type}
         url += `/${eventIdentifier}/${type}?per_page=100`;
     } 
     else {
+        // Standard Search Path
         url += `?per_page=50`;
         if (start) url += `&start=${start}`;
         if (search && search.trim() !== "") {
