@@ -8,14 +8,12 @@ export default async function handler(req, res) {
 
     let url = `https://www.robotevents.com/api/v2/events`;
     
-    // Use 'id' (numerical) if available, otherwise fall back to 'sku'
+    // RobotEvents API requires the numerical ID for matches/skills sub-routes
     const eventIdentifier = id || sku;
 
-    // Case 1: Fetching specific event details (Matches or Skills) using the ID
     if (eventIdentifier && type) {
         url += `/${eventIdentifier}/${type}?per_page=100`;
     } 
-    // Case 2: Standard Event Search
     else {
         url += `?per_page=50`;
         if (start) url += `&start=${start}`;
