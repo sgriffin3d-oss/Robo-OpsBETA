@@ -3,11 +3,10 @@
  * Handles fetching and rendering specific event data (Matches & Skills)
  */
 
-async function loadEventDeepData(id) { // Renamed parameter to 'id' for clarity
+async function loadEventDeepData(id) {
     const container = document.getElementById('detHistory');
     if (!container) return;
 
-    // Show loading state in the detail view
     container.innerHTML = `
         <div style="text-align:center; padding:20px; color:var(--sub-text);">
             <div class="loading-spinner"></div>
@@ -15,7 +14,7 @@ async function loadEventDeepData(id) { // Renamed parameter to 'id' for clarity
         </div>`;
 
     try {
-        // Fetch Matches and Skills in parallel using 'id'
+        // Fetching using ID ensures we get the sub-route data (matches/skills)
         const [matchRes, skillsRes] = await Promise.all([
             fetch(`/api/robotevents?id=${id}&type=matches`),
             fetch(`/api/robotevents?id=${id}&type=skills`)
@@ -38,7 +37,6 @@ function renderDeepData(matches, skills) {
     // 1. Skills Rankings Section
     if (skills.length > 0) {
         let skillsHtml = `<h3>Skills Standings</h3><div class="skills-grid" style="display:grid; gap:10px; margin-bottom:20px;">`;
-        // Sort by rank and take top 8
         skills.sort((a, b) => a.rank - b.rank).slice(0, 8).forEach(s => {
             skillsHtml += `
                 <div class="note-card" style="padding:10px; font-size:0.8rem;">
@@ -55,10 +53,12 @@ function renderDeepData(matches, skills) {
     // 2. Match Schedule / Results Section
     if (matches.length > 0) {
         let matchHtml = `<h3>Match Schedule</h3>`;
-        // Sort matches by ID/Sequence
         matches.sort((a, b) => a.id - b.id).forEach(m => {
-            // Updated check for finished matches: look for existing scores in alliances
-            const isFinished = m.alliances[0].score !== 0 || m.alliances[1].score !== 0;
+            // FIX: Accessing alliance scores properly to detect finished matches
+            const redScore = m.alliances[0].score;
+            const blueScore = m.alliances[1].score;
+            const isFinished = redScore > 0 || blueScore > 0;
+
             matchHtml += `
                 <div class="note-card" style="flex-direction:column; align-items:flex-start; margin-bottom:10px;">
                     <div style="display:flex; justify-content:space-between; width:100%; font-size:0.75rem; opacity:0.7;">
@@ -71,14 +71,14 @@ function renderDeepData(matches, skills) {
                         <span style="color:#4d94ff; font-weight:bold;">${m.alliances[1].teams.map(t => t.team.name).join(' & ')}</span>
                     </div>
                     ${isFinished ? `
-                    <div style="display:flex; justify-content:space-between; width:100%; border-top:1px solid var(--border); pt:5px;">
-                         <b style="color:#ff4d4d">${m.alliances[0].score}</b>
-                         <b style="color:#4d94ff">${m.alliances[1].score}</b>
+                    <div style="display:flex; justify-content:space-between; width:100%; border-top:1px solid var(--border); padding-top:5px;">
+                         <b style="color:#ff4d4d">${redScore}</b>
+                         <b style="color:#4d94ff">${blueScore}</b>
                     </div>` : ''}
                 </div>`;
         });
         container.innerHTML += matchHtml;
     } else {
-        container.innerHTML += `<p style="text-align:center; color:var(--sub-text);">No matches posted yet.</p>`;
+        container.innerHTML += `<p style="text-align:center; color:var(--sub-text); padding: 20px;">No match schedule found.</p>`;
     }
 }
