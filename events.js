@@ -1,18 +1,20 @@
 /**
  * events.js - Paragon Core X
- * Updated to pass SKU for deep data lookups
+ * Handles RobotEvents API integration via Vercel Serverless Proxy
  */
 
 async function loadEvents(query = '') {
     const list = document.getElementById('event-list');
     if (!list) return;
 
+    // 1. Show Loading State
     list.innerHTML = `
         <div style="text-align:center; padding:40px; color:var(--sub-text);">
             <div class="loading-spinner"></div>
             <p style="margin-top:15px;">Accessing RobotEvents...</p>
         </div>`;
 
+    // 2. Define Date Window (1 week ago to now)
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
     const dateString = oneWeekAgo.toISOString().split('T')[0] + 'T00:00:00Z';
@@ -42,7 +44,7 @@ async function loadEvents(query = '') {
             date: new Date(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
             status: getStatus(e.start, e.end),
             sku: e.sku,
-            id: e.id 
+            id: e.id // Numerical ID is crucial for sub-data
         }));
 
         renderEvents(events);
@@ -72,9 +74,8 @@ function renderEvents(events) {
     
     events.forEach(e => {
         const statusClass = e.status.toLowerCase();
-        // FIXED: Now passing e.sku instead of e.id
         list.innerHTML += `
-            <div class="event-item" onclick="viewEventDetails('${e.sku}', '${e.name.replace(/'/g, "\\'")}')">
+            <div class="event-item" onclick="viewEventDetails('${e.id}', '${e.name.replace(/'/g, "\\'")}')">
                 <div class="event-meta">
                     <span>${e.date}</span>
                     <span style="margin: 0 5px; opacity: 0.5;">•</span>
@@ -87,10 +88,11 @@ function renderEvents(events) {
     });
 }
 
-function viewEventDetails(sku, name) {
+function viewEventDetails(id, name) {
     document.getElementById('detName').innerText = name;
-    nav('detail');
+    nav('detail'); // Defined in app.js
+
     if (typeof loadEventDeepData === 'function') {
-        loadEventDeepData(sku);
+        loadEventDeepData(id);
     }
 }
