@@ -100,7 +100,13 @@
     <section id="view-events" class="view">
         <div class="welcome-header"><h1>Events</h1><p>Competition Tracker</p></div>
         <div class="search-container">
-            <input type="text" id="eventSearch" class="search-bar" placeholder="Search name or region..." oninput="loadEvents(this.value)">
+            <input type="text" id="eventSearch" class="search-bar" placeholder="Search events..." oninput="loadEvents(this.value)">
+            <div class="evt-filter-bar">
+                <button class="evt-filter-btn active" id="filter-all" onclick="setEventFilter('all')">ALL</button>
+                <button class="evt-filter-btn live-btn" id="filter-live" onclick="setEventFilter('live')">● LIVE</button>
+                <button class="evt-filter-btn" id="filter-upcoming" onclick="setEventFilter('upcoming')">UPCOMING</button>
+                <button class="evt-filter-btn" id="filter-completed" onclick="setEventFilter('completed')">COMPLETED</button>
+            </div>
         </div>
         <div id="event-list"></div>
     </section>

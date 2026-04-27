@@ -1,62 +1,125 @@
 /**
  * events.js - Paragon Core X
- * Handles RobotEvents API integration via Vercel Serverless Proxy
+ * Rebuilt: VEX VIA-inspired Events Hub with status filters
  */
+
+let allEvents = [];
+let activeFilter = 'all';
 
 async function loadEvents(query = '') {
     const list = document.getElementById('event-list');
     if (!list) return;
 
-    // 1. Show Loading State
     list.innerHTML = `
         <div style="text-align:center; padding:40px; color:var(--sub-text);">
             <div class="loading-spinner"></div>
-            <p style="margin-top:15px;">Accessing RobotEvents...</p>
+            <p style="margin-top:15px; font-size:0.85rem; letter-spacing:1px;">LOADING EVENTS...</p>
         </div>`;
 
-    // 2. Define Date Window (1 week ago to now)
+    // Date window: 2 weeks ago to 4 weeks ahead to catch live + upcoming
     const now = new Date();
-    const oneWeekAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-    const dateString = oneWeekAgo.toISOString().split('T')[0] + 'T00:00:00Z';
+    const twoWeeksAgo = new Date(now.getTime() - (14 * 24 * 60 * 60 * 1000));
+    const dateString = twoWeeksAgo.toISOString().split('T')[0] + 'T00:00:00Z';
 
     try {
         const url = `/api/robotevents?search=${encodeURIComponent(query)}&start=${dateString}`;
         const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
-        }
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const result = await response.json();
 
         if (!result.data || result.data.length === 0) {
             list.innerHTML = `
                 <div style="text-align:center; padding:40px; color:var(--sub-text);">
-                    <p>No current events found for "${query || 'Recent'}"</p>
-                    <button onclick="loadEvents('')" style="background:var(--border); color:var(--text); border:none; padding:10px 20px; border-radius:8px; margin-top:10px; cursor:pointer;">Clear Search</button>
+                    <p style="font-size:0.9rem;">No events found${query ? ` for "${query}"` : ''}.</p>
+                    ${query ? `<button onclick="clearEventSearch()" class="filter-clear-btn">Clear Search</button>` : ''}
                 </div>`;
             return;
         }
 
-        const events = result.data.map(e => ({
+        allEvents = result.data.map(e => ({
             name: e.name,
-            location: `${e.location.city || 'Unknown'}, ${e.location.region || ''}`,
-            date: new Date(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+            city: e.location?.city || '',
+            region: e.location?.region || '',
+            start: e.start,
+            end: e.end,
             status: getStatus(e.start, e.end),
             sku: e.sku,
-            id: e.id // Numerical ID is crucial for sub-data
+            id: e.id
         }));
 
-        renderEvents(events);
+        renderFilteredEvents();
 
     } catch (err) {
-        console.error("Scout Error:", err);
+        console.error('Events load error:', err);
         list.innerHTML = `
             <div style="text-align:center; padding:40px; color:var(--red);">
-                <p><b>API Connection Failed</b></p>
-                <small>${err.message}</small>
+                <p style="font-weight:800;">CONNECTION FAILED</p>
+                <small style="color:var(--sub-text);">${err.message}</small><br>
+                <button onclick="loadEvents()" style="margin-top:15px; background:var(--border); color:var(--text); border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:700;">RETRY</button>
             </div>`;
     }
+}
+
+function clearEventSearch() {
+    const searchEl = document.getElementById('eventSearch');
+    if (searchEl) searchEl.value = '';
+    loadEvents('');
+}
+
+function setEventFilter(filter) {
+    activeFilter = filter;
+    document.querySelectorAll('.evt-filter-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('filter-' + filter);
+    if (btn) btn.classList.add('active');
+    renderFilteredEvents();
+}
+
+function renderFilteredEvents() {
+    const list = document.getElementById('event-list');
+    if (!list) return;
+
+    let filtered = allEvents;
+    if (activeFilter !== 'all') {
+        filtered = allEvents.filter(e => e.status.toLowerCase() === activeFilter);
+    }
+
+    if (filtered.length === 0) {
+        const labels = { live: 'live', upcoming: 'upcoming', completed: 'completed' };
+        list.innerHTML = `
+            <div style="text-align:center; padding:40px; color:var(--sub-text);">
+                <p style="font-size:0.85rem;">No ${labels[activeFilter] || ''} events found.</p>
+            </div>`;
+        return;
+    }
+
+    list.innerHTML = '';
+    filtered.forEach(e => {
+        const statusClass = e.status.toLowerCase();
+        const location = [e.city, e.region].filter(Boolean).join(', ');
+        const dateStr = formatEventDate(e.start, e.end);
+        const safeName = e.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+        list.innerHTML += `
+            <div class="event-item" onclick="viewEventDetails(${e.id}, '${safeName}', '${e.status}')">
+                <div class="event-item-top">
+                    <div class="event-item-meta">${dateStr}${location ? ` &nbsp;·&nbsp; ${location}` : ''}</div>
+                    <span class="status-pill status-${statusClass}">${e.status.toUpperCase()}</span>
+                </div>
+                <div class="event-item-name">${e.name}</div>
+            </div>`;
+    });
+}
+
+function formatEventDate(start, end) {
+    const s = new Date(start);
+    const e = new Date(end);
+    const opts = { month: 'short', day: 'numeric' };
+    if (s.toDateString() === e.toDateString()) {
+        return s.toLocaleDateString(undefined, opts);
+    }
+    return `${s.toLocaleDateString(undefined, opts)} – ${e.toLocaleDateString(undefined, opts)}`;
 }
 
 function getStatus(start, end) {
@@ -68,31 +131,10 @@ function getStatus(start, end) {
     return 'Upcoming';
 }
 
-function renderEvents(events) {
-    const list = document.getElementById('event-list');
-    list.innerHTML = '';
-    
-    events.forEach(e => {
-        const statusClass = e.status.toLowerCase();
-        list.innerHTML += `
-            <div class="event-item" onclick="viewEventDetails('${e.id}', '${e.name.replace(/'/g, "\\'")}')">
-                <div class="event-meta">
-                    <span>${e.date}</span>
-                    <span style="margin: 0 5px; opacity: 0.5;">•</span>
-                    <span>${e.location}</span>
-                </div>
-                <span class="event-name">${e.name}</span>
-                <div class="status-pill status-${statusClass}">${e.status.toUpperCase()}</div>
-            </div>
-        `;
-    });
-}
-
-function viewEventDetails(id, name) {
+function viewEventDetails(id, name, status) {
     document.getElementById('detName').innerText = name;
-    nav('detail'); // Defined in app.js
-
+    nav('detail');
     if (typeof loadEventDeepData === 'function') {
-        loadEventDeepData(id);
+        loadEventDeepData(id, status);
     }
 }
