@@ -1,6 +1,5 @@
 /**
  * api/robotevents.js - Paragon Core X Vercel Serverless Proxy
- * Updated to support division-based matches and rankings endpoints
  */
 
 export default async function handler(req, res) {
@@ -14,21 +13,20 @@ export default async function handler(req, res) {
     let url;
 
     if (id && div && type) {
-        // Division-scoped endpoints: matches and rankings require a division ID
-        // e.g. /events/12345/divisions/1/matches
+        // Division-scoped: matches and rankings MUST go through a division
+        // e.g. /events/64025/divisions/1/matches
         url = `https://www.robotevents.com/api/v2/events/${id}/divisions/${div}/${type}?per_page=100`;
 
     } else if (id && type) {
         // Non-division endpoints: skills, teams, awards
-        // e.g. /events/12345/skills
         url = `https://www.robotevents.com/api/v2/events/${id}/${type}?per_page=100`;
 
-    } else if (id) {
-        // Fetch a single event (used to get its divisions list)
+    } else if (id && !type && !div) {
+        // Single event fetch — used to get its divisions list
         url = `https://www.robotevents.com/api/v2/events/${id}`;
 
     } else {
-        // Event search
+        // Event list search
         url = `https://www.robotevents.com/api/v2/events?per_page=50`;
         if (start) url += `&start=${start}`;
         if (search && search.trim() !== "") {
