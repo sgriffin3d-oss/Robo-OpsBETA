@@ -1,7 +1,7 @@
 /**
  * details.js - Paragon Core X
- * Rebuilt: Tabbed event detail view (Rankings, Schedule, Skills, Teams)
- * Fixed API response parsing for RobotEvents v2
+ * Fixed: Fetches event divisions first, then uses division ID for matches & rankings
+ * The RobotEvents API requires /events/{id}/divisions/{div}/matches — not /events/{id}/matches
  */
 
 let currentEventId = null;
@@ -16,7 +16,6 @@ async function loadEventDeepData(id, status) {
     const container = document.getElementById('detHistory');
     if (!container) return;
 
-    // Inject tab bar + content area
     container.innerHTML = `
         <div class="detail-tabs" id="detail-tabs">
             <button class="detail-tab active" id="tab-schedule" onclick="switchTab('schedule')">SCHEDULE</button>
@@ -31,12 +30,23 @@ async function loadEventDeepData(id, status) {
             </div>
         </div>`;
 
-    // Kick off all 4 fetches in parallel
     try {
+        // Step 1: Fetch the event object to get its divisions array.
+        // Matches and rankings are division-scoped in the RobotEvents v2 API:
+        //   CORRECT:   /events/{id}/divisions/{div}/matches
+        //   WRONG:     /events/{id}/matches  <-- this endpoint does not exist
+        const eventRes = await fetch(`/api/robotevents?id=${id}`);
+        if (!eventRes.ok) throw new Error(`Event fetch failed: ${eventRes.status}`);
+        const eventData = await eventRes.json();
+
+        const divisions = eventData.divisions || [];
+        const divId = divisions.length > 0 ? divisions[0].id : 1;
+
+        // Step 2: Fetch all 4 data types in parallel with correct URLs
         const [matchRes, skillsRes, rankRes, teamRes] = await Promise.all([
-            fetch(`/api/robotevents?id=${id}&type=matches`),
+            fetch(`/api/robotevents?id=${id}&div=${divId}&type=matches`),
             fetch(`/api/robotevents?id=${id}&type=skills`),
-            fetch(`/api/robotevents?id=${id}&type=rankings`),
+            fetch(`/api/robotevents?id=${id}&div=${divId}&type=rankings`),
             fetch(`/api/robotevents?id=${id}&type=teams`)
         ]);
 
@@ -51,7 +61,8 @@ async function loadEventDeepData(id, status) {
             matches: matchData.data || [],
             skills: skillsData.data || [],
             rankings: rankData.data || [],
-            teams: teamData.data || []
+            teams: teamData.data || [],
+            divisions
         };
 
         renderTab('schedule');
@@ -59,7 +70,8 @@ async function loadEventDeepData(id, status) {
     } catch (err) {
         document.getElementById('tab-content').innerHTML = `
             <p style="color:var(--red); text-align:center; padding:30px;">
-                Failed to load event data.<br><small>${err.message}</small>
+                Failed to load event data.<br>
+                <small style="color:var(--sub-text);">${err.message}</small>
             </p>`;
     }
 }
@@ -75,7 +87,6 @@ function switchTab(tab) {
 function renderTab(tab) {
     const content = document.getElementById('tab-content');
     if (!content) return;
-
     switch (tab) {
         case 'schedule':  renderSchedule(content); break;
         case 'rankings':  renderRankings(content); break;
@@ -94,7 +105,6 @@ function renderSchedule(container) {
         return;
     }
 
-    // Sort by match name naturally (Q1, Q2 ... SF1, F1)
     const sorted = [...matches].sort((a, b) => {
         if (a.round !== b.round) return a.round - b.round;
         return a.matchnum - b.matchnum;
@@ -106,20 +116,17 @@ function renderSchedule(container) {
         const blueAlliance = m.alliances?.find(a => a.color === 'blue') || m.alliances?.[1];
         if (!redAlliance || !blueAlliance) return;
 
-        const redTeams = (redAlliance.teams || []).map(t => t.team?.name || t.team?.id || '?').join(' & ');
-        const blueTeams = (blueAlliance.teams || []).map(t => t.team?.name || t.team?.id || '?').join(' & ');
+        const redTeams = (redAlliance.teams || []).map(t => t.team?.name || '?').join(' / ');
+        const blueTeams = (blueAlliance.teams || []).map(t => t.team?.name || '?').join(' / ');
 
-        // Score of -1 means not yet played in RobotEvents API
-        const redScore = redAlliance.score ?? -1;
-        const blueScore = blueAlliance.score ?? -1;
-        const isPlayed = redScore >= 0 && blueScore >= 0;
+        // RobotEvents uses -1 for unplayed matches
+        const redScore = redAlliance.score;
+        const blueScore = blueAlliance.score;
+        const isPlayed = typeof redScore === 'number' && redScore >= 0
+                      && typeof blueScore === 'number' && blueScore >= 0;
 
-        let winnerClass = '';
-        if (isPlayed) {
-            if (redScore > blueScore) winnerClass = 'red';
-            else if (blueScore > redScore) winnerClass = 'blue';
-            else winnerClass = 'tie';
-        }
+        const redWin = isPlayed && redScore > blueScore;
+        const blueWin = isPlayed && blueScore > redScore;
 
         html += `
             <div class="match-card ${isPlayed ? 'played' : ''}">
@@ -128,12 +135,12 @@ function renderSchedule(container) {
                     <span class="match-status">${isPlayed ? 'FINAL' : 'UPCOMING'}</span>
                 </div>
                 <div class="match-body">
-                    <div class="match-alliance red ${winnerClass === 'red' ? 'winner' : ''}">
+                    <div class="match-alliance red ${redWin ? 'winner' : ''}">
                         <span class="alliance-teams">${redTeams}</span>
                         ${isPlayed ? `<span class="alliance-score">${redScore}</span>` : ''}
                     </div>
                     <div class="match-vs">VS</div>
-                    <div class="match-alliance blue ${winnerClass === 'blue' ? 'winner' : ''}">
+                    <div class="match-alliance blue ${blueWin ? 'winner' : ''}">
                         ${isPlayed ? `<span class="alliance-score">${blueScore}</span>` : ''}
                         <span class="alliance-teams">${blueTeams}</span>
                     </div>
@@ -166,16 +173,15 @@ function renderRankings(container) {
         </div>`;
 
     sorted.forEach(r => {
-        const team = r.team?.name || r.team?.id || '?';
+        const team = r.team?.name || '?';
         const wins = r.wins ?? '–';
         const losses = r.losses ?? '–';
         const ties = r.ties ?? '–';
         const wp = r.wp ?? '–';
         const sp = r.sp ?? '–';
-        const isTop3 = r.rank <= 3;
 
         html += `
-            <div class="rank-row ${isTop3 ? 'top-rank' : ''}">
+            <div class="rank-row ${r.rank <= 3 ? 'top-rank' : ''}">
                 <span class="rank-col-rank">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : '#' + r.rank}</span>
                 <span class="rank-col-team">${team}</span>
                 <span class="rank-col-stat">${wins}-${losses}-${ties}</span>
@@ -197,13 +203,12 @@ function renderSkills(container) {
         return;
     }
 
-    // Group by team, keep highest combined score
     const teamMap = {};
     skills.forEach(s => {
-        const teamName = s.team?.name || s.team?.id || '?';
-        const type = s.type?.toLowerCase(); // 'driver' or 'programming'
-        if (!teamMap[teamName]) teamMap[teamName] = { team: teamName, driver: 0, prog: 0, rank: s.rank ?? 999 };
-        if (type === 'driver' || type === 'driver control') {
+        const teamName = s.team?.name || '?';
+        if (!teamMap[teamName]) teamMap[teamName] = { team: teamName, driver: 0, prog: 0 };
+        const type = s.type?.toLowerCase();
+        if (type === 'driver') {
             teamMap[teamName].driver = Math.max(teamMap[teamName].driver, s.score ?? 0);
         } else {
             teamMap[teamName].prog = Math.max(teamMap[teamName].prog, s.score ?? 0);
@@ -248,23 +253,20 @@ function renderTeams(container) {
         return;
     }
 
-    const sorted = [...teams].sort((a, b) => {
-        const na = a.team?.name || a.name || '';
-        const nb = b.team?.name || b.name || '';
-        return na.localeCompare(nb, undefined, { numeric: true });
-    });
+    // /events/{id}/teams returns Team objects directly (not wrapped in a .team property)
+    const sorted = [...teams].sort((a, b) =>
+        (a.number || '').localeCompare(b.number || '', undefined, { numeric: true })
+    );
 
     let html = '';
     sorted.forEach(t => {
-        // RobotEvents returns team data differently depending on endpoint
-        const name = t.team?.name || t.name || '?';
-        const org = t.team?.organization || t.organization || '';
-        const loc = [t.team?.location?.city, t.team?.location?.region]
-            .filter(Boolean).join(', ') || [t.location?.city, t.location?.region].filter(Boolean).join(', ');
+        const number = t.number || t.name || '?';
+        const org = t.organization || '';
+        const loc = [t.location?.city, t.location?.region].filter(Boolean).join(', ');
 
         html += `
             <div class="team-row">
-                <div class="team-number">${name}</div>
+                <div class="team-number">${number}</div>
                 <div class="team-info">
                     ${org ? `<div class="team-org">${org}</div>` : ''}
                     ${loc ? `<div class="team-loc">${loc}</div>` : ''}
@@ -272,7 +274,7 @@ function renderTeams(container) {
             </div>`;
     });
 
-    container.innerHTML = html || emptyState('No teams to display.');
+    container.innerHTML = html;
 }
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
