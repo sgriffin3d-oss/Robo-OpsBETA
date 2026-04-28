@@ -1,7 +1,6 @@
 /**
- * api/robotevents.js - Paragon Core X Vercel Serverless Proxy
- * KEY FIX: matches and rankings need /events/{id}/divisions/{div}/matches
- *          NOT /events/{id}/matches (that route does not exist in RobotEvents API)
+ * api/robotevents.js - Paragon Core X
+ * Fixed: fetches ALL pages for matches, rankings, skills, teams
  */
 
 export default async function handler(req, res) {
@@ -9,44 +8,67 @@ export default async function handler(req, res) {
     const token = process.env.ROBOT_EVENTS_TOKEN;
 
     if (!token) {
-        return res.status(500).json({ error: "API Token missing in Vercel Environment Variables" });
+        return res.status(500).json({ error: "API Token missing" });
     }
 
-    let url;
+    let baseUrl;
 
     if (id && div && type) {
-        // Division-scoped endpoints (matches, rankings)
-        url = `https://www.robotevents.com/api/v2/events/${id}/divisions/${div}/${type}?per_page=100`;
+        baseUrl = `https://www.robotevents.com/api/v2/events/${id}/divisions/${div}/${type}`;
     } else if (id && type) {
-        // Non-division endpoints (skills, teams, awards)
-        url = `https://www.robotevents.com/api/v2/events/${id}/${type}?per_page=100`;
+        baseUrl = `https://www.robotevents.com/api/v2/events/${id}/${type}`;
     } else if (id) {
-        // Single event fetch (to read its divisions list)
-        url = `https://www.robotevents.com/api/v2/events/${id}`;
-    } else {
-        // Event list / search
-        url = `https://www.robotevents.com/api/v2/events?per_page=50`;
-        if (start) url += `&start=${start}`;
-        if (search && search.trim() !== "") {
-            url += `&name[]=${encodeURIComponent(search)}`;
+        // Single event fetch — not paginated
+        const response = await fetch(`https://www.robotevents.com/api/v2/events/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+        });
+        if (!response.ok) {
+            const err = await response.text();
+            return res.status(response.status).json({ error: "RobotEvents Error", details: err });
         }
+        return res.status(200).json(await response.json());
+    } else {
+        // Event list search — single page is fine
+        let url = `https://www.robotevents.com/api/v2/events?per_page=50`;
+        if (start) url += `&start=${start}`;
+        if (search && search.trim() !== "") url += `&name[]=${encodeURIComponent(search)}`;
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+        });
+        if (!response.ok) {
+            const err = await response.text();
+            return res.status(response.status).json({ error: "RobotEvents Error", details: err });
+        }
+        return res.status(200).json(await response.json());
     }
 
+    // For sub-data endpoints: paginate through ALL pages
     try {
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
+        let allData = [];
+        let page = 1;
+        let lastPage = 1;
+
+        do {
+            const url = `${baseUrl}?per_page=250&page=${page}`;
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                return res.status(response.status).json({ error: "RobotEvents Error", details: err });
             }
-        });
 
-        if (!response.ok) {
-            const errBody = await response.text();
-            return res.status(response.status).json({ error: "RobotEvents Error", details: errBody });
-        }
+            const data = await response.json();
+            allData = allData.concat(data.data || []);
 
-        const data = await response.json();
-        res.status(200).json(data);
+            // RobotEvents returns meta.last_page for pagination
+            lastPage = data.meta?.last_page ?? 1;
+            page++;
+
+        } while (page <= lastPage);
+
+        res.status(200).json({ data: allData });
 
     } catch (error) {
         res.status(500).json({ error: "Server Error", message: error.message });
