@@ -4,6 +4,9 @@ let currentSort = 'team';
 let currentField = 'match';
 let editingSketchId = null;
 
+// Tracks where the detail view was opened from: 'home' (notes) or 'events'
+let detailOrigin = 'home';
+
 // Drawing State
 let canvas, ctx, drawing = false, penColor = 'white';
 
@@ -12,29 +15,23 @@ window.onload = function() {
     loadSettings();
     drawNotes();
     initCanvas();
-    nav('hub'); // Start the app at the Strategic Command Hub
+    nav('hub');
 };
 
 function initCanvas() {
     canvas = document.getElementById('sketch-canvas');
     if(!canvas) return;
     ctx = canvas.getContext('2d');
-    
     canvas.width = 800;
     canvas.height = 500;
-    
     const getXY = (e) => {
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
         let clientX = e.touches ? e.touches[0].clientX : e.clientX;
         let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { 
-            x: (clientX - rect.left) * scaleX, 
-            y: (clientY - rect.top) * scaleY 
-        };
+        return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
     };
-
     const start = (e) => { drawing = true; draw(e); };
     const end = () => { drawing = false; ctx.beginPath(); };
     const draw = (e) => {
@@ -48,7 +45,6 @@ function initCanvas() {
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
     };
-
     canvas.addEventListener('mousedown', start);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', end);
@@ -57,70 +53,62 @@ function initCanvas() {
     canvas.addEventListener('touchend', end);
 }
 
-// NAVIGATION LOGIC
+// NAVIGATION
 function nav(v) {
     document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
     const target = document.getElementById('view-' + v);
     if(target) target.classList.add('active');
-    
-    // Trigger specific logic for views
-    if (v === 'events' && typeof loadEvents === 'function') {
-        loadEvents(); // Initial load of current/upcoming events
+
+    if (v === 'events') {
+        // Restore last event if one was selected, otherwise load event list
+        if (typeof restoreEventsView === 'function') restoreEventsView();
+        else if (typeof loadEvents === 'function') loadEvents();
     }
     if (v === 'home') drawNotes();
-    
+
     window.scrollTo(0, 0);
     closeMenu();
 }
 
-// STRATEGY / DRAWING FUNCTIONS
+// Back button on the detail view — goes to correct origin
+function navBack() {
+    if (detailOrigin === 'events') {
+        nav('events');
+    } else {
+        nav('home');
+    }
+}
+
+// STRATEGY / DRAWING
 function setPen(c) { penColor = c; }
 function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 function saveSketch() {
     const name = document.getElementById('sketch-name').value || "Unnamed Strategy";
     const imgData = canvas.toDataURL();
-
     if (editingSketchId) {
         let idx = sketches.findIndex(s => s.id === editingSketchId);
-        if (idx > -1) {
-            sketches[idx].name = name;
-            sketches[idx].img = imgData;
-            sketches[idx].field = currentField;
-        }
+        if (idx > -1) { sketches[idx].name = name; sketches[idx].img = imgData; sketches[idx].field = currentField; }
         editingSketchId = null;
     } else {
-        const newItem = {
-            id: Date.now().toString(),
-            name: name,
-            date: new Date().toLocaleDateString(),
-            field: currentField,
-            img: imgData
-        };
-        sketches.push(newItem);
+        sketches.push({ id: Date.now().toString(), name, date: new Date().toLocaleDateString(), field: currentField, img: imgData });
     }
-
     localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
     clearCanvas();
     document.getElementById('sketch-name').value = '';
-    setFieldMode('saved'); 
+    setFieldMode('saved');
     drawSketches();
 }
 
 function loadSketch(id) {
     const s = sketches.find(sk => sk.id === id);
     if (!s) return;
-
     editingSketchId = s.id;
     currentField = s.field;
     document.getElementById('sketch-name').value = s.name;
-    setFieldMode('draw'); 
-    
+    setFieldMode('draw');
     const img = new Image();
-    img.onload = function() {
-        clearCanvas();
-        ctx.drawImage(img, 0, 0);
-    };
+    img.onload = function() { clearCanvas(); ctx.drawImage(img, 0, 0); };
     img.src = s.img;
 }
 
@@ -132,7 +120,7 @@ function drawSketches() {
         const fieldPath = s.field === 'skills' ? 'images/skills.png' : 'images/field.png';
         list.innerHTML += `
             <div class="sketch-item">
-                <img src="${s.img}" class="sketch-preview" onclick="loadSketch('${s.id}')" 
+                <img src="${s.img}" class="sketch-preview" onclick="loadSketch('${s.id}')"
                      style="background-image:url('${fieldPath}'); background-size:cover; cursor:pointer;">
                 <div style="flex:1; cursor:pointer;" onclick="loadSketch('${s.id}')">
                     <b style="font-size:0.9rem;">${s.name}</b><br>
@@ -153,7 +141,7 @@ function deleteSketch(id) {
     }
 }
 
-// SCOUTING NOTES LOGIC
+// SCOUTING NOTES
 function setSort(s) {
     currentSort = s;
     document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
@@ -167,9 +155,7 @@ function drawNotes() {
     if (!list) return;
     const query = (document.getElementById('noteSearch')?.value || "").toUpperCase();
     list.innerHTML = '';
-    
     let keys = [...new Set(db.map(item => currentSort === 'team' ? item.team : item.event))].sort();
-    
     keys.forEach(k => {
         if (k.toUpperCase().includes(query)) {
             let count = db.filter(d => (currentSort === 'team' ? d.team : d.event) === k).length;
@@ -183,6 +169,7 @@ function drawNotes() {
 }
 
 function showDet(val) {
+    detailOrigin = 'home'; // came from notes
     document.getElementById('detName').innerText = val;
     const hist = document.getElementById('detHistory');
     hist.innerHTML = '';
@@ -202,7 +189,7 @@ function showDet(val) {
 function save() {
     const id = document.getElementById('editIdx').value || Date.now().toString();
     const r = {
-        id: id,
+        id,
         team: document.getElementById('f-team').value.toUpperCase(),
         event: document.getElementById('f-event').value,
         res: document.getElementById('f-res').value,
@@ -251,14 +238,11 @@ function del(id, val) {
 
 // DATA EXPORT/IMPORT
 function exportData() {
-    const payload = { db: db, sketches: sketches };
-    const dataStr = JSON.stringify(payload);
-    const blob = new Blob([dataStr], { type: "text/plain" });
+    const payload = { db, sketches };
+    const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = url;
-    link.download = `backup.paragon`;
-    link.click();
+    link.href = url; link.download = `backup.paragon`; link.click();
 }
 
 function importData(event) {
@@ -268,20 +252,13 @@ function importData(event) {
     reader.onload = function(e) {
         try {
             const raw = JSON.parse(e.target.result);
-            if (raw.db && raw.sketches) {
-                db = raw.db;
-                sketches = raw.sketches;
-            } else {
-                db = raw;
-                sketches = [];
-            }
+            if (raw.db && raw.sketches) { db = raw.db; sketches = raw.sketches; }
+            else { db = raw; sketches = []; }
             localStorage.setItem('paragon_db', JSON.stringify(db));
             localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
             drawNotes();
             alert("Import Successful.");
-        } catch (err) {
-            alert("Error: Invalid .paragon file.");
-        }
+        } catch (err) { alert("Error: Invalid .paragon file."); }
     };
     reader.readAsText(file);
 }

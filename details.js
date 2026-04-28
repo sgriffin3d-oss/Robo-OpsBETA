@@ -1,6 +1,6 @@
 /**
  * details.js - Paragon Core X
- * Features: division selector tabs, skills with score/attempts, search fix
+ * Features: division dropdown, skills score/attempts, full pagination via proxy
  */
 
 let currentEventId = null;
@@ -24,20 +24,15 @@ async function loadEventDeepData(id) {
         </div>`;
 
     try {
-        // Step 1: get event to read divisions
         const eventRes = await fetch(`/api/robotevents?id=${id}`);
         if (!eventRes.ok) throw new Error(`Event fetch failed: ${eventRes.status}`);
         const eventRaw = await eventRes.json();
         const eventObj = eventRaw.data ?? eventRaw;
         const divisions = eventObj.divisions || [];
         activeDivId = divisions.length > 0 ? divisions[0].id : 1;
-
         cachedData.divisions = divisions;
 
-        // Step 2: fetch all data for first division + non-division endpoints in parallel
         await fetchDivisionData(id, activeDivId);
-
-        // Build the full UI now that we have divisions
         renderDetailUI(container, divisions);
         renderTab(activeTab);
 
@@ -67,18 +62,23 @@ async function fetchDivisionData(eventId, divId) {
 }
 
 function renderDetailUI(container, divisions) {
-    // Build division selector (only if more than 1 division)
-    let divSelector = '';
+    // Division dropdown — only shown if event has multiple divisions
+    let divDropdown = '';
     if (divisions.length > 1) {
-        const btns = divisions.map(d =>
-            `<button class="div-btn ${d.id === activeDivId ? 'active' : ''}"
-                onclick="switchDivision(${d.id})">${d.name}</button>`
+        const options = divisions.map(d =>
+            `<option value="${d.id}" ${d.id === activeDivId ? 'selected' : ''}>${d.name}</option>`
         ).join('');
-        divSelector = `<div class="div-selector">${btns}</div>`;
+        divDropdown = `
+            <div class="div-dropdown-wrap">
+                <label class="div-dropdown-label">DIVISION</label>
+                <select class="div-dropdown" onchange="switchDivision(parseInt(this.value))">
+                    ${options}
+                </select>
+            </div>`;
     }
 
     container.innerHTML = `
-        ${divSelector}
+        ${divDropdown}
         <div class="detail-tabs" id="detail-tabs">
             <button class="detail-tab active" id="tab-schedule" onclick="switchTab('schedule')">SCHEDULE</button>
             <button class="detail-tab" id="tab-rankings" onclick="switchTab('rankings')">RANKINGS</button>
@@ -90,20 +90,11 @@ function renderDetailUI(container, divisions) {
 
 async function switchDivision(divId) {
     activeDivId = divId;
-
-    // Update active button
-    document.querySelectorAll('.div-btn').forEach(b => b.classList.remove('active'));
-    const btn = [...document.querySelectorAll('.div-btn')]
-        .find(b => b.onclick?.toString().includes(divId));
-    if (btn) btn.classList.add('active');
-
-    // Show loading in content area
     const content = document.getElementById('tab-content');
     if (content) content.innerHTML = `
         <div style="text-align:center;padding:30px;color:var(--sub-text);">
             <div class="loading-spinner"></div>
         </div>`;
-
     await fetchDivisionData(currentEventId, divId);
     renderTab(activeTab);
 }
@@ -131,10 +122,7 @@ function renderTab(tab) {
 
 function renderSchedule(container) {
     const matches = cachedData.matches || [];
-    if (!matches.length) {
-        container.innerHTML = emptyState('No match data available yet.');
-        return;
-    }
+    if (!matches.length) { container.innerHTML = emptyState('No match data available yet.'); return; }
     const sorted = [...matches].sort((a, b) =>
         a.round !== b.round ? a.round - b.round : a.matchnum - b.matchnum
     );
@@ -173,10 +161,7 @@ function renderSchedule(container) {
 
 function renderRankings(container) {
     const rankings = cachedData.rankings || [];
-    if (!rankings.length) {
-        container.innerHTML = emptyState('Rankings not available yet.');
-        return;
-    }
+    if (!rankings.length) { container.innerHTML = emptyState('Rankings not available yet.'); return; }
     const sorted = [...rankings].sort((a, b) => a.rank - b.rank);
     let html = `
         <div class="rank-header-row">
@@ -203,24 +188,15 @@ function renderRankings(container) {
 
 function renderSkills(container) {
     const skills = cachedData.skills || [];
-    if (!skills.length) {
-        container.innerHTML = emptyState('Skills data not available for this event.');
-        return;
-    }
+    if (!skills.length) { container.innerHTML = emptyState('Skills data not available for this event.'); return; }
 
-    // Each entry in skills[] is one attempt. Group by team, track best score and attempt count.
+    // Each entry = one attempt. Group by team, count attempts, track best score per type.
     const teamMap = {};
     skills.forEach(s => {
         const name = s.team?.name || '?';
-        const type = s.type?.toLowerCase(); // 'driver' or 'programming'
+        const type = s.type?.toLowerCase();
         const score = s.score ?? 0;
-
-        if (!teamMap[name]) teamMap[name] = {
-            team: name,
-            driverBest: 0, driverAttempts: 0,
-            progBest: 0,   progAttempts: 0
-        };
-
+        if (!teamMap[name]) teamMap[name] = { team: name, driverBest: 0, driverAttempts: 0, progBest: 0, progAttempts: 0 };
         if (type === 'driver') {
             teamMap[name].driverAttempts++;
             teamMap[name].driverBest = Math.max(teamMap[name].driverBest, score);
@@ -245,20 +221,17 @@ function renderSkills(container) {
 
     sorted.forEach((t, i) => {
         const rank = i + 1;
-        // Format as best/attempts e.g. "119/3"
-        const drvStr = t.driverAttempts > 0 ? `${t.driverBest}/${t.driverAttempts}` : '–';
-        const prgStr = t.progAttempts   > 0 ? `${t.progBest}/${t.progAttempts}`     : '–';
-
+        const drv = t.driverAttempts > 0 ? `${t.driverBest}/${t.driverAttempts}` : '–';
+        const prg = t.progAttempts   > 0 ? `${t.progBest}/${t.progAttempts}`     : '–';
         html += `
             <div class="rank-row ${rank <= 3 ? 'top-rank' : ''}">
                 <span class="rank-col-rank">${rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : '#'+rank}</span>
                 <span class="rank-col-team">${t.team}</span>
-                <span class="rank-col-skill">${drvStr}</span>
-                <span class="rank-col-skill">${prgStr}</span>
-                <span class="rank-col-skill" style="color:var(--primary);font-weight:900;">${t.total}</span>
+                <span class="rank-col-skill">${drv}</span>
+                <span class="rank-col-skill">${prg}</span>
+                <span class="rank-col-skill" style="color:var(--primary);font-weight:900;">${t.driverBest + t.progBest}</span>
             </div>`;
     });
-
     container.innerHTML = html;
 }
 
@@ -266,10 +239,7 @@ function renderSkills(container) {
 
 function renderTeams(container) {
     const teams = cachedData.teams || [];
-    if (!teams.length) {
-        container.innerHTML = emptyState('Team list not available.');
-        return;
-    }
+    if (!teams.length) { container.innerHTML = emptyState('Team list not available.'); return; }
     const sorted = [...teams].sort((a, b) =>
         (a.number || '').localeCompare(b.number || '', undefined, { numeric: true })
     );

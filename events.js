@@ -1,16 +1,33 @@
 /**
  * events.js - Paragon Core X
- * Fixed: search bar debounce, wider date window, filter bar
+ * Fixed: search debounce, filter bar, state persistence (last event remembered)
  */
 
 let allEvents = [];
 let activeFilter = 'all';
 let searchTimer = null;
+let lastEventId = null;
+let lastEventName = null;
+let eventsLoaded = false;
 
-// Called by oninput on the search bar — debounced so it waits until you stop typing
+// Called when returning to the events view — restores last selected event or shows list
+function restoreEventsView() {
+    if (lastEventId) {
+        // Re-open the last event detail
+        openEventDetail(lastEventId, lastEventName);
+    } else {
+        // First visit or no event selected — load the list
+        if (!eventsLoaded) loadEvents();
+    }
+}
+
+// Debounced search — waits 450ms after you stop typing before hitting the API
 function onEventSearch(value) {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => loadEvents(value), 400);
+    searchTimer = setTimeout(() => {
+        eventsLoaded = false;
+        loadEvents(value);
+    }, 450);
 }
 
 async function loadEvents(query = '') {
@@ -32,6 +49,7 @@ async function loadEvents(query = '') {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const result = await response.json();
+        eventsLoaded = true;
 
         if (!result.data || result.data.length === 0) {
             list.innerHTML = `
@@ -99,7 +117,7 @@ function renderFilteredEvents() {
         const safeName = e.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
         list.innerHTML += `
-            <div class="event-item" onclick="viewEventDetails(${e.id}, '${safeName}')">
+            <div class="event-item" onclick="openEventDetail(${e.id}, '${safeName}')">
                 <div class="event-item-top">
                     <div class="event-item-meta">${dateStr}${loc ? ` · ${loc}` : ''}</div>
                     <span class="status-pill status-${statusClass}">${e.status.toUpperCase()}</span>
@@ -124,8 +142,22 @@ function getEventStatus(start, end) {
     return 'Upcoming';
 }
 
-function viewEventDetails(id, name) {
+function openEventDetail(id, name) {
+    // Remember this event so we can restore it when returning to Events Hub
+    lastEventId = id;
+    lastEventName = name;
+
+    // Tell app.js that back button should return to events, not notes
+    if (typeof detailOrigin !== 'undefined') detailOrigin = 'events';
+
     document.getElementById('detName').innerText = name;
     nav('detail');
     if (typeof loadEventDeepData === 'function') loadEventDeepData(id);
+}
+
+// Called by the "← BACK" button when in events context — clears last event so list shows
+function backToEventsList() {
+    lastEventId = null;
+    lastEventName = null;
+    nav('events');
 }

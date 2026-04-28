@@ -379,3 +379,46 @@
     color: var(--sub-text);
     font-size: 0.75rem;
 }
+
+/* ─── DIVISION DROPDOWN ──────────────────────────────────────────────────── */
+
+.div-dropdown-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+.div-dropdown-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--sub-text);
+    flex-shrink: 0;
+}
+
+.div-dropdown {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Skills column — wider to fit "119/3" format */
+.rank-col-skill {
+    width: 72px;
+    flex-shrink: 0;
+    text-align: center;
+    color: var(--sub-text);
+    font-size: 0.75rem;
+}
