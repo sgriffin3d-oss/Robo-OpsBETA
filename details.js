@@ -1,14 +1,15 @@
 /**
- * details_debug.js - Paragon Core X
- * TEMPORARY DEBUG VERSION - shows raw API responses on screen
- * Replace with details.js after diagnosing, then delete this file
+ * details.js - Paragon Core X
+ * KEY FIX: Must fetch event first to get division ID, then use
+ *          /events/{id}/divisions/{div}/matches and /rankings
+ * KEY FIX: Single event endpoint returns {data: {...}} not the object directly
  */
 
 let currentEventId = null;
 let activeTab = 'schedule';
 let cachedData = {};
 
-async function loadEventDeepData(id, status) {
+async function loadEventDeepData(id) {
     currentEventId = id;
     activeTab = 'schedule';
     cachedData = {};
@@ -22,7 +23,6 @@ async function loadEventDeepData(id, status) {
             <button class="detail-tab" id="tab-rankings" onclick="switchTab('rankings')">RANKINGS</button>
             <button class="detail-tab" id="tab-skills" onclick="switchTab('skills')">SKILLS</button>
             <button class="detail-tab" id="tab-teams" onclick="switchTab('teams')">TEAMS</button>
-            <button class="detail-tab" id="tab-debug" onclick="switchTab('debug')" style="color:#f90;">DEBUG</button>
         </div>
         <div id="tab-content">
             <div style="text-align:center; padding:40px; color:var(--sub-text);">
@@ -31,85 +31,47 @@ async function loadEventDeepData(id, status) {
             </div>
         </div>`;
 
-    const log = [];
-
     try {
-        // Step 1: fetch the event to get divisions
-        const eventUrl = `/api/robotevents?id=${id}`;
-        log.push(`\n=== STEP 1: Fetch event ===\nURL: ${eventUrl}`);
+        // Step 1: fetch the single event to get its divisions
+        // The proxy returns {data: {id, name, divisions: [...], ...}} for a single event
+        const eventRes = await fetch(`/api/robotevents?id=${id}`);
+        if (!eventRes.ok) throw new Error(`Event fetch failed: ${eventRes.status}`);
+        const eventRaw = await eventRes.json();
 
-        const eventRes = await fetch(eventUrl);
-        const eventData = await eventRes.json();
-        log.push(`Status: ${eventRes.status}\nResponse keys: ${Object.keys(eventData).join(', ')}`);
-        log.push(`divisions: ${JSON.stringify(eventData.divisions)}`);
-
-        const divisions = eventData.divisions || [];
+        // Handle both {data: {...}} and raw object shapes
+        const eventObj = eventRaw.data ?? eventRaw;
+        const divisions = eventObj.divisions || [];
         const divId = divisions.length > 0 ? divisions[0].id : 1;
-        log.push(`Using divId: ${divId}`);
 
-        // Step 2: fetch all 4 in parallel
-        const urls = {
-            matches:  `/api/robotevents?id=${id}&div=${divId}&type=matches`,
-            skills:   `/api/robotevents?id=${id}&type=skills`,
-            rankings: `/api/robotevents?id=${id}&div=${divId}&type=rankings`,
-            teams:    `/api/robotevents?id=${id}&type=teams`
-        };
-
-        log.push(`\n=== STEP 2: Sub-fetches ===`);
-        Object.entries(urls).forEach(([k, v]) => log.push(`${k}: ${v}`));
-
-        const [matchRes, skillsRes, rankRes, teamRes] = await Promise.all(
-            Object.values(urls).map(u => fetch(u))
-        );
+        // Step 2: fetch all 4 data types in parallel
+        const [matchRes, skillsRes, rankRes, teamRes] = await Promise.all([
+            fetch(`/api/robotevents?id=${id}&div=${divId}&type=matches`),
+            fetch(`/api/robotevents?id=${id}&type=skills`),
+            fetch(`/api/robotevents?id=${id}&div=${divId}&type=rankings`),
+            fetch(`/api/robotevents?id=${id}&type=teams`)
+        ]);
 
         const [matchData, skillsData, rankData, teamData] = await Promise.all([
             matchRes.json(), skillsRes.json(), rankRes.json(), teamRes.json()
         ]);
-
-        // Log status codes and counts
-        log.push(`\n=== STEP 3: Results ===`);
-        log.push(`matches   HTTP ${matchRes.status} — data length: ${matchData.data?.length ?? 'no .data'}`);
-        log.push(`skills    HTTP ${skillsRes.status} — data length: ${skillsData.data?.length ?? 'no .data'}`);
-        log.push(`rankings  HTTP ${rankRes.status} — data length: ${rankData.data?.length ?? 'no .data'}`);
-        log.push(`teams     HTTP ${teamRes.status} — data length: ${teamData.data?.length ?? 'no .data'}`);
-
-        // Log first item of each so we can see actual shape
-        if (matchData.data?.length > 0) {
-            log.push(`\n--- First match object ---\n${JSON.stringify(matchData.data[0], null, 2)}`);
-        } else {
-            log.push(`\n--- Full matches response (no data) ---\n${JSON.stringify(matchData, null, 2)}`);
-        }
-
-        if (rankData.data?.length > 0) {
-            log.push(`\n--- First ranking object ---\n${JSON.stringify(rankData.data[0], null, 2)}`);
-        } else {
-            log.push(`\n--- Full rankings response (no data) ---\n${JSON.stringify(rankData, null, 2)}`);
-        }
 
         cachedData = {
             matches:  matchData.data  || [],
             skills:   skillsData.data || [],
             rankings: rankData.data   || [],
             teams:    teamData.data   || [],
-            divisions,
-            _log: log.join('\n')
+            divisions
         };
 
         renderTab('schedule');
 
     } catch (err) {
-        log.push(`\n=== ERROR ===\n${err.message}\n${err.stack}`);
-        cachedData._log = log.join('\n');
         document.getElementById('tab-content').innerHTML = `
-            <p style="color:var(--red); text-align:center; padding:20px;">
-                ${err.message}<br><small>Check DEBUG tab</small>
+            <p style="color:var(--red); text-align:center; padding:30px;">
+                Failed to load event data.<br>
+                <small style="color:var(--sub-text);">${err.message}</small>
             </p>`;
-        // Still show debug tab
-        cachedData._log = log.join('\n');
     }
-
-    // Always make debug available
-    cachedData._log = log.join('\n');
 }
 
 function switchTab(tab) {
@@ -128,70 +90,42 @@ function renderTab(tab) {
         case 'rankings':  renderRankings(content); break;
         case 'skills':    renderSkills(content); break;
         case 'teams':     renderTeams(content); break;
-        case 'debug':     renderDebug(content); break;
     }
 }
-
-function renderDebug(container) {
-    const logText = cachedData._log || 'No log yet.';
-    container.innerHTML = `
-        <div style="background:#111; border:1px solid #333; border-radius:10px; padding:14px; margin-top:10px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="color:#f90; font-weight:800; font-size:0.8rem;">RAW API DEBUG LOG</span>
-                <button onclick="copyDebugLog()" style="background:#333; color:#fff; border:none; padding:5px 10px; border-radius:6px; font-size:0.7rem; cursor:pointer;">COPY</button>
-            </div>
-            <pre id="debug-pre" style="color:#0f0; font-size:0.65rem; overflow-x:auto; white-space:pre-wrap; word-break:break-all; margin:0;">${escapeHtml(logText)}</pre>
-        </div>`;
-}
-
-function copyDebugLog() {
-    navigator.clipboard.writeText(cachedData._log || '').then(() => alert('Copied to clipboard!'));
-}
-
-function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ── SCHEDULE ────────────────────────────────────────────────────────────────
 
 function renderSchedule(container) {
     const matches = cachedData.matches || [];
-    if (matches.length === 0) {
-        container.innerHTML = emptyState('No match data — check DEBUG tab.');
+    if (!matches.length) {
+        container.innerHTML = emptyState('No match data available yet.');
         return;
     }
-    const sorted = [...matches].sort((a, b) => {
-        if (a.round !== b.round) return a.round - b.round;
-        return a.matchnum - b.matchnum;
-    });
+    const sorted = [...matches].sort((a, b) =>
+        a.round !== b.round ? a.round - b.round : a.matchnum - b.matchnum
+    );
     let html = '';
     sorted.forEach(m => {
-        const redAlliance = m.alliances?.find(a => a.color === 'red') || m.alliances?.[0];
-        const blueAlliance = m.alliances?.find(a => a.color === 'blue') || m.alliances?.[1];
-        if (!redAlliance || !blueAlliance) return;
-        const redTeams = (redAlliance.teams || []).map(t => t.team?.name || '?').join(' / ');
-        const blueTeams = (blueAlliance.teams || []).map(t => t.team?.name || '?').join(' / ');
-        const redScore = redAlliance.score;
-        const blueScore = blueAlliance.score;
-        const isPlayed = typeof redScore === 'number' && redScore >= 0
-                      && typeof blueScore === 'number' && blueScore >= 0;
-        const redWin = isPlayed && redScore > blueScore;
-        const blueWin = isPlayed && blueScore > redScore;
+        const red  = m.alliances?.find(a => a.color === 'red')  || m.alliances?.[0];
+        const blue = m.alliances?.find(a => a.color === 'blue') || m.alliances?.[1];
+        if (!red || !blue) return;
+        const rt = (red.teams  || []).map(t => t.team?.name || '?').join(' / ');
+        const bt = (blue.teams || []).map(t => t.team?.name || '?').join(' / ');
+        const rs = red.score, bs = blue.score;
+        const played = typeof rs === 'number' && rs >= 0 && typeof bs === 'number' && bs >= 0;
         html += `
-            <div class="match-card ${isPlayed ? 'played' : ''}">
+            <div class="match-card ${played ? 'played' : ''}">
                 <div class="match-header">
                     <span class="match-name">${m.name || 'Match'}</span>
-                    <span class="match-status">${isPlayed ? 'FINAL' : 'UPCOMING'}</span>
+                    <span class="match-status">${played ? 'FINAL' : 'UPCOMING'}</span>
                 </div>
                 <div class="match-body">
-                    <div class="match-alliance red ${redWin ? 'winner' : ''}">
-                        <span class="alliance-teams">${redTeams}</span>
-                        ${isPlayed ? `<span class="alliance-score">${redScore}</span>` : ''}
+                    <div class="match-alliance red ${played && rs > bs ? 'winner' : ''}">
+                        <span class="alliance-teams">${rt}</span>
+                        ${played ? `<span class="alliance-score">${rs}</span>` : ''}
                     </div>
                     <div class="match-vs">VS</div>
-                    <div class="match-alliance blue ${blueWin ? 'winner' : ''}">
-                        ${isPlayed ? `<span class="alliance-score">${blueScore}</span>` : ''}
-                        <span class="alliance-teams">${blueTeams}</span>
+                    <div class="match-alliance blue ${played && bs > rs ? 'winner' : ''}">
+                        ${played ? `<span class="alliance-score">${bs}</span>` : ''}
+                        <span class="alliance-teams">${bt}</span>
                     </div>
                 </div>
             </div>`;
@@ -199,12 +133,10 @@ function renderSchedule(container) {
     container.innerHTML = html || emptyState('No matches to display.');
 }
 
-// ── RANKINGS ─────────────────────────────────────────────────────────────────
-
 function renderRankings(container) {
     const rankings = cachedData.rankings || [];
-    if (rankings.length === 0) {
-        container.innerHTML = emptyState('No rankings — check DEBUG tab.');
+    if (!rankings.length) {
+        container.innerHTML = emptyState('Rankings not available yet.');
         return;
     }
     const sorted = [...rankings].sort((a, b) => a.rank - b.rank);
@@ -219,7 +151,7 @@ function renderRankings(container) {
     sorted.forEach(r => {
         html += `
             <div class="rank-row ${r.rank <= 3 ? 'top-rank' : ''}">
-                <span class="rank-col-rank">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : '#' + r.rank}</span>
+                <span class="rank-col-rank">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : '#'+r.rank}</span>
                 <span class="rank-col-team">${r.team?.name || '?'}</span>
                 <span class="rank-col-stat">${r.wins ?? '–'}-${r.losses ?? '–'}-${r.ties ?? '–'}</span>
                 <span class="rank-col-stat">${r.wp ?? '–'}</span>
@@ -229,24 +161,18 @@ function renderRankings(container) {
     container.innerHTML = html;
 }
 
-// ── SKILLS ───────────────────────────────────────────────────────────────────
-
 function renderSkills(container) {
     const skills = cachedData.skills || [];
-    if (skills.length === 0) {
-        container.innerHTML = emptyState('Skills data not available.');
+    if (!skills.length) {
+        container.innerHTML = emptyState('Skills data not available for this event.');
         return;
     }
     const teamMap = {};
     skills.forEach(s => {
-        const teamName = s.team?.name || '?';
-        if (!teamMap[teamName]) teamMap[teamName] = { team: teamName, driver: 0, prog: 0 };
-        const type = s.type?.toLowerCase();
-        if (type === 'driver') {
-            teamMap[teamName].driver = Math.max(teamMap[teamName].driver, s.score ?? 0);
-        } else {
-            teamMap[teamName].prog = Math.max(teamMap[teamName].prog, s.score ?? 0);
-        }
+        const n = s.team?.name || '?';
+        if (!teamMap[n]) teamMap[n] = { team: n, driver: 0, prog: 0 };
+        if (s.type?.toLowerCase() === 'driver') teamMap[n].driver = Math.max(teamMap[n].driver, s.score ?? 0);
+        else teamMap[n].prog = Math.max(teamMap[n].prog, s.score ?? 0);
     });
     const sorted = Object.values(teamMap)
         .map(t => ({ ...t, total: t.driver + t.prog }))
@@ -260,24 +186,22 @@ function renderSkills(container) {
             <span class="rank-col-stat" style="color:var(--primary)">TOT</span>
         </div>`;
     sorted.forEach((t, i) => {
-        const rank = i + 1;
+        const r = i + 1;
         html += `
-            <div class="rank-row ${rank <= 3 ? 'top-rank' : ''}">
-                <span class="rank-col-rank">${rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : '#' + rank}</span>
+            <div class="rank-row ${r <= 3 ? 'top-rank' : ''}">
+                <span class="rank-col-rank">${r <= 3 ? ['🥇','🥈','🥉'][r-1] : '#'+r}</span>
                 <span class="rank-col-team">${t.team}</span>
                 <span class="rank-col-stat">${t.driver}</span>
                 <span class="rank-col-stat">${t.prog}</span>
-                <span class="rank-col-stat" style="color:var(--primary); font-weight:900;">${t.total}</span>
+                <span class="rank-col-stat" style="color:var(--primary);font-weight:900;">${t.total}</span>
             </div>`;
     });
     container.innerHTML = html;
 }
 
-// ── TEAMS ────────────────────────────────────────────────────────────────────
-
 function renderTeams(container) {
     const teams = cachedData.teams || [];
-    if (teams.length === 0) {
+    if (!teams.length) {
         container.innerHTML = emptyState('Team list not available.');
         return;
     }
@@ -286,14 +210,12 @@ function renderTeams(container) {
     );
     let html = '';
     sorted.forEach(t => {
-        const number = t.number || t.name || '?';
-        const org = t.organization || '';
         const loc = [t.location?.city, t.location?.region].filter(Boolean).join(', ');
         html += `
             <div class="team-row">
-                <div class="team-number">${number}</div>
+                <div class="team-number">${t.number || '?'}</div>
                 <div class="team-info">
-                    ${org ? `<div class="team-org">${org}</div>` : ''}
+                    ${t.organization ? `<div class="team-org">${t.organization}</div>` : ''}
                     ${loc ? `<div class="team-loc">${loc}</div>` : ''}
                 </div>
             </div>`;
@@ -302,5 +224,5 @@ function renderTeams(container) {
 }
 
 function emptyState(msg) {
-    return `<div style="text-align:center; padding:40px; color:var(--sub-text); font-size:0.85rem;">${msg}</div>`;
+    return `<div style="text-align:center;padding:40px;color:var(--sub-text);font-size:0.85rem;">${msg}</div>`;
 }
