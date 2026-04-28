@@ -1,77 +1,111 @@
 /**
  * details.js - Paragon Core X
- * KEY FIX: Must fetch event first to get division ID, then use
- *          /events/{id}/divisions/{div}/matches and /rankings
- * KEY FIX: Single event endpoint returns {data: {...}} not the object directly
+ * Features: division selector tabs, skills with score/attempts, search fix
  */
 
 let currentEventId = null;
 let activeTab = 'schedule';
+let activeDivId = null;
 let cachedData = {};
 
 async function loadEventDeepData(id) {
     currentEventId = id;
     activeTab = 'schedule';
+    activeDivId = null;
     cachedData = {};
 
     const container = document.getElementById('detHistory');
     if (!container) return;
 
     container.innerHTML = `
+        <div style="text-align:center; padding:40px; color:var(--sub-text);">
+            <div class="loading-spinner"></div>
+            <p style="margin-top:15px; font-size:0.8rem; letter-spacing:1px;">FETCHING DATA...</p>
+        </div>`;
+
+    try {
+        // Step 1: get event to read divisions
+        const eventRes = await fetch(`/api/robotevents?id=${id}`);
+        if (!eventRes.ok) throw new Error(`Event fetch failed: ${eventRes.status}`);
+        const eventRaw = await eventRes.json();
+        const eventObj = eventRaw.data ?? eventRaw;
+        const divisions = eventObj.divisions || [];
+        activeDivId = divisions.length > 0 ? divisions[0].id : 1;
+
+        cachedData.divisions = divisions;
+
+        // Step 2: fetch all data for first division + non-division endpoints in parallel
+        await fetchDivisionData(id, activeDivId);
+
+        // Build the full UI now that we have divisions
+        renderDetailUI(container, divisions);
+        renderTab(activeTab);
+
+    } catch (err) {
+        container.innerHTML = `
+            <p style="color:var(--red); text-align:center; padding:30px;">
+                Failed to load event data.<br>
+                <small style="color:var(--sub-text);">${err.message}</small>
+            </p>`;
+    }
+}
+
+async function fetchDivisionData(eventId, divId) {
+    const [matchRes, rankRes, skillsRes, teamRes] = await Promise.all([
+        fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=matches`),
+        fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=rankings`),
+        fetch(`/api/robotevents?id=${eventId}&type=skills`),
+        fetch(`/api/robotevents?id=${eventId}&type=teams`)
+    ]);
+    const [matchData, rankData, skillsData, teamData] = await Promise.all([
+        matchRes.json(), rankRes.json(), skillsRes.json(), teamRes.json()
+    ]);
+    cachedData.matches  = matchData.data  || [];
+    cachedData.rankings = rankData.data   || [];
+    cachedData.skills   = skillsData.data || [];
+    cachedData.teams    = teamData.data   || [];
+}
+
+function renderDetailUI(container, divisions) {
+    // Build division selector (only if more than 1 division)
+    let divSelector = '';
+    if (divisions.length > 1) {
+        const btns = divisions.map(d =>
+            `<button class="div-btn ${d.id === activeDivId ? 'active' : ''}"
+                onclick="switchDivision(${d.id})">${d.name}</button>`
+        ).join('');
+        divSelector = `<div class="div-selector">${btns}</div>`;
+    }
+
+    container.innerHTML = `
+        ${divSelector}
         <div class="detail-tabs" id="detail-tabs">
             <button class="detail-tab active" id="tab-schedule" onclick="switchTab('schedule')">SCHEDULE</button>
             <button class="detail-tab" id="tab-rankings" onclick="switchTab('rankings')">RANKINGS</button>
             <button class="detail-tab" id="tab-skills" onclick="switchTab('skills')">SKILLS</button>
             <button class="detail-tab" id="tab-teams" onclick="switchTab('teams')">TEAMS</button>
         </div>
-        <div id="tab-content">
-            <div style="text-align:center; padding:40px; color:var(--sub-text);">
-                <div class="loading-spinner"></div>
-                <p style="margin-top:15px; font-size:0.8rem; letter-spacing:1px;">FETCHING DATA...</p>
-            </div>
+        <div id="tab-content"></div>`;
+}
+
+async function switchDivision(divId) {
+    activeDivId = divId;
+
+    // Update active button
+    document.querySelectorAll('.div-btn').forEach(b => b.classList.remove('active'));
+    const btn = [...document.querySelectorAll('.div-btn')]
+        .find(b => b.onclick?.toString().includes(divId));
+    if (btn) btn.classList.add('active');
+
+    // Show loading in content area
+    const content = document.getElementById('tab-content');
+    if (content) content.innerHTML = `
+        <div style="text-align:center;padding:30px;color:var(--sub-text);">
+            <div class="loading-spinner"></div>
         </div>`;
 
-    try {
-        // Step 1: fetch the single event to get its divisions
-        // The proxy returns {data: {id, name, divisions: [...], ...}} for a single event
-        const eventRes = await fetch(`/api/robotevents?id=${id}`);
-        if (!eventRes.ok) throw new Error(`Event fetch failed: ${eventRes.status}`);
-        const eventRaw = await eventRes.json();
-
-        // Handle both {data: {...}} and raw object shapes
-        const eventObj = eventRaw.data ?? eventRaw;
-        const divisions = eventObj.divisions || [];
-        const divId = divisions.length > 0 ? divisions[0].id : 1;
-
-        // Step 2: fetch all 4 data types in parallel
-        const [matchRes, skillsRes, rankRes, teamRes] = await Promise.all([
-            fetch(`/api/robotevents?id=${id}&div=${divId}&type=matches`),
-            fetch(`/api/robotevents?id=${id}&type=skills`),
-            fetch(`/api/robotevents?id=${id}&div=${divId}&type=rankings`),
-            fetch(`/api/robotevents?id=${id}&type=teams`)
-        ]);
-
-        const [matchData, skillsData, rankData, teamData] = await Promise.all([
-            matchRes.json(), skillsRes.json(), rankRes.json(), teamRes.json()
-        ]);
-
-        cachedData = {
-            matches:  matchData.data  || [],
-            skills:   skillsData.data || [],
-            rankings: rankData.data   || [],
-            teams:    teamData.data   || [],
-            divisions
-        };
-
-        renderTab('schedule');
-
-    } catch (err) {
-        document.getElementById('tab-content').innerHTML = `
-            <p style="color:var(--red); text-align:center; padding:30px;">
-                Failed to load event data.<br>
-                <small style="color:var(--sub-text);">${err.message}</small>
-            </p>`;
-    }
+    await fetchDivisionData(currentEventId, divId);
+    renderTab(activeTab);
 }
 
 function switchTab(tab) {
@@ -92,6 +126,8 @@ function renderTab(tab) {
         case 'teams':     renderTeams(content); break;
     }
 }
+
+// ── SCHEDULE ────────────────────────────────────────────────────────────────
 
 function renderSchedule(container) {
     const matches = cachedData.matches || [];
@@ -133,6 +169,8 @@ function renderSchedule(container) {
     container.innerHTML = html || emptyState('No matches to display.');
 }
 
+// ── RANKINGS ─────────────────────────────────────────────────────────────────
+
 function renderRankings(container) {
     const rankings = cachedData.rankings || [];
     if (!rankings.length) {
@@ -153,13 +191,15 @@ function renderRankings(container) {
             <div class="rank-row ${r.rank <= 3 ? 'top-rank' : ''}">
                 <span class="rank-col-rank">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : '#'+r.rank}</span>
                 <span class="rank-col-team">${r.team?.name || '?'}</span>
-                <span class="rank-col-stat">${r.wins ?? '–'}-${r.losses ?? '–'}-${r.ties ?? '–'}</span>
-                <span class="rank-col-stat">${r.wp ?? '–'}</span>
-                <span class="rank-col-stat">${r.sp ?? '–'}</span>
+                <span class="rank-col-stat">${r.wins??'–'}-${r.losses??'–'}-${r.ties??'–'}</span>
+                <span class="rank-col-stat">${r.wp??'–'}</span>
+                <span class="rank-col-stat">${r.sp??'–'}</span>
             </div>`;
     });
     container.innerHTML = html;
 }
+
+// ── SKILLS ───────────────────────────────────────────────────────────────────
 
 function renderSkills(container) {
     const skills = cachedData.skills || [];
@@ -167,37 +207,62 @@ function renderSkills(container) {
         container.innerHTML = emptyState('Skills data not available for this event.');
         return;
     }
+
+    // Each entry in skills[] is one attempt. Group by team, track best score and attempt count.
     const teamMap = {};
     skills.forEach(s => {
-        const n = s.team?.name || '?';
-        if (!teamMap[n]) teamMap[n] = { team: n, driver: 0, prog: 0 };
-        if (s.type?.toLowerCase() === 'driver') teamMap[n].driver = Math.max(teamMap[n].driver, s.score ?? 0);
-        else teamMap[n].prog = Math.max(teamMap[n].prog, s.score ?? 0);
+        const name = s.team?.name || '?';
+        const type = s.type?.toLowerCase(); // 'driver' or 'programming'
+        const score = s.score ?? 0;
+
+        if (!teamMap[name]) teamMap[name] = {
+            team: name,
+            driverBest: 0, driverAttempts: 0,
+            progBest: 0,   progAttempts: 0
+        };
+
+        if (type === 'driver') {
+            teamMap[name].driverAttempts++;
+            teamMap[name].driverBest = Math.max(teamMap[name].driverBest, score);
+        } else {
+            teamMap[name].progAttempts++;
+            teamMap[name].progBest = Math.max(teamMap[name].progBest, score);
+        }
     });
+
     const sorted = Object.values(teamMap)
-        .map(t => ({ ...t, total: t.driver + t.prog }))
+        .map(t => ({ ...t, total: t.driverBest + t.progBest }))
         .sort((a, b) => b.total - a.total);
+
     let html = `
         <div class="rank-header-row">
             <span class="rank-col-rank">RK</span>
             <span class="rank-col-team">TEAM</span>
-            <span class="rank-col-stat">DRV</span>
-            <span class="rank-col-stat">PRG</span>
-            <span class="rank-col-stat" style="color:var(--primary)">TOT</span>
+            <span class="rank-col-skill">DRIVER</span>
+            <span class="rank-col-skill">PROG</span>
+            <span class="rank-col-skill" style="color:var(--primary)">TOTAL</span>
         </div>`;
+
     sorted.forEach((t, i) => {
-        const r = i + 1;
+        const rank = i + 1;
+        // Format as best/attempts e.g. "119/3"
+        const drvStr = t.driverAttempts > 0 ? `${t.driverBest}/${t.driverAttempts}` : '–';
+        const prgStr = t.progAttempts   > 0 ? `${t.progBest}/${t.progAttempts}`     : '–';
+
         html += `
-            <div class="rank-row ${r <= 3 ? 'top-rank' : ''}">
-                <span class="rank-col-rank">${r <= 3 ? ['🥇','🥈','🥉'][r-1] : '#'+r}</span>
+            <div class="rank-row ${rank <= 3 ? 'top-rank' : ''}">
+                <span class="rank-col-rank">${rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : '#'+rank}</span>
                 <span class="rank-col-team">${t.team}</span>
-                <span class="rank-col-stat">${t.driver}</span>
-                <span class="rank-col-stat">${t.prog}</span>
-                <span class="rank-col-stat" style="color:var(--primary);font-weight:900;">${t.total}</span>
+                <span class="rank-col-skill">${drvStr}</span>
+                <span class="rank-col-skill">${prgStr}</span>
+                <span class="rank-col-skill" style="color:var(--primary);font-weight:900;">${t.total}</span>
             </div>`;
     });
+
     container.innerHTML = html;
 }
+
+// ── TEAMS ────────────────────────────────────────────────────────────────────
 
 function renderTeams(container) {
     const teams = cachedData.teams || [];

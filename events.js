@@ -1,10 +1,17 @@
 /**
  * events.js - Paragon Core X
- * Fixed: wider date window, filter bar, search debounce
+ * Fixed: search bar debounce, wider date window, filter bar
  */
 
 let allEvents = [];
 let activeFilter = 'all';
+let searchTimer = null;
+
+// Called by oninput on the search bar — debounced so it waits until you stop typing
+function onEventSearch(value) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadEvents(value), 400);
+}
 
 async function loadEvents(query = '') {
     const list = document.getElementById('event-list');
@@ -16,12 +23,11 @@ async function loadEvents(query = '') {
             <p style="margin-top:15px; font-size:0.85rem; letter-spacing:1px;">LOADING EVENTS...</p>
         </div>`;
 
-    // 2 weeks back so completed events still show, 4 weeks forward for upcoming
     const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
     const dateString = twoWeeksAgo.toISOString().split('T')[0] + 'T00:00:00Z';
 
     try {
-        const url = `/api/robotevents?search=${encodeURIComponent(query)}&start=${dateString}`;
+        const url = `/api/robotevents?search=${encodeURIComponent(query.trim())}&start=${dateString}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -31,7 +37,7 @@ async function loadEvents(query = '') {
             list.innerHTML = `
                 <div style="text-align:center; padding:40px; color:var(--sub-text);">
                     <p>No events found${query ? ` for "${query}"` : ''}.</p>
-                    ${query ? `<button onclick="loadEvents()" style="margin-top:12px;background:var(--border);color:var(--text);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;">CLEAR</button>` : ''}
+                    ${query ? `<button onclick="clearEventSearch()" style="margin-top:12px;background:var(--border);color:var(--text);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;">CLEAR</button>` : ''}
                 </div>`;
             return;
         }
@@ -56,6 +62,12 @@ async function loadEvents(query = '') {
                 <button onclick="loadEvents()" style="margin-top:15px;background:var(--border);color:var(--text);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;">RETRY</button>
             </div>`;
     }
+}
+
+function clearEventSearch() {
+    const el = document.getElementById('eventSearch');
+    if (el) el.value = '';
+    loadEvents('');
 }
 
 function setEventFilter(filter) {
@@ -115,7 +127,5 @@ function getEventStatus(start, end) {
 function viewEventDetails(id, name) {
     document.getElementById('detName').innerText = name;
     nav('detail');
-    if (typeof loadEventDeepData === 'function') {
-        loadEventDeepData(id);
-    }
+    if (typeof loadEventDeepData === 'function') loadEventDeepData(id);
 }
