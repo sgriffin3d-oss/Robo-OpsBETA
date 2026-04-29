@@ -1,6 +1,5 @@
 /**
  * events.js - Paragon Core X
- * Fixed: search debounce, filter bar, state persistence (last event remembered)
  */
 
 let allEvents = [];
@@ -8,26 +7,27 @@ let activeFilter = 'all';
 let searchTimer = null;
 let lastEventId = null;
 let lastEventName = null;
-let eventsLoaded = false;
 
-// Called when returning to the events view — restores last selected event or shows list
-function restoreEventsView() {
-    if (lastEventId) {
-        // Re-open the last event detail
-        openEventDetail(lastEventId, lastEventName);
+// Called by nav('events') — i.e. back button from detail. Re-opens last event if there was one.
+function restoreLastEvent() {
+    if (lastEventId !== null) {
+        _openEventDetailView(lastEventId, lastEventName);
     } else {
-        // First visit or no event selected — load the list
-        if (!eventsLoaded) loadEvents();
+        // No event was open, just show the list (already rendered)
+        if (allEvents.length === 0) loadEvents();
     }
 }
 
-// Debounced search — waits 450ms after you stop typing before hitting the API
+// Called by openEventsHub() in app.js — hub card tap. Always shows the list.
+function clearEventState() {
+    lastEventId = null;
+    lastEventName = null;
+}
+
+// Debounced search — waits 450ms after last keystroke
 function onEventSearch(value) {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-        eventsLoaded = false;
-        loadEvents(value);
-    }, 450);
+    searchTimer = setTimeout(() => loadEvents(value), 450);
 }
 
 async function loadEvents(query = '') {
@@ -47,9 +47,7 @@ async function loadEvents(query = '') {
         const url = `/api/robotevents?search=${encodeURIComponent(query.trim())}&start=${dateString}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
         const result = await response.json();
-        eventsLoaded = true;
 
         if (!result.data || result.data.length === 0) {
             list.innerHTML = `
@@ -64,8 +62,7 @@ async function loadEvents(query = '') {
             name: e.name,
             city: e.location?.city || '',
             region: e.location?.region || '',
-            start: e.start,
-            end: e.end,
+            start: e.start, end: e.end,
             status: getEventStatus(e.start, e.end),
             id: e.id
         }));
@@ -99,7 +96,6 @@ function setEventFilter(filter) {
 function renderFilteredEvents() {
     const list = document.getElementById('event-list');
     if (!list) return;
-
     const filtered = activeFilter === 'all'
         ? allEvents
         : allEvents.filter(e => e.status.toLowerCase() === activeFilter);
@@ -111,16 +107,14 @@ function renderFilteredEvents() {
 
     list.innerHTML = '';
     filtered.forEach(e => {
-        const statusClass = e.status.toLowerCase();
         const loc = [e.city, e.region].filter(Boolean).join(', ');
         const dateStr = formatEventDate(e.start, e.end);
         const safeName = e.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-
         list.innerHTML += `
             <div class="event-item" onclick="openEventDetail(${e.id}, '${safeName}')">
                 <div class="event-item-top">
                     <div class="event-item-meta">${dateStr}${loc ? ` · ${loc}` : ''}</div>
-                    <span class="status-pill status-${statusClass}">${e.status.toUpperCase()}</span>
+                    <span class="status-pill status-${e.status.toLowerCase()}">${e.status.toUpperCase()}</span>
                 </div>
                 <div class="event-item-name">${e.name}</div>
             </div>`;
@@ -142,22 +136,20 @@ function getEventStatus(start, end) {
     return 'Upcoming';
 }
 
+// Tap an event from the list
 function openEventDetail(id, name) {
-    // Remember this event so we can restore it when returning to Events Hub
     lastEventId = id;
     lastEventName = name;
-
-    // Tell app.js that back button should return to events, not notes
-    if (typeof detailOrigin !== 'undefined') detailOrigin = 'events';
-
-    document.getElementById('detName').innerText = name;
-    nav('detail');
-    if (typeof loadEventDeepData === 'function') loadEventDeepData(id);
+    detailOrigin = 'events'; // tell app.js back button goes to events
+    _openEventDetailView(id, name);
 }
 
-// Called by the "← BACK" button when in events context — clears last event so list shows
-function backToEventsList() {
-    lastEventId = null;
-    lastEventName = null;
-    nav('events');
+// Internal — actually renders the detail view (used by both openEventDetail and restoreLastEvent)
+function _openEventDetailView(id, name) {
+    document.getElementById('detName').innerText = name;
+    document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+    const target = document.getElementById('view-detail');
+    if (target) target.classList.add('active');
+    window.scrollTo(0, 0);
+    if (typeof loadEventDeepData === 'function') loadEventDeepData(id);
 }

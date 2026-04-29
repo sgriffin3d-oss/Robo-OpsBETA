@@ -4,13 +4,11 @@ let currentSort = 'team';
 let currentField = 'match';
 let editingSketchId = null;
 
-// Tracks where the detail view was opened from: 'home' (notes) or 'events'
+// 'home' = came from scouting notes, 'events' = came from events hub
 let detailOrigin = 'home';
 
-// Drawing State
 let canvas, ctx, drawing = false, penColor = 'white';
 
-// INITIALIZATION
 window.onload = function() {
     loadSettings();
     drawNotes();
@@ -37,13 +35,9 @@ function initCanvas() {
     const draw = (e) => {
         if (!drawing) return;
         const pos = getXY(e);
-        ctx.lineWidth = 5;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = penColor;
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
+        ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.strokeStyle = penColor;
+        ctx.lineTo(pos.x, pos.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
     };
     canvas.addEventListener('mousedown', start);
     canvas.addEventListener('mousemove', draw);
@@ -53,16 +47,16 @@ function initCanvas() {
     canvas.addEventListener('touchend', end);
 }
 
-// NAVIGATION
+// Core nav — switches view, triggers side effects
 function nav(v) {
     document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
     const target = document.getElementById('view-' + v);
-    if(target) target.classList.add('active');
+    if (target) target.classList.add('active');
 
     if (v === 'events') {
-        // Restore last event if one was selected, otherwise load event list
-        if (typeof restoreEventsView === 'function') restoreEventsView();
-        else if (typeof loadEvents === 'function') loadEvents();
+        // nav('events') is only called by the back button from detail view
+        // Always restore the last open event (set by openEventDetail in events.js)
+        if (typeof restoreLastEvent === 'function') restoreLastEvent();
     }
     if (v === 'home') drawNotes();
 
@@ -70,10 +64,21 @@ function nav(v) {
     closeMenu();
 }
 
-// Back button on the detail view — goes to correct origin
+// Called by the Events Hub card — always goes to the event LIST, clears any saved state
+function openEventsHub() {
+    if (typeof clearEventState === 'function') clearEventState();
+    document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+    const target = document.getElementById('view-events');
+    if (target) target.classList.add('active');
+    window.scrollTo(0, 0);
+    closeMenu();
+    if (typeof loadEvents === 'function') loadEvents();
+}
+
+// Back button on detail view
 function navBack() {
     if (detailOrigin === 'events') {
-        nav('events');
+        nav('events'); // restores last event
     } else {
         nav('home');
     }
@@ -103,8 +108,7 @@ function saveSketch() {
 function loadSketch(id) {
     const s = sketches.find(sk => sk.id === id);
     if (!s) return;
-    editingSketchId = s.id;
-    currentField = s.field;
+    editingSketchId = s.id; currentField = s.field;
     document.getElementById('sketch-name').value = s.name;
     setFieldMode('draw');
     const img = new Image();
@@ -141,7 +145,6 @@ function deleteSketch(id) {
     }
 }
 
-// SCOUTING NOTES
 function setSort(s) {
     currentSort = s;
     document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
@@ -169,7 +172,7 @@ function drawNotes() {
 }
 
 function showDet(val) {
-    detailOrigin = 'home'; // came from notes
+    detailOrigin = 'home';
     document.getElementById('detName').innerText = val;
     const hist = document.getElementById('detHistory');
     hist.innerHTML = '';
@@ -189,16 +192,11 @@ function showDet(val) {
 function save() {
     const id = document.getElementById('editIdx').value || Date.now().toString();
     const r = {
-        id,
-        team: document.getElementById('f-team').value.toUpperCase(),
-        event: document.getElementById('f-event').value,
-        res: document.getElementById('f-res').value,
-        autores: document.getElementById('f-autores').value,
-        partner: document.getElementById('f-partner').value,
-        opp: document.getElementById('f-opp').value,
-        score: document.getElementById('f-score').value || 0,
-        oppscore: document.getElementById('f-oppscore').value || 0,
-        notes: document.getElementById('f-notes').value
+        id, team: document.getElementById('f-team').value.toUpperCase(),
+        event: document.getElementById('f-event').value, res: document.getElementById('f-res').value,
+        autores: document.getElementById('f-autores').value, partner: document.getElementById('f-partner').value,
+        opp: document.getElementById('f-opp').value, score: document.getElementById('f-score').value || 0,
+        oppscore: document.getElementById('f-oppscore').value || 0, notes: document.getElementById('f-notes').value
     };
     if (!r.team) return alert("Missing Team #");
     let idx = db.findIndex(x => x.id === id);
@@ -236,10 +234,8 @@ function del(id, val) {
     }
 }
 
-// DATA EXPORT/IMPORT
 function exportData() {
-    const payload = { db, sketches };
-    const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
+    const blob = new Blob([JSON.stringify({ db, sketches })], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url; link.download = `backup.paragon`; link.click();
@@ -256,14 +252,12 @@ function importData(event) {
             else { db = raw; sketches = []; }
             localStorage.setItem('paragon_db', JSON.stringify(db));
             localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
-            drawNotes();
-            alert("Import Successful.");
+            drawNotes(); alert("Import Successful.");
         } catch (err) { alert("Error: Invalid .paragon file."); }
     };
     reader.readAsText(file);
 }
 
-// THEME & SETTINGS
 function updateSettings() {
     const theme = document.getElementById('set-theme').value;
     const style = document.getElementById('set-style').value;

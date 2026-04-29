@@ -1,6 +1,6 @@
 /**
  * details.js - Paragon Core X
- * Features: division dropdown, skills score/attempts, full pagination via proxy
+ * Fixed: teams filtered by division, slim dropdown, correct back nav
  */
 
 let currentEventId = null;
@@ -39,18 +39,18 @@ async function loadEventDeepData(id) {
     } catch (err) {
         container.innerHTML = `
             <p style="color:var(--red); text-align:center; padding:30px;">
-                Failed to load event data.<br>
-                <small style="color:var(--sub-text);">${err.message}</small>
+                Failed to load.<br><small style="color:var(--sub-text);">${err.message}</small>
             </p>`;
     }
 }
 
 async function fetchDivisionData(eventId, divId) {
+    // Teams are scoped per-division too: /events/{id}/divisions/{div}/teams
     const [matchRes, rankRes, skillsRes, teamRes] = await Promise.all([
         fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=matches`),
         fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=rankings`),
         fetch(`/api/robotevents?id=${eventId}&type=skills`),
-        fetch(`/api/robotevents?id=${eventId}&type=teams`)
+        fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=teams`)
     ]);
     const [matchData, rankData, skillsData, teamData] = await Promise.all([
         matchRes.json(), rankRes.json(), skillsRes.json(), teamRes.json()
@@ -62,23 +62,24 @@ async function fetchDivisionData(eventId, divId) {
 }
 
 function renderDetailUI(container, divisions) {
-    // Division dropdown — only shown if event has multiple divisions
-    let divDropdown = '';
+    // Slim inline division selector — only shown if >1 division
+    let divSelector = '';
     if (divisions.length > 1) {
         const options = divisions.map(d =>
             `<option value="${d.id}" ${d.id === activeDivId ? 'selected' : ''}>${d.name}</option>`
         ).join('');
-        divDropdown = `
-            <div class="div-dropdown-wrap">
-                <label class="div-dropdown-label">DIVISION</label>
-                <select class="div-dropdown" onchange="switchDivision(parseInt(this.value))">
+        divSelector = `
+            <div class="div-select-row">
+                <span class="div-select-label">DIV</span>
+                <select class="div-select" onchange="switchDivision(parseInt(this.value))">
                     ${options}
                 </select>
+                <span class="div-select-arrow">▾</span>
             </div>`;
     }
 
     container.innerHTML = `
-        ${divDropdown}
+        ${divSelector}
         <div class="detail-tabs" id="detail-tabs">
             <button class="detail-tab active" id="tab-schedule" onclick="switchTab('schedule')">SCHEDULE</button>
             <button class="detail-tab" id="tab-rankings" onclick="switchTab('rankings')">RANKINGS</button>
@@ -118,8 +119,6 @@ function renderTab(tab) {
     }
 }
 
-// ── SCHEDULE ────────────────────────────────────────────────────────────────
-
 function renderSchedule(container) {
     const matches = cachedData.matches || [];
     if (!matches.length) { container.innerHTML = emptyState('No match data available yet.'); return; }
@@ -157,8 +156,6 @@ function renderSchedule(container) {
     container.innerHTML = html || emptyState('No matches to display.');
 }
 
-// ── RANKINGS ─────────────────────────────────────────────────────────────────
-
 function renderRankings(container) {
     const rankings = cachedData.rankings || [];
     if (!rankings.length) { container.innerHTML = emptyState('Rankings not available yet.'); return; }
@@ -184,13 +181,9 @@ function renderRankings(container) {
     container.innerHTML = html;
 }
 
-// ── SKILLS ───────────────────────────────────────────────────────────────────
-
 function renderSkills(container) {
     const skills = cachedData.skills || [];
     if (!skills.length) { container.innerHTML = emptyState('Skills data not available for this event.'); return; }
-
-    // Each entry = one attempt. Group by team, count attempts, track best score per type.
     const teamMap = {};
     skills.forEach(s => {
         const name = s.team?.name || '?';
@@ -205,11 +198,9 @@ function renderSkills(container) {
             teamMap[name].progBest = Math.max(teamMap[name].progBest, score);
         }
     });
-
     const sorted = Object.values(teamMap)
         .map(t => ({ ...t, total: t.driverBest + t.progBest }))
         .sort((a, b) => b.total - a.total);
-
     let html = `
         <div class="rank-header-row">
             <span class="rank-col-rank">RK</span>
@@ -218,7 +209,6 @@ function renderSkills(container) {
             <span class="rank-col-skill">PROG</span>
             <span class="rank-col-skill" style="color:var(--primary)">TOTAL</span>
         </div>`;
-
     sorted.forEach((t, i) => {
         const rank = i + 1;
         const drv = t.driverAttempts > 0 ? `${t.driverBest}/${t.driverAttempts}` : '–';
@@ -229,13 +219,11 @@ function renderSkills(container) {
                 <span class="rank-col-team">${t.team}</span>
                 <span class="rank-col-skill">${drv}</span>
                 <span class="rank-col-skill">${prg}</span>
-                <span class="rank-col-skill" style="color:var(--primary);font-weight:900;">${t.driverBest + t.progBest}</span>
+                <span class="rank-col-skill" style="color:var(--primary);font-weight:900;">${t.total}</span>
             </div>`;
     });
     container.innerHTML = html;
 }
-
-// ── TEAMS ────────────────────────────────────────────────────────────────────
 
 function renderTeams(container) {
     const teams = cachedData.teams || [];
