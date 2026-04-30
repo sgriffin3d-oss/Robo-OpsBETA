@@ -1,6 +1,7 @@
 /**
  * details.js - Paragon Core X
- * Fixed: teams filtered by division, slim dropdown, correct back nav
+ * Teams: fetched from /events/{id}/teams, filtered by team numbers in current division's rankings
+ * Division selector: slim inline row, aligned with baseline fix
  */
 
 let currentEventId = null;
@@ -45,7 +46,9 @@ async function loadEventDeepData(id) {
 }
 
 async function fetchDivisionData(eventId, divId) {
-    // Teams are scoped per-division too: /events/{id}/divisions/{div}/teams
+    // Fetch matches, rankings, skills, and ALL event teams in parallel.
+    // Teams don't have a division endpoint — we get all teams then filter
+    // to only those whose numbers appear in the current division's rankings.
     const [matchRes, rankRes, skillsRes, teamRes] = await Promise.all([
         fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=matches`),
         fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=rankings`),
@@ -55,6 +58,7 @@ async function fetchDivisionData(eventId, divId) {
     const [matchData, rankData, skillsData, teamData] = await Promise.all([
         matchRes.json(), rankRes.json(), skillsRes.json(), teamRes.json()
     ]);
+
     cachedData.matches  = matchData.data  || [];
     cachedData.rankings = rankData.data   || [];
     cachedData.skills   = skillsData.data || [];
@@ -62,7 +66,6 @@ async function fetchDivisionData(eventId, divId) {
 }
 
 function renderDetailUI(container, divisions) {
-    // Slim inline division selector — only shown if >1 division
     let divSelector = '';
     if (divisions.length > 1) {
         const options = divisions.map(d =>
@@ -71,10 +74,12 @@ function renderDetailUI(container, divisions) {
         divSelector = `
             <div class="div-select-row">
                 <span class="div-select-label">DIV</span>
-                <select class="div-select" onchange="switchDivision(parseInt(this.value))">
-                    ${options}
-                </select>
-                <span class="div-select-arrow">▾</span>
+                <div class="div-select-wrap">
+                    <select class="div-select" onchange="switchDivision(parseInt(this.value))">
+                        ${options}
+                    </select>
+                    <span class="div-select-arrow">▾</span>
+                </div>
             </div>`;
     }
 

@@ -157,6 +157,8 @@
     padding: 0 2px;
 }
 .div-select-label {
+    line-height: 1;
+    margin-top: 1px;
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 1px;
@@ -164,6 +166,7 @@
     flex-shrink: 0;
 }
 .div-select {
+    vertical-align: middle;
     flex: 1;
     background: var(--input-bg);
     border: 1px solid var(--border);

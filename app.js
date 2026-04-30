@@ -3,8 +3,6 @@ let sketches = JSON.parse(localStorage.getItem('paragon_sketches')) || [];
 let currentSort = 'team';
 let currentField = 'match';
 let editingSketchId = null;
-
-// 'home' = came from scouting notes, 'events' = came from events hub
 let detailOrigin = 'home';
 
 let canvas, ctx, drawing = false, penColor = 'white';
@@ -20,12 +18,10 @@ function initCanvas() {
     canvas = document.getElementById('sketch-canvas');
     if(!canvas) return;
     ctx = canvas.getContext('2d');
-    canvas.width = 800;
-    canvas.height = 500;
+    canvas.width = 800; canvas.height = 500;
     const getXY = (e) => {
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
+        const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
         let clientX = e.touches ? e.touches[0].clientX : e.clientX;
         let clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
@@ -47,44 +43,38 @@ function initCanvas() {
     canvas.addEventListener('touchend', end);
 }
 
-// Core nav — switches view, triggers side effects
 function nav(v) {
     document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
     const target = document.getElementById('view-' + v);
     if (target) target.classList.add('active');
-
-    if (v === 'events') {
-        // nav('events') is only called by the back button from detail view
-        // Always restore the last open event (set by openEventDetail in events.js)
-        if (typeof restoreLastEvent === 'function') restoreLastEvent();
-    }
     if (v === 'home') drawNotes();
-
     window.scrollTo(0, 0);
     closeMenu();
 }
 
-// Called by the Events Hub card — always goes to the event LIST, clears any saved state
+// Hub card tap — always clears event state and shows the list
 function openEventsHub() {
     if (typeof clearEventState === 'function') clearEventState();
-    document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-    const target = document.getElementById('view-events');
-    if (target) target.classList.add('active');
-    window.scrollTo(0, 0);
-    closeMenu();
+    nav('events');
     if (typeof loadEvents === 'function') loadEvents();
 }
 
 // Back button on detail view
 function navBack() {
+    // Clear last event so nav('events') shows the list, not the last event
+    if (typeof clearEventState === 'function') clearEventState();
     if (detailOrigin === 'events') {
-        nav('events'); // restores last event
+        // Go straight to events list — do NOT restore the last event
+        nav('events');
+        // Show the already-rendered list (don't reload)
+        // If list is empty for some reason, load it
+        const list = document.getElementById('event-list');
+        if (list && list.children.length === 0 && typeof loadEvents === 'function') loadEvents();
     } else {
         nav('home');
     }
 }
 
-// STRATEGY / DRAWING
 function setPen(c) { penColor = c; }
 function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
