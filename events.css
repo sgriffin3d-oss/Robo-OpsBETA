@@ -183,7 +183,7 @@
 .div-select-arrow {
     font-size: 0.75rem;
     color: var(--sub-text);
-    margin-left: -26px;
+    margin-left: -18px;
     pointer-events: none;
     flex-shrink: 0;
 }
