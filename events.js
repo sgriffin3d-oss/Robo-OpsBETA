@@ -44,7 +44,9 @@ async function loadEvents(query = '') {
     const dateString = twoWeeksAgo.toISOString().split('T')[0] + 'T00:00:00Z';
 
     try {
-        const url = `/api/robotevents?search=${encodeURIComponent(query.trim())}&start=${dateString}`;
+        const trimmed = query.trim();
+        let url = `/api/robotevents?search=${encodeURIComponent(trimmed)}`;
+        if (!trimmed) url += `&start=${dateString}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const result = await response.json();

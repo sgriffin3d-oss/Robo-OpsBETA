@@ -53,7 +53,7 @@ async function fetchDivisionData(eventId, divId) {
         fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=matches`),
         fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=rankings`),
         fetch(`/api/robotevents?id=${eventId}&type=skills`),
-        fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=teams`)
+        fetch(`/api/robotevents?id=${eventId}&type=teams`)
     ]);
     const [matchData, rankData, skillsData, teamData] = await Promise.all([
         matchRes.json(), rankRes.json(), skillsRes.json(), teamRes.json()
@@ -132,6 +132,15 @@ function renderSchedule(container) {
     );
     let html = '';
     sorted.forEach(m => {
+        // scheduled = planned time, started = actual start (may be null for upcoming)
+        const scheduledTime = m.scheduled ? formatMatchTime(m.scheduled) : null;
+        const startedTime   = m.started   ? formatMatchTime(m.started)   : null;
+        const timeDisplay   = startedTime
+            ? `<span class="match-time">Started ${startedTime}</span>`
+            : scheduledTime
+            ? `<span class="match-time">Sched. ${scheduledTime}</span>`
+            : '';
+
         const red  = m.alliances?.find(a => a.color === 'red')  || m.alliances?.[0];
         const blue = m.alliances?.find(a => a.color === 'blue') || m.alliances?.[1];
         if (!red || !blue) return;
@@ -143,7 +152,10 @@ function renderSchedule(container) {
             <div class="match-card ${played ? 'played' : ''}">
                 <div class="match-header">
                     <span class="match-name">${m.name || 'Match'}</span>
-                    <span class="match-status">${played ? 'FINAL' : 'UPCOMING'}</span>
+                    <div class="match-header-right">
+                        ${timeDisplay}
+                        <span class="match-status">${played ? 'FINAL' : 'UPCOMING'}</span>
+                    </div>
                 </div>
                 <div class="match-body">
                     <div class="match-alliance red ${played && rs > bs ? 'winner' : ''}">
@@ -232,23 +244,40 @@ function renderSkills(container) {
 
 function renderTeams(container) {
     const teams = cachedData.teams || [];
-    if (!teams.length) { container.innerHTML = emptyState('Team list not available.'); return; }
-    const sorted = [...teams].sort((a, b) =>
-        (a.number || '').localeCompare(b.number || '', undefined, { numeric: true })
-    );
+    if (!teams.length) {
+        container.innerHTML = emptyState('Team list not available.');
+        return;
+    }
+    // The /events/{id}/teams endpoint returns Team objects where the team number
+    // is in t.number (e.g. "229V"). Sort numerically/alphanumerically.
+    const sorted = [...teams].sort((a, b) => {
+        const na = a.number || a.team_name || '';
+        const nb = b.number || b.team_name || '';
+        return na.localeCompare(nb, undefined, { numeric: true });
+    });
     let html = '';
     sorted.forEach(t => {
-        const loc = [t.location?.city, t.location?.region].filter(Boolean).join(', ');
+        const number = t.number || t.team_name || '?';
+        const name   = t.team_name && t.team_name !== number ? t.team_name : '';
+        const org    = t.organization || '';
+        const loc    = [t.location?.city, t.location?.region].filter(Boolean).join(', ');
         html += `
             <div class="team-row">
-                <div class="team-number">${t.number || '?'}</div>
+                <div class="team-number">${number}</div>
                 <div class="team-info">
-                    ${t.organization ? `<div class="team-org">${t.organization}</div>` : ''}
-                    ${loc ? `<div class="team-loc">${loc}</div>` : ''}
+                    ${name ? `<div class="team-org" style="font-weight:900">${name}</div>` : ''}
+                    ${org  ? `<div class="team-org">${org}</div>` : ''}
+                    ${loc  ? `<div class="team-loc">${loc}</div>` : ''}
                 </div>
             </div>`;
     });
     container.innerHTML = html;
+}
+
+function formatMatchTime(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 function emptyState(msg) {

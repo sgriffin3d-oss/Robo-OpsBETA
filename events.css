@@ -158,7 +158,7 @@
 }
 .div-select-label {
     line-height: 1;
-    margin-top: -12.3px;
+    margin-top: 1px;
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 1px;
@@ -183,7 +183,7 @@
 .div-select-arrow {
     font-size: 0.75rem;
     color: var(--sub-text);
-    margin-left: -18px;
+    margin-left: -26px;
     pointer-events: none;
     flex-shrink: 0;
 }
@@ -235,3 +235,16 @@
 .team-info { flex: 1; min-width: 0; }
 .team-org { font-size: 0.85rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .team-loc { font-size: 0.75rem; color: var(--sub-text); margin-top: 2px; }
+
+/* Match time display */
+.match-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.match-time {
+    font-size: 0.65rem;
+    color: var(--sub-text);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
