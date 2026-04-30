@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="events.css">
+    <link rel="stylesheet" href="rules.css">
     <style>
         /* --- MAP FRAME & ZOOM --- */
         .map-frame { 
@@ -66,6 +67,12 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             </span>
             <b>Events Hub</b>
+        </div>
+        <div class="hub-card" onclick="nav('rules')">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </span>
+            <b>Game Rules</b>
         </div>
 
         <div class="hub-card" onclick="nav('home')">
@@ -221,7 +228,39 @@
         <button onclick="navBack()" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px;">← BACK</button>
         <h2 id="detName">Detail</h2>
         <div id="detHistory"></div>
+    
+    <!-- RULES VIEW -->
+    <section id="view-rules" class="view">
+        <div class="welcome-header"><h1>Game Rules</h1><p>Override 2026–2027</p></div>
+        <div class="search-container" style="position:sticky;top:0;background:var(--bg);z-index:10;padding-bottom:12px;">
+            <input type="text" class="search-bar" placeholder="Search rules by ID or keyword..." oninput="onRulesSearch(this.value)" id="rules-search">
+            <div class="rules-cat-bar" id="rules-cat-bar"></div>
+        </div>
+        <div id="rules-list"></div>
+        <div class="ai-panel">
+            <div class="ai-panel-header">
+                <span class="ai-panel-title">⚖️ AI RULES ASSISTANT</span>
+                <button class="ai-clear-btn" onclick="clearAIChat()">Clear</button>
+            </div>
+            <div class="ai-messages" id="ai-messages"></div>
+            <div class="ai-input-row">
+                <input type="text" id="ai-input" placeholder="Ask a rules question..." onkeydown="onAIKeydown(event)">
+                <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIQuestion()">Ask</button>
+            </div>
+        </div>
     </section>
+
+    <!-- RULE DETAIL OVERLAY -->
+    <div class="rule-overlay" id="rule-overlay" onclick="closeRule()">
+        <div class="rule-overlay-sheet" onclick="event.stopPropagation()">
+            <div class="rule-overlay-header">
+                <div class="rule-overlay-title" id="rule-overlay-title"></div>
+                <button class="rule-overlay-close" onclick="closeRule()">✕</button>
+            </div>
+            <div class="rule-overlay-body" id="rule-overlay-body"></div>
+        </div>
+    </div>
+</section>
 </div>
 
 <div class="fab-menu" id="fabMenu">
@@ -240,7 +279,11 @@
 <script src="app.js"></script>
 <script src="calc.js"></script>
 <script src="view.js"></script>
-<script src="details.js"></script> </body>
+<script src="details.js"></script>     <script src="rules.js"></script>
+    <script src="rules_ui.js"></script>
+</body>
 
+    <script src="rules.js"></script>
+    <script src="rules_ui.js"></script>
 </body>
 </html>

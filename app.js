@@ -48,6 +48,7 @@ function nav(v) {
     const target = document.getElementById('view-' + v);
     if (target) target.classList.add('active');
     if (v === 'home') drawNotes();
+    if (v === 'rules' && typeof initRules === 'function') initRules();
     window.scrollTo(0, 0);
     closeMenu();
 }
