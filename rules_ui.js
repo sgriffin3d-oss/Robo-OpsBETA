@@ -212,7 +212,7 @@ ${rulesContext}`;
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'gemini-1.5-flash' // handled by proxy — field ignored but kept for clarity,
+                model: 'gemini-1.5-flash',
                 max_tokens: 1000,
                 system: systemPrompt,
                 messages: messages

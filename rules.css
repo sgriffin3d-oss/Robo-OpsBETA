@@ -273,46 +273,37 @@
 }
 .ai-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ─── DESKTOP / OVERFLOW CONSTRAINT ─────────────────────────────────────── */
+/* ─── LAYOUT CONSTRAINTS ─────────────────────────────────────────────────── */
 
-/* Ensure nothing inside rules view bleeds past the 500px container */
-#view-rules > *,
-#view-rules .ai-panel,
-#view-rules .rules-search-wrap,
-#view-rules #rules-list {
-    max-width: 100%;
-    box-sizing: border-box;
+/* The .container is max-width 500px centered. The sticky search wrapper must
+   not escape it. overflow:hidden on the view prevents horizontal bleed. */
+#view-rules {
+    overflow-x: hidden;
 }
 
-/* Search wrapper — sticky, contained */
 .rules-search-wrap {
     position: sticky;
     top: 0;
     background: var(--bg);
     z-index: 10;
     padding-bottom: 12px;
+    /* Stay inside container — don't use negative margins or 100vw */
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Override the global input rule that sets width:100% to ensure box-sizing */
 #rules-search {
     width: 100%;
     box-sizing: border-box;
     margin-bottom: 10px;
 }
 
-/* Cat bar items must not overflow */
-.rules-cat-bar {
-    flex-wrap: nowrap;
-    max-width: 100%;
-}
-
-/* Overlay sheet constrained to container width */
 .rule-overlay-sheet {
     max-width: 500px;
     width: 100%;
+    box-sizing: border-box;
 }
 
-/* AI panel body flex direction */
 #ai-panel-body {
     flex-direction: column;
 }
