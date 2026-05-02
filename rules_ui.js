@@ -9,23 +9,33 @@ let rulesSearchTimer = null;
 let aiConversation = [];
 
 const CATEGORY_ORDER = ['Scoring','Specific Game','Safety','General','General Game','Robot Skills','Robot','Tournament'];
-const CATEGORY_ICONS = {
-    'Scoring':       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="6"/><path d="M8 14l-2 7h12l-2-7"/></svg>',
-    'Specific Game': '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="1.5" fill="currentColor"/><circle cx="16" cy="13" r="1.5" fill="currentColor"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>',
-    'Safety':        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    'General':       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
-    'General Game':  '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
-    'Robot Skills':  '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M12 3v4"/><path d="M3 12h4"/><path d="M17 12h4"/><path d="M12 17v4"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>',
-    'Robot':         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
-    'Tournament':    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="6" height="14"/><rect x="9" y="3" width="6" height="18"/><rect x="16" y="10" width="6" height="11"/></svg>',
-};
+const CATEGORY_ICONS = {}; // No icons — text-only category pills
+
+let aiPanelOpen = false;
 
 function initRules() {
     renderCategoryBar();
     renderRulesList('', 'All');
-    // Reset AI chat
     aiConversation = [];
     renderAIMessages();
+    // Start collapsed
+    const body = document.getElementById('ai-panel-body');
+    if (body) body.style.display = 'none';
+}
+
+function toggleAIPanel() {
+    aiPanelOpen = !aiPanelOpen;
+    const body = document.getElementById('ai-panel-body');
+    const arrow = document.getElementById('ai-panel-arrow');
+    if (body) body.style.display = aiPanelOpen ? 'flex' : 'none';
+    if (arrow) arrow.textContent = aiPanelOpen ? '▲' : '▼';
+    if (aiPanelOpen) {
+        renderAIMessages();
+        setTimeout(() => {
+            const msgs = document.getElementById('ai-messages');
+            if (msgs) msgs.scrollTop = msgs.scrollHeight;
+        }, 50);
+    }
 }
 
 // ── CATEGORY BAR ─────────────────────────────────────────────────────────────
@@ -37,9 +47,7 @@ function renderCategoryBar() {
     const cats = ['All', ...CATEGORY_ORDER];
     bar.innerHTML = cats.map(c => `
         <button class="rules-cat-btn ${c === rulesActiveCategory ? 'active' : ''}"
-                onclick="setRulesCategory('${c}')">
-            ${CATEGORY_ICONS[c] || ''} ${c}
-        </button>`).join('');
+                onclick="setRulesCategory('${c}')">${c}</button>`).join('');
 }
 
 function setRulesCategory(cat) {
@@ -204,7 +212,7 @@ ${rulesContext}`;
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
+                model: 'claude-sonnet-4-6',
                 max_tokens: 1000,
                 system: systemPrompt,
                 messages: messages
@@ -212,7 +220,11 @@ ${rulesContext}`;
         });
 
         const data = await response.json();
-        const answer = data.content?.[0]?.text || 'Sorry, I could not get a response. Please try again.';
+        // If Anthropic returned an error object, surface it
+        if (data.error) {
+            throw new Error(data.error.message || JSON.stringify(data.error));
+        }
+        const answer = data.content?.[0]?.text || 'No response text returned.';
 
         aiConversation.push({ role: 'assistant', content: answer });
         renderAIMessages();

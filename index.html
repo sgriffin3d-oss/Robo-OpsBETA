@@ -20,21 +20,21 @@
             transition: background 0.3s ease; cursor: pointer;
         }
         .theme-light .map-frame { background: #ffffff; }
- 
+
         #map-img, #sketch-canvas { 
             width: 100%; display: block; 
             transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
         }
- 
+
         .map-frame.zoomed #map-img,
         .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
- 
+
         #sketch-canvas { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             touch-action: none; background-size: contain; 
             background-repeat: no-repeat; background-position: center; 
         }
- 
+
         /* --- DRAWING UI FIXES --- */
         .draw-tools { 
             display: flex; gap: 12px; margin: 15px 0; 
@@ -47,17 +47,17 @@
         .draw-actions { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
         .draw-actions input { margin-bottom: 0 !important; flex: 2; }
         .draw-actions .save-btn { flex: 1; padding: 14px; font-size: 0.8rem; margin: 0; }
- 
+
         .sub-nav { display: flex; gap: 5px; margin-top: 15px; background: var(--input-bg); padding: 5px; border-radius: 12px; }
         .sub-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--sub-text); font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 0.85rem; }
         .sub-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
- 
+
         .sketch-item { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
         .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: #000; object-fit: contain; border: 1px solid var(--border); }
     </style>
 </head>
 <body class="theme-dark style-classic">
- 
+
 <div class="container">
     <section id="view-hub" class="view active">
         <div class="welcome-header"><h1>Paragon Core X</h1><p>Strategic Command</p></div>
@@ -74,28 +74,28 @@
             </span>
             <b>Game Rules</b>
         </div>
- 
+
         <div class="hub-card" onclick="nav('home')">
             <span class="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </span>
             <b>Scout Notes</b>
         </div>
- 
+
         <div class="hub-card" onclick="nav('calc')">
             <span class="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
             </span>
             <b>Score Calculator</b>
         </div>
- 
+
         <div class="hub-card" onclick="nav('field')">
             <span class="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
             </span>
             <b>Field Viewer</b>
         </div>
- 
+
         <div class="hub-card" onclick="openNew()">
             <span class="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -103,7 +103,7 @@
             <b>New Match Report</b>
         </div>
     </section>
- 
+
     <section id="view-events" class="view">
         <div class="welcome-header"><h1>Events</h1><p>Competition Tracker</p></div>
         <div class="search-container">
@@ -117,7 +117,7 @@
             </div>
         <div id="event-list"></div>
     </section>
- 
+
     <section id="view-field" class="view">
         <div class="welcome-header"><h1>Field Viewer</h1><p id="field-subtitle">Strategic Layout</p></div>
         <div class="sort-container">
@@ -156,7 +156,7 @@
             <button id="sub-saved" class="sub-btn" onclick="setFieldMode('saved')">SAVED</button>
         </div>
     </section>
- 
+
     <section id="view-calc" class="view">
         <div class="welcome-header"><h1>Calculator</h1><p>Match Scoring</p></div>
         <div class="auton-group">
@@ -182,7 +182,7 @@
         </div>
         <button class="save-btn" style="background: var(--input-bg); color: var(--text); margin-top: 15px; border: 1px solid var(--border);" onclick="resetC()">RESET SCORES</button>
     </section>
- 
+
     <section id="view-home" class="view">
         <div class="welcome-header"><h1>Notes</h1><p>Database</p></div>
         <div class="sort-container">
@@ -192,7 +192,7 @@
         <input type="text" id="noteSearch" class="search-bar" placeholder="Quick search..." oninput="drawNotes()">
         <div id="noteList"></div>
     </section>
- 
+
     <section id="view-settings" class="view">
         <div class="welcome-header"><h1>Settings</h1><p>Configuration</p></div>
         <div class="setting-group">
@@ -210,7 +210,7 @@
             </select>
         </div>
     </section>
- 
+
     <section id="view-form" class="view">
         <h2>New Report</h2>
         <input type="hidden" id="editIdx">
@@ -229,48 +229,58 @@
         <textarea id="f-notes" rows="5" placeholder="Strategic notes..."></textarea>
         <button class="save-btn" onclick="save()">SAVE REPORT</button>
     </section>
- 
+
     <section id="view-detail" class="view">
         <button onclick="navBack()" style="background:none; border:none; color:var(--primary); font-weight:bold; margin-bottom:15px;">← BACK</button>
         <h2 id="detName">Detail</h2>
         <div id="detHistory"></div>
     </section>
 </div>
- 
+
     <!-- RULES VIEW -->
     <section id="view-rules" class="view">
         <div class="welcome-header"><h1>Game Rules</h1><p>Override 2026–2027</p></div>
-        <div class="search-container" style="position:sticky;top:0;background:var(--bg);z-index:10;padding-bottom:12px;">
+
+        <!-- AI panel at top, collapsed by default -->
+        <div class="ai-panel" style="margin-bottom:16px;">
+            <div class="ai-panel-header" onclick="toggleAIPanel()" style="cursor:pointer;">
+                <span class="ai-panel-title">⚖️ AI Rules Assistant</span>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button class="ai-clear-btn" onclick="event.stopPropagation();clearAIChat()">Clear</button>
+                    <span id="ai-panel-arrow" style="color:var(--sub-text);font-size:0.75rem;user-select:none;">▼</span>
+                </div>
+            </div>
+            <div id="ai-panel-body" style="display:none;flex-direction:column;">
+                <div class="ai-messages" id="ai-messages"></div>
+                <div class="ai-input-row">
+                    <input type="text" id="ai-input" placeholder="Ask a rules question..." onkeydown="onAIKeydown(event)">
+                    <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIQuestion()">Ask</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search + category filter -->
+        <div class="rules-search-wrap">
             <input type="text" class="search-bar" placeholder="Search rules by ID or keyword..." oninput="onRulesSearch(this.value)" id="rules-search">
             <div class="rules-cat-bar" id="rules-cat-bar"></div>
         </div>
+
         <div id="rules-list"></div>
-        <div class="ai-panel">
-            <div class="ai-panel-header">
-                <span class="ai-panel-title">⚖️ AI RULES ASSISTANT</span>
-                <button class="ai-clear-btn" onclick="clearAIChat()">Clear</button>
-            </div>
-            <div class="ai-messages" id="ai-messages"></div>
-            <div class="ai-input-row">
-                <input type="text" id="ai-input" placeholder="Ask a rules question..." onkeydown="onAIKeydown(event)">
-                <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIQuestion()">Ask</button>
-            </div>
-        </div>
     </section>
- 
- 
+
+
 <div class="fab-menu" id="fabMenu">
     <div class="menu-item" onclick="exportData()">Export (.paragon)</div>
     <div class="menu-item" onclick="document.getElementById('importFile').click()">Import (.paragon)</div>
     <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
 </div>
- 
+
 <div class="dock-bar">
     <button class="dock-btn" onclick="nav('settings')">⚙</button>
     <button class="dock-btn alt" onclick="nav('hub')">⌂</button>
     <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
 </div>
- 
+
 <script src="events.js"></script>
 <script src="app.js"></script>
 <script src="calc.js"></script>
@@ -286,7 +296,7 @@
         <div class="rule-overlay-body" id="rule-overlay-body"></div>
     </div>
 </div>
- 
+
     <script src="rules.js"></script>
     <script src="rules_ui.js"></script>
 </body>
