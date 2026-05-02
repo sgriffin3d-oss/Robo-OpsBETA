@@ -195,19 +195,15 @@
 
     <section id="view-settings" class="view">
         <div class="welcome-header"><h1>Settings</h1><p>Configuration</p></div>
-        <div class="setting-group">
-            <label>Color Mode</label>
-            <select id="set-theme" onchange="updateSettings()">
-                <option value="theme-dark">Dark Mode</option>
-                <option value="theme-light">Light Mode</option>
-            </select>
+
+        <div class="settings-section">
+            <div class="settings-label">Color Theme</div>
+            <div class="theme-grid" id="theme-grid"></div>
         </div>
-        <div class="setting-group" style="margin-top:20px;">
-            <label>UI Interface Style</label>
-            <select id="set-style" onchange="updateSettings()">
-                <option value="style-classic">Classic (Standard)</option>
-                <option value="style-modern">Modern (Glassmorphism)</option>
-            </select>
+
+        <div class="settings-section">
+            <div class="settings-label">Interface Style</div>
+            <div class="style-grid" id="style-grid"></div>
         </div>
     </section>
 

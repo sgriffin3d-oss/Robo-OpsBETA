@@ -249,19 +249,89 @@ function importData(event) {
     reader.readAsText(file);
 }
 
-function updateSettings() {
-    const theme = document.getElementById('set-theme').value;
-    const style = document.getElementById('set-style').value;
+function setTheme(theme) {
+    const saved = JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
+    saved.theme = theme;
+    localStorage.setItem('paragon_settings_v3', JSON.stringify(saved));
+    applySettings(saved);
+    renderSettingsUI();
+}
+
+function setStyle(style) {
+    const saved = JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
+    saved.style = style;
+    localStorage.setItem('paragon_settings_v3', JSON.stringify(saved));
+    applySettings(saved);
+    renderSettingsUI();
+}
+
+function applySettings(settings) {
+    const theme = settings.theme || 'theme-midnight';
+    const style = settings.style || 'style-classic';
     document.body.className = `${theme} ${style}`;
-    localStorage.setItem('paragon_settings_v2', JSON.stringify({ theme, style }));
 }
 
 function loadSettings() {
-    const saved = JSON.parse(localStorage.getItem('paragon_settings_v2'));
-    if (saved) {
-        document.getElementById('set-theme').value = saved.theme;
-        document.getElementById('set-style').value = saved.style;
-        document.body.className = `${saved.theme} ${saved.style}`;
+    // Migrate from old settings key
+    const old = JSON.parse(localStorage.getItem('paragon_settings_v2'));
+    if (old && !localStorage.getItem('paragon_settings_v3')) {
+        const migrated = {
+            theme: old.theme === 'theme-light' ? 'theme-arctic' : 'theme-midnight',
+            style: old.style === 'style-modern' ? 'style-glass' : 'style-classic'
+        };
+        localStorage.setItem('paragon_settings_v3', JSON.stringify(migrated));
+    }
+    const saved = JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
+    applySettings(saved);
+    renderSettingsUI();
+}
+
+// Legacy alias so any old onchange handlers still work
+function updateSettings() { loadSettings(); }
+
+function renderSettingsUI() {
+    const saved = JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
+    const currentTheme = saved.theme || 'theme-midnight';
+    const currentStyle = saved.style || 'style-classic';
+
+    const themes = [
+        { id: 'theme-midnight', name: 'Midnight', bg: '#050505', accent: '#e8b23b' },
+        { id: 'theme-arctic',   name: 'Arctic',   bg: '#f4f4f6', accent: '#0071e3' },
+        { id: 'theme-gold',     name: 'Gold',      bg: '#0a0800', accent: '#f5c842' },
+        { id: 'theme-red',      name: 'Red',       bg: '#080000', accent: '#ff3333' },
+        { id: 'theme-blue',     name: 'Blue',      bg: '#00060f', accent: '#2d8cff' },
+        { id: 'theme-stealth',  name: 'Stealth',   bg: '#000000', accent: '#ffffff' },
+    ];
+
+    const styles = [
+        { id: 'style-classic',  name: 'Classic',  desc: 'Clean & familiar', icon: '◼' },
+        { id: 'style-minimal',  name: 'Minimal',  desc: 'Flat & spacious',  icon: '▱' },
+        { id: 'style-glass',    name: 'Glass',    desc: 'Frosted & blurred', icon: '◈' },
+        { id: 'style-tactical', name: 'Tactical', desc: 'Sharp & dense',    icon: '◧' },
+        { id: 'style-neon',     name: 'Neon',     desc: 'Glowing accents',  icon: '✦' },
+    ];
+
+    const tg = document.getElementById('theme-grid');
+    if (tg) {
+        tg.innerHTML = themes.map(t => `
+            <div class="theme-swatch ${t.id === currentTheme ? 'active' : ''}"
+                 onclick="setTheme('${t.id}')"
+                 style="background:${t.bg};">
+                <div class="swatch-dot" style="background:${t.accent};"></div>
+                <div class="swatch-name" style="color:${t.bg === '#f4f4f6' ? '#555' : '#aaa'}">${t.name}</div>
+                <span class="swatch-check">✓</span>
+            </div>`).join('');
+    }
+
+    const sg = document.getElementById('style-grid');
+    if (sg) {
+        sg.innerHTML = styles.map(s => `
+            <div class="style-card ${s.id === currentStyle ? 'active' : ''}"
+                 onclick="setStyle('${s.id}')">
+                <div class="style-preview">${s.icon}</div>
+                <div class="style-name">${s.name}</div>
+                <div class="style-desc">${s.desc}</div>
+            </div>`).join('');
     }
 }
 
