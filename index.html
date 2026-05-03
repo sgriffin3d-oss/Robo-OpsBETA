@@ -245,23 +245,7 @@
     <section id="view-rules" class="view">
         <div class="welcome-header"><h1>Game Rules</h1><p>Override 2026–2027</p></div>
 
-        <!-- AI panel at top, collapsed by default -->
-        <div class="ai-panel" style="margin-bottom:16px;">
-            <div class="ai-panel-header" onclick="toggleAIPanel()" style="cursor:pointer;">
-                <span class="ai-panel-title">⚖️ AI Rules Assistant</span>
-                <div style="display:flex;gap:10px;align-items:center;">
-                    <button class="ai-clear-btn" onclick="event.stopPropagation();clearAIChat()">Clear</button>
-                    <span id="ai-panel-arrow" style="color:var(--sub-text);font-size:0.75rem;user-select:none;">▼</span>
-                </div>
-            </div>
-            <div id="ai-panel-body" style="display:none;flex-direction:column;">
-                <div class="ai-messages" id="ai-messages"></div>
-                <div class="ai-input-row">
-                    <input type="text" id="ai-input" placeholder="Ask a rules question..." onkeydown="onAIKeydown(event)">
-                    <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIQuestion()">Ask</button>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Search + category filter -->
         <div class="rules-search-wrap">
