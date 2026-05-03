@@ -1,165 +1,164 @@
 /* ============================================================
-   PARAGON CORE X — DESIGN SYSTEM v3.0
-   
-   ROLLBACK: Restore original style.css from Paragon-CoreX-main.zip
-   
+   PARAGON CORE X — DESIGN SYSTEM v4.0
+   ROLLBACK: restore original style.css from your zip file
+   ============================================================
+
    ARCHITECTURE:
-     Theme  (.theme-*)  — accent + dark backgrounds
-     Mode   (.mode-light) — flips to light backgrounds
-     Style  (.style-*)  — shape, typography, effects
-   
-   Locked themes:
-     .theme-gold   — always dark  (no .mode-light applied)
-     .theme-arctic — always light (always has .mode-light applied by JS)
+   Theme  (.theme-*) = color palette
+   Mode   (.mode-light) = flips bg/text to light
+   Style  (.style-*) = shape, spacing, font, effects
+
+   LOCKED:
+   .theme-midnight = always dark  (original app look)
+   .theme-arctic   = always light (clean crisp whites)
    ============================================================ */
 
 
-/* ══════════════════════════════════════════════════════════════
-   1. THEMES
-   ══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   THEMES
+   ══════════════════════════════════════════════════════ */
 
-/* ── Default / Gold (dark amber — locked dark) ── */
-:root {
-    --bg:         #060501;
-    --card-bg:    #100e07;
-    --input-bg:   #1a1710;
-    --border:     #2a2518;
-    --text:       #f5efd8;
-    --sub-text:   #7a6e50;
+/* ── Midnight — original app. Pure black, gold accent. LOCKED DARK. ── */
+:root,
+body {
+    --bg:         #050505;
+    --card-bg:    #121212;
+    --input-bg:   #1d1d1d;
+    --border:     #252525;
+    --text:       #ffffff;
+    --sub-text:   #888888;
     --primary:    #e8b23b;
     --primary-fg: #000000;
     --red:        #ff4d4d;
     --blue:       #4d94ff;
-    --icon-color: #b8922a;
+    --icon-color: #d1d1d1;
     --neon-rgb:   232, 178, 59;
     --radius:     14px;
     --radius-sm:  8px;
     --radius-lg:  20px;
     --card-shadow: none;
-    --transition: all 0.18s ease;
+    --transition: all 0.2s ease;
+}
+
+/* ── Arctic — crisp white, ice blue. LOCKED LIGHT. ──
+   Very deliberate: pure white cards, sky blue accent, dark navy text.
+   Nothing dark about it — maximally distinct from Midnight. */
+.theme-arctic {
+    --bg:         #e8f4ff;
+    --card-bg:    #ffffff;
+    --input-bg:   #f0f8ff;
+    --border:     #b8d8f0;
+    --text:       #0a1929;
+    --sub-text:   #4a7090;
+    --primary:    #0078d4;
+    --primary-fg: #ffffff;
+    --icon-color: #0078d4;
+    --neon-rgb:   0, 120, 212;
 }
 
 /* ── Red Alliance ── */
 .theme-red {
-    --bg:         #060000;
-    --card-bg:    #100000;
-    --input-bg:   #180000;
-    --border:     #260404;
+    --bg:         #070000;
+    --card-bg:    #120000;
+    --input-bg:   #1a0000;
+    --border:     #2c0505;
     --text:       #ffe8e8;
-    --sub-text:   #7a3a3a;
-    --primary:    #ff2222;
+    --sub-text:   #804040;
+    --primary:    #ff2020;
     --primary-fg: #ffffff;
-    --icon-color: #ff4444;
-    --neon-rgb:   255, 34, 34;
+    --icon-color: #ff5555;
+    --neon-rgb:   255, 32, 32;
 }
 
-/* ── Blue Alliance ── */
+/* ── Blue Alliance — deep ocean, NOT similar to arctic ──
+   Very dark navy, electric blue accent. Arctic is light+sky,
+   Blue is dark+ocean — maximally distinct from each other. */
 .theme-blue {
-    --bg:         #00050f;
-    --card-bg:    #000b1c;
-    --input-bg:   #001228;
-    --border:     #001c3c;
-    --text:       #e0efff;
-    --sub-text:   #3a5a80;
-    --primary:    #2882ff;
-    --primary-fg: #ffffff;
-    --icon-color: #4496ff;
-    --neon-rgb:   40, 130, 255;
+    --bg:         #010810;
+    --card-bg:    #030f1e;
+    --input-bg:   #05162b;
+    --border:     #082038;
+    --text:       #c8e8ff;
+    --sub-text:   #2a5070;
+    --primary:    #00a8ff;
+    --primary-fg: #000000;
+    --icon-color: #00a8ff;
+    --neon-rgb:   0, 168, 255;
 }
 
-/* ── Stealth (pure black/white) ── */
+/* ── Stealth — pure black, white accents ── */
 .theme-stealth {
     --bg:         #000000;
     --card-bg:    #0c0c0c;
     --input-bg:   #141414;
-    --border:     #1c1c1c;
+    --border:     #1e1e1e;
     --text:       #f0f0f0;
     --sub-text:   #484848;
     --primary:    #e0e0e0;
     --primary-fg: #000000;
-    --icon-color: #c0c0c0;
-    --neon-rgb:   200, 200, 200;
-}
-
-/* ── Arctic (locked light — clean sky blue) ── */
-/* Arctic always runs in light mode — JS enforces this */
-.theme-arctic {
-    --bg:         #eef4fb;
-    --card-bg:    #ffffff;
-    --input-bg:   #f0f5fc;
-    --border:     #ccdcee;
-    --text:       #0e1c2e;
-    --sub-text:   #5a7a9a;
-    --primary:    #006edb;
-    --primary-fg: #ffffff;
-    --icon-color: #006edb;
-    --neon-rgb:   0, 110, 219;
-    /* Arctic is always light — override dark mode vars to same values */
-    --mode-bg:         #eef4fb;
-    --mode-card-bg:    #ffffff;
-    --mode-input-bg:   #f0f5fc;
-    --mode-border:     #ccdcee;
-    --mode-text:       #0e1c2e;
-    --mode-sub-text:   #5a7a9a;
+    --icon-color: #b0b0b0;
+    --neon-rgb:   210, 210, 210;
 }
 
 
-/* ══════════════════════════════════════════════════════════════
-   2. LIGHT MODE MODIFIER
-   Applied by JS on top of any unlocked theme.
-   Ignored for arctic (already light) and gold (locked dark).
-   ══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   LIGHT MODE MODIFIER
+   Applied by JS on top of Red, Blue, Stealth only.
+   Midnight and Arctic are locked — JS never toggles them.
+   ══════════════════════════════════════════════════════ */
 
 .mode-light {
-    --bg:        #f2f2f5;
+    --bg:        #f4f4f6;
     --card-bg:   #ffffff;
-    --input-bg:  #e8e8ec;
+    --input-bg:  #ebebee;
     --border:    #d4d4da;
-    --text:      #0f0f12;
-    --sub-text:  #7a7a88;
+    --text:      #0f0f14;
+    --sub-text:  #74747e;
     --icon-color: var(--primary);
 }
 
-/* Per-theme light mode accent tweaks for legibility */
+/* Per-theme light accent tweaks */
 .theme-red.mode-light {
-    --primary:   #c80000;
-    --neon-rgb:  200, 0, 0;
-    --bg:        #fff5f5;
+    --primary:   #c50000;
+    --neon-rgb:  197, 0, 0;
+    --bg:        #fff4f4;
     --card-bg:   #ffffff;
     --input-bg:  #ffe8e8;
-    --border:    #f5c0c0;
+    --border:    #f5bbbb;
     --text:      #1a0000;
-    --sub-text:  #884444;
+    --sub-text:  #904040;
 }
 .theme-blue.mode-light {
-    --primary:   #0055cc;
-    --neon-rgb:  0, 85, 204;
-    --bg:        #f2f7ff;
+    --primary:   #0060cc;
+    --primary-fg: #ffffff;
+    --neon-rgb:  0, 96, 204;
+    --bg:        #f0f6ff;
     --card-bg:   #ffffff;
-    --input-bg:  #e4eeff;
-    --border:    #b8ccee;
-    --text:      #00101f;
-    --sub-text:  #445a7a;
+    --input-bg:  #e2eeff;
+    --border:    #aaccee;
+    --text:      #000f20;
+    --sub-text:  #3a5a7a;
 }
 .theme-stealth.mode-light {
-    --primary:   #1a1a1a;
+    --primary:   #181818;
     --primary-fg: #ffffff;
-    --icon-color: #1a1a1a;
-    --neon-rgb:  30, 30, 30;
+    --icon-color: #181818;
+    --neon-rgb:  24, 24, 24;
     --bg:        #f5f5f5;
     --card-bg:   #ffffff;
     --input-bg:  #ebebeb;
     --border:    #cccccc;
-    --text:      #0a0a0a;
-    --sub-text:  #666666;
+    --text:      #080808;
+    --sub-text:  #686868;
 }
 
 
-/* ══════════════════════════════════════════════════════════════
-   3. STYLE VARIANTS
-   ══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   STYLE: CLASSIC
+   The original app feel. Rounded cards, solid borders.
+   Baseline — everything else is measured against this.
+   ══════════════════════════════════════════════════════ */
 
-/* ── Classic — original feel, cards with borders ── */
 .style-classic {
     --radius:     14px;
     --radius-sm:  8px;
@@ -167,14 +166,60 @@
     --card-shadow: none;
 }
 
-/* ── Minimal — flat, line-separated, no cards ── */
+
+/* ══════════════════════════════════════════════════════
+   STYLE: ROUNDED
+   Pillow-soft. Extra large radii, deep shadows,
+   spacious padding, no hard edges anywhere.
+   ══════════════════════════════════════════════════════ */
+
+.style-rounded {
+    --radius:     24px;
+    --radius-sm:  16px;
+    --radius-lg:  36px;
+    --card-shadow: 0 6px 28px rgba(0,0,0,0.22);
+}
+body.style-rounded { letter-spacing: 0.1px; }
+.style-rounded .hub-card  { padding: 24px 22px; margin-bottom: 14px; }
+.style-rounded .note-card { padding: 20px 22px; }
+.style-rounded .dock-bar  {
+    border-radius: 40px;
+    bottom: 16px;
+    width: fit-content;
+    min-width: 180px;
+    height: 66px;
+    padding: 0 24px;
+    gap: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+}
+.style-rounded .dock-btn {
+    border-radius: 50%;
+    width: 46px; height: 46px;
+}
+.style-rounded input,
+.style-rounded select,
+.style-rounded textarea { border-radius: 16px; }
+.style-rounded .sort-container { border-radius: 20px; padding: 5px; }
+.style-rounded .sort-btn { border-radius: 14px; }
+.style-rounded .save-btn { border-radius: 20px; padding: 18px; }
+.style-rounded .fab-menu { border-radius: 28px; }
+.style-rounded .alliance-box { border-radius: 22px; }
+
+
+/* ══════════════════════════════════════════════════════
+   STYLE: MINIMAL
+   Invisible cards. Line separators only.
+   Maximum whitespace and breathing room.
+   ══════════════════════════════════════════════════════ */
+
 .style-minimal {
     --radius:     6px;
     --radius-sm:  4px;
     --radius-lg:  10px;
     --card-shadow: none;
 }
-body.style-minimal { line-height: 1.45; }
+body.style-minimal { line-height: 1.55; }
+
 .style-minimal .hub-card,
 .style-minimal .note-card,
 .style-minimal .event-item,
@@ -183,10 +228,10 @@ body.style-minimal { line-height: 1.45; }
 .style-minimal .rule-card,
 .style-minimal .team-row,
 .style-minimal .sketch-item {
+    background: transparent !important;
     border: none !important;
     border-bottom: 1px solid var(--border) !important;
     border-radius: 0 !important;
-    background: transparent !important;
     box-shadow: none !important;
     padding-left: 2px !important;
     padding-right: 2px !important;
@@ -195,17 +240,17 @@ body.style-minimal { line-height: 1.45; }
 .style-minimal .detail-tabs {
     background: transparent;
     border: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
     border-radius: 0;
-    padding: 0 0 0 0;
-    gap: 2px;
+    padding: 0;
+    gap: 0;
 }
 .style-minimal .sort-btn,
 .style-minimal .detail-tab {
     border-radius: 0;
-    padding-bottom: 10px;
+    padding-bottom: 11px;
     border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
+    margin-bottom: -2px;
 }
 .style-minimal .sort-btn.active,
 .style-minimal .detail-tab.active {
@@ -240,38 +285,40 @@ body.style-minimal { line-height: 1.45; }
     padding-right: 2px;
 }
 .style-minimal .alliance-box {
-    border-radius: var(--radius-sm) !important;
     background: var(--card-bg) !important;
     border: none !important;
-    border-top: 2px solid var(--border) !important;
+    border-top: 3px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
 }
-.style-minimal .alliance-box.red  { border-top-color: var(--red) !important; }
+.style-minimal .alliance-box.red  { border-top-color: var(--red)  !important; }
 .style-minimal .alliance-box.blue { border-top-color: var(--blue) !important; }
-.style-minimal .dock-bar {
-    border-top: 1px solid var(--border);
-    background: var(--bg);
-    box-shadow: none;
-}
-.style-minimal .save-btn { border-radius: var(--radius-sm); }
-.style-minimal .fab-menu { border-radius: var(--radius); }
+.style-minimal .dock-bar  { border-top: 1px solid var(--border); background: var(--bg); box-shadow: none; }
+.style-minimal .save-btn  { border-radius: 6px; }
+.style-minimal .fab-menu  { border-radius: 8px; }
 
-/* ── Glass — frosted blur, gradient bg, rounded ── */
+
+/* ══════════════════════════════════════════════════════
+   STYLE: GLASS
+   Frosted blur, gradient backgrounds.
+   Cards feel translucent and layered.
+   ══════════════════════════════════════════════════════ */
+
 .style-glass {
     --radius:     22px;
-    --radius-sm:  13px;
+    --radius-sm:  14px;
     --radius-lg:  32px;
     --card-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
-/* Per-theme glass backgrounds */
-body.style-glass                                 { background: radial-gradient(ellipse at 20% 20%, #12181f 0%, #000000 75%) fixed !important; }
-body.style-glass.mode-light                      { background: radial-gradient(ellipse at 20% 20%, #cce0f8 0%, #f0f6ff 75%) fixed !important; }
-body.style-glass.theme-red                       { background: radial-gradient(ellipse at 20% 20%, #180008 0%, #000000 75%) fixed !important; }
-body.style-glass.theme-red.mode-light            { background: radial-gradient(ellipse at 20% 20%, #fcc 0%, #fff5f5 75%) fixed !important; }
-body.style-glass.theme-blue                      { background: radial-gradient(ellipse at 20% 20%, #001428 0%, #000000 75%) fixed !important; }
-body.style-glass.theme-blue.mode-light           { background: radial-gradient(ellipse at 20% 20%, #b8d8ff 0%, #eef5ff 75%) fixed !important; }
-body.style-glass.theme-stealth                   { background: radial-gradient(ellipse at 20% 20%, #141414 0%, #000000 75%) fixed !important; }
-body.style-glass.theme-stealth.mode-light        { background: radial-gradient(ellipse at 20% 20%, #e0e0e0 0%, #f8f8f8 75%) fixed !important; }
-body.style-glass.theme-arctic                    { background: radial-gradient(ellipse at 20% 20%, #b4d4f0 0%, #e4f0ff 75%) fixed !important; }
+
+body.style-glass                              { background: radial-gradient(ellipse at 20% 10%, #101820 0%, #000000 70%) fixed !important; }
+body.style-glass.mode-light                   { background: radial-gradient(ellipse at 20% 10%, #cce4f8 0%, #eef6ff 70%) fixed !important; }
+body.style-glass.theme-red                    { background: radial-gradient(ellipse at 20% 10%, #1a0008 0%, #000000 70%) fixed !important; }
+body.style-glass.theme-red.mode-light         { background: radial-gradient(ellipse at 20% 10%, #ffcccc 0%, #fff5f5 70%) fixed !important; }
+body.style-glass.theme-blue                   { background: radial-gradient(ellipse at 20% 10%, #001828 0%, #000000 70%) fixed !important; }
+body.style-glass.theme-blue.mode-light        { background: radial-gradient(ellipse at 20% 10%, #aad0f8 0%, #eef5ff 70%) fixed !important; }
+body.style-glass.theme-stealth                { background: radial-gradient(ellipse at 20% 10%, #141414 0%, #000000 70%) fixed !important; }
+body.style-glass.theme-stealth.mode-light     { background: radial-gradient(ellipse at 20% 10%, #dddddd 0%, #f6f6f6 70%) fixed !important; }
+body.style-glass.theme-arctic                 { background: radial-gradient(ellipse at 20% 10%, #a8d4f5 0%, #ddf0ff 70%) fixed !important; }
 
 .style-glass .hub-card,
 .style-glass .note-card,
@@ -285,10 +332,10 @@ body.style-glass.theme-arctic                    { background: radial-gradient(e
 .style-glass .rank-row,
 .style-glass .team-row,
 .style-glass .fab-menu {
-    background: rgba(255,255,255,0.06) !important;
-    backdrop-filter: blur(22px) saturate(160%);
-    -webkit-backdrop-filter: blur(22px) saturate(160%);
-    border: 1px solid rgba(255,255,255,0.12) !important;
+    background: rgba(255,255,255,0.07) !important;
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.13) !important;
     box-shadow: var(--card-shadow) !important;
 }
 body.style-glass.mode-light .hub-card,
@@ -298,67 +345,60 @@ body.style-glass.mode-light .match-card,
 body.style-glass.mode-light .rule-card,
 body.style-glass.mode-light .rank-row,
 body.style-glass.mode-light .team-row,
-body.style-glass.mode-light .alliance-box {
-    background: rgba(255,255,255,0.6) !important;
-    border: 1px solid rgba(255,255,255,0.9) !important;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.06) !important;
-}
+body.style-glass.mode-light .alliance-box,
 body.style-glass.theme-arctic .hub-card,
 body.style-glass.theme-arctic .note-card,
 body.style-glass.theme-arctic .event-item {
-    background: rgba(255,255,255,0.65) !important;
-    border: 1px solid rgba(255,255,255,0.9) !important;
+    background: rgba(255,255,255,0.62) !important;
+    border: 1px solid rgba(255,255,255,0.92) !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06) !important;
 }
 .style-glass .dock-bar {
     bottom: 18px;
-    width: fit-content;
-    min-width: 190px;
-    height: 60px;
-    padding: 0 22px;
-    border-radius: 50px;
+    width: fit-content; min-width: 190px; height: 60px;
+    padding: 0 22px; border-radius: 50px; gap: 14px;
     background: rgba(255,255,255,0.09) !important;
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255,255,255,0.16) !important;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    gap: 14px;
 }
 body.style-glass.mode-light .dock-bar,
 body.style-glass.theme-arctic .dock-bar {
-    background: rgba(255,255,255,0.65) !important;
+    background: rgba(255,255,255,0.68) !important;
     border: 1px solid rgba(255,255,255,0.95) !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
-.style-glass .dock-btn {
-    border-radius: 50%;
-    width: 42px; height: 42px;
-    background: rgba(255,255,255,0.10) !important;
-}
+.style-glass .dock-btn { border-radius: 50%; width: 42px; height: 42px; background: rgba(255,255,255,0.10) !important; }
 .style-glass .dock-btn.alt { background: var(--primary) !important; }
 
-/* ── Tactical — terminal HUD, sharp, monospaced ── */
+
+/* ══════════════════════════════════════════════════════
+   STYLE: TACTICAL
+   Sharp 90° corners. Monospace font. Dense information.
+   Left-border accent on every card. HUD scanlines.
+   ══════════════════════════════════════════════════════ */
+
 .style-tactical {
-    --radius:     3px;
-    --radius-sm:  2px;
-    --radius-lg:  4px;
+    --radius:     2px;
+    --radius-sm:  1px;
+    --radius-lg:  3px;
     --card-shadow: none;
 }
 body.style-tactical {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+    font-size: 0.9rem;
     letter-spacing: 0.3px;
 }
-/* Subtle scanline texture */
+/* Scanline overlay */
 body.style-tactical::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
     background: repeating-linear-gradient(
         0deg, transparent, transparent 2px,
-        rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px
+        rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px
     );
-    pointer-events: none;
-    z-index: 0;
 }
+/* Boxy cards with strong left accent */
 .style-tactical .hub-card,
 .style-tactical .note-card,
 .style-tactical .event-item,
@@ -366,49 +406,62 @@ body.style-tactical::before {
 .style-tactical .rule-card,
 .style-tactical .team-row,
 .style-tactical .rank-row {
-    border-radius: var(--radius) !important;
-    border-left: 3px solid var(--primary) !important;
+    border-radius: 0 !important;
+    border: 1px solid var(--border) !important;
+    border-left: 4px solid var(--primary) !important;
 }
-.style-tactical .alliance-box.red  { border-left: 3px solid var(--red) !important; }
-.style-tactical .alliance-box.blue { border-left: 3px solid var(--blue) !important; }
+.style-tactical .alliance-box { border-radius: 0 !important; }
+.style-tactical .alliance-box.red  { border-left: 4px solid var(--red) !important; }
+.style-tactical .alliance-box.blue { border-left: 4px solid var(--blue) !important; }
+/* All typography: uppercase + wide spacing */
 .style-tactical .welcome-header h1 {
-    font-size: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 6px;
+    font-size: 1.4rem; text-transform: uppercase; letter-spacing: 8px;
 }
-.style-tactical .welcome-header p { letter-spacing: 5px; }
-.style-tactical .hub-card b { letter-spacing: 4px; font-size: 0.8rem; }
+.style-tactical .welcome-header p { letter-spacing: 6px; }
+.style-tactical .hub-card b { letter-spacing: 4px; font-size: 0.78rem; }
+/* Segments: square tabs */
+.style-tactical .sort-container { border-radius: 0; gap: 2px; }
+.style-tactical .sort-btn { border-radius: 0; }
+.style-tactical .sort-btn.active {
+    background: var(--primary); color: var(--primary-fg);
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+/* Square dock */
 .style-tactical .dock-bar {
-    border-radius: 0;
-    border-top: 2px solid var(--primary);
-    height: 64px;
+    border-radius: 0; border-top: 3px solid var(--primary); height: 64px;
 }
-.style-tactical .dock-btn { border-radius: var(--radius-sm); }
-.style-tactical input, .style-tactical select, .style-tactical textarea {
-    border-radius: var(--radius-sm);
-    font-family: inherit;
-    letter-spacing: 0.5px;
+.style-tactical .dock-btn { border-radius: 0; }
+.style-tactical .dock-btn.alt { border-radius: 0; }
+/* Inputs */
+.style-tactical input,
+.style-tactical select,
+.style-tactical textarea {
+    border-radius: 0; font-family: inherit; letter-spacing: 0.5px;
 }
+.style-tactical .save-btn { border-radius: 0; }
+/* Status dot on hub cards */
 .style-tactical .hub-card::after {
-    content: '●';
-    color: var(--primary);
-    font-size: 0.45rem;
-    opacity: 0.5;
-    margin-left: auto;
-    align-self: flex-start;
-    margin-top: 2px;
+    content: '■'; color: var(--primary); font-size: 0.45rem;
+    opacity: 0.6; margin-left: auto; align-self: flex-start; margin-top: 3px;
 }
 
-/* ── Neon — glowing borders, works in dark AND light ── */
+
+/* ══════════════════════════════════════════════════════
+   STYLE: NEON
+   Dark canvas, glowing colored borders.
+   Glow text on headings and key labels.
+   Works in light mode: strong color borders on white.
+   ══════════════════════════════════════════════════════ */
+
 .style-neon {
-    --radius:     13px;
+    --radius:     12px;
     --radius-sm:  7px;
     --radius-lg:  18px;
-    --card-shadow: 0 0 18px rgba(var(--neon-rgb), 0.1);
+    --card-shadow: 0 0 18px rgba(var(--neon-rgb),0.1);
 }
-body.style-neon         { background: #020202 !important; }
-body.style-neon.mode-light { background: #f6f6f8 !important; }
-body.style-neon.theme-arctic { background: #f0f6ff !important; }
+body.style-neon           { background: #010101 !important; }
+body.style-neon.mode-light { background: #f4f4f6 !important; }
+body.style-neon.theme-arctic { background: #e8f4ff !important; }
 
 /* Dark neon cards */
 .style-neon .hub-card,
@@ -420,98 +473,94 @@ body.style-neon.theme-arctic { background: #f0f6ff !important; }
 .style-neon .rank-row,
 .style-neon .team-row,
 .style-neon .sketch-item {
-    border: 1px solid rgba(var(--neon-rgb), 0.3) !important;
-    box-shadow: 0 0 14px rgba(var(--neon-rgb), 0.07), 0 0 0 0 transparent;
+    border: 1px solid rgba(var(--neon-rgb),0.3) !important;
+    box-shadow: 0 0 14px rgba(var(--neon-rgb),0.07);
     transition: border-color 0.2s, box-shadow 0.2s;
+    background: rgba(var(--neon-rgb),0.02) !important;
 }
 .style-neon .hub-card:active,
 .style-neon .event-item:active,
 .style-neon .rule-card:active {
-    border-color: rgba(var(--neon-rgb), 0.85) !important;
-    box-shadow: 0 0 24px rgba(var(--neon-rgb), 0.28) !important;
+    border-color: rgba(var(--neon-rgb),0.85) !important;
+    box-shadow: 0 0 26px rgba(var(--neon-rgb),0.28) !important;
 }
-/* Light neon — stronger borders on white bg */
+/* Light neon */
 body.style-neon.mode-light .hub-card,
 body.style-neon.mode-light .note-card,
 body.style-neon.mode-light .event-item,
-body.style-neon.mode-light .match-card,
 body.style-neon.mode-light .rule-card,
 body.style-neon.mode-light .rank-row,
-body.style-neon.mode-light .team-row {
-    border: 1.5px solid rgba(var(--neon-rgb), 0.55) !important;
-    box-shadow: 0 0 12px rgba(var(--neon-rgb), 0.1) !important;
-    background: rgba(var(--neon-rgb), 0.02) !important;
-}
+body.style-neon.mode-light .team-row,
 body.style-neon.theme-arctic .hub-card,
 body.style-neon.theme-arctic .note-card,
 body.style-neon.theme-arctic .event-item {
-    border: 1.5px solid rgba(var(--neon-rgb), 0.4) !important;
-    box-shadow: 0 0 12px rgba(var(--neon-rgb), 0.08) !important;
+    border: 2px solid rgba(var(--neon-rgb),0.55) !important;
+    box-shadow: 0 0 12px rgba(var(--neon-rgb),0.12) !important;
+    background: rgba(var(--neon-rgb),0.03) !important;
 }
 /* Glow text */
-.style-neon .welcome-header h1 { text-shadow: 0 0 28px rgba(var(--neon-rgb), 0.55); }
+.style-neon .welcome-header h1 { text-shadow: 0 0 30px rgba(var(--neon-rgb),0.6); }
 .style-neon .hub-card b,
 .style-neon .rule-id,
 .style-neon .team-number,
-.style-neon .event-item-name { text-shadow: 0 0 12px rgba(var(--neon-rgb), 0.5); }
-body.style-neon.mode-light .welcome-header h1 { text-shadow: 0 0 18px rgba(var(--neon-rgb), 0.4); }
+.style-neon .event-item-name { text-shadow: 0 0 12px rgba(var(--neon-rgb),0.55); }
+body.style-neon.mode-light .welcome-header h1 { text-shadow: 0 0 18px rgba(var(--neon-rgb),0.45); }
 body.style-neon.mode-light .hub-card b,
-body.style-neon.mode-light .rule-id,
-body.style-neon.mode-light .event-item-name { text-shadow: 0 0 8px rgba(var(--neon-rgb), 0.3); }
-/* Glowing active pills */
+body.style-neon.theme-arctic .hub-card b { text-shadow: 0 0 8px rgba(var(--neon-rgb),0.35); }
+/* Glowing active states */
 .style-neon .sort-btn.active,
 .style-neon .detail-tab.active,
 .style-neon .evt-filter-btn.active,
-.style-neon .rules-cat-btn.active { box-shadow: 0 0 18px rgba(var(--neon-rgb), 0.45) !important; }
+.style-neon .rules-cat-btn.active { box-shadow: 0 0 18px rgba(var(--neon-rgb),0.5) !important; }
 /* Dock */
 .style-neon .dock-bar {
-    border-top: 1px solid rgba(var(--neon-rgb), 0.25);
-    box-shadow: 0 -4px 24px rgba(var(--neon-rgb), 0.12);
     background: #050505;
+    border-top: 1px solid rgba(var(--neon-rgb),0.25);
+    box-shadow: 0 -4px 24px rgba(var(--neon-rgb),0.12);
 }
 body.style-neon.mode-light .dock-bar {
-    background: #f2f2f4;
-    border-top: 1px solid rgba(var(--neon-rgb), 0.35);
-    box-shadow: 0 -2px 16px rgba(var(--neon-rgb), 0.14);
+    background: #f0f0f2;
+    border-top: 1px solid rgba(var(--neon-rgb),0.35);
+    box-shadow: 0 -2px 16px rgba(var(--neon-rgb),0.14);
 }
 body.style-neon.theme-arctic .dock-bar {
-    background: #eef4fb;
-    border-top: 1px solid rgba(var(--neon-rgb), 0.3);
+    background: #ddeeff;
+    border-top: 1px solid rgba(var(--neon-rgb),0.3);
 }
-.style-neon .dock-btn.alt { box-shadow: 0 0 16px rgba(var(--neon-rgb), 0.55); }
+.style-neon .dock-btn.alt { box-shadow: 0 0 16px rgba(var(--neon-rgb),0.55); }
 .style-neon input:focus,
 .style-neon select:focus,
-.style-neon textarea:focus { box-shadow: 0 0 12px rgba(var(--neon-rgb), 0.3); }
+.style-neon textarea:focus { box-shadow: 0 0 12px rgba(var(--neon-rgb),0.3); }
 
-/* ── Retro — warm paper / aged terminal, high contrast ── */
+
+/* ══════════════════════════════════════════════════════
+   STYLE: RETRO
+   Warm serif font. Hard offset drop shadows.
+   Thick borders. Press-down button feel.
+   Completely unlike every other style.
+   ══════════════════════════════════════════════════════ */
+
 .style-retro {
-    --radius:     6px;
-    --radius-sm:  4px;
+    --radius:     5px;
+    --radius-sm:  3px;
     --radius-lg:  8px;
     --card-shadow: 3px 3px 0px var(--border);
 }
 body.style-retro {
-    font-family: 'Georgia', 'Times New Roman', serif;
-    background: var(--bg);
+    font-family: 'Georgia', 'Palatino', 'Times New Roman', serif;
 }
-/* Dark retro: aged amber terminal */
 body.style-retro:not(.mode-light):not(.theme-arctic) {
-    background: #0c0a06 !important;
-    --bg: #0c0a06;
+    background: #080604 !important;
+    --bg: #080604; --card-bg: #110e08; --input-bg: #1a1610; --border: #3a3020;
 }
-/* Light retro: warm paper */
 body.style-retro.mode-light {
-    background: #f5f0e8 !important;
-    --bg: #f5f0e8;
-    --card-bg: #fffef8;
-    --input-bg: #eee9dc;
-    --border: #c8b896;
-    --text: #1a1408;
-    --sub-text: #7a6a4a;
+    background: #f4ede0 !important;
+    --bg: #f4ede0; --card-bg: #fffef6; --input-bg: #eee8d8; --border: #b8a888;
+    --text: #1a1408; --sub-text: #7a6a4a;
 }
 body.style-retro.theme-arctic {
-    background: #f0f5f8 !important;
-    --card-bg: #fafcff;
+    background: #f0f4f0 !important;
+    --card-bg: #fafffe; --border: #a8c8b8;
 }
 .style-retro .hub-card,
 .style-retro .note-card,
@@ -523,56 +572,57 @@ body.style-retro.theme-arctic {
     border: 2px solid var(--border) !important;
     border-radius: var(--radius) !important;
     box-shadow: 3px 3px 0 var(--border) !important;
+    transition: box-shadow 0.08s ease, transform 0.08s ease !important;
 }
 .style-retro .hub-card:active,
-.style-retro .note-card:active,
-.style-retro .event-item:active {
+.style-retro .event-item:active,
+.style-retro .rule-card:active {
     box-shadow: 1px 1px 0 var(--border) !important;
     transform: translate(2px, 2px) !important;
 }
 .style-retro .hub-card b {
-    letter-spacing: 2px;
-    font-size: 0.88rem;
+    letter-spacing: 2px; font-size: 0.85rem;
     font-family: 'Courier New', monospace;
 }
-.style-retro .welcome-header h1 {
-    font-size: 2rem;
-    letter-spacing: 1px;
-}
-.style-retro .welcome-header p {
-    letter-spacing: 3px;
-    font-family: 'Courier New', monospace;
-}
+.style-retro .welcome-header h1 { letter-spacing: 2px; font-size: 2rem; }
+.style-retro .welcome-header p  { letter-spacing: 4px; font-family: 'Courier New', monospace; }
 .style-retro .sort-container,
-.style-retro .detail-tabs {
-    border-radius: var(--radius) !important;
-    border: 2px solid var(--border);
-}
+.style-retro .detail-tabs { border: 2px solid var(--border) !important; border-radius: var(--radius); }
+.style-retro .sort-btn.active,
+.style-retro .detail-tab.active { border-radius: 3px; }
 .style-retro .dock-bar {
-    border-top: 2px solid var(--border);
-    border-radius: 0;
+    border-radius: 0; border-top: 3px solid var(--border); height: 70px;
 }
 .style-retro .dock-btn {
-    border-radius: var(--radius-sm);
-    border: 2px solid var(--border);
+    border-radius: var(--radius); border: 2px solid var(--border);
+    box-shadow: 2px 2px 0 var(--border);
+}
+.style-retro .dock-btn:active {
+    box-shadow: 0px 0px 0 var(--border);
+    transform: translate(2px, 2px);
 }
 .style-retro .save-btn {
-    border-radius: var(--radius);
-    border: 2px solid rgba(0,0,0,0.15);
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    border-radius: var(--radius); border: 2px solid rgba(0,0,0,0.2);
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+    letter-spacing: 2px;
+}
+.style-retro .save-btn:active {
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+    transform: translate(3px, 3px);
 }
 .style-retro input,
 .style-retro select,
 .style-retro textarea {
-    border-radius: var(--radius-sm);
-    border: 2px solid var(--border);
-    font-family: 'Courier New', monospace;
+    border: 2px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'Courier New', monospace; letter-spacing: 0.5px;
 }
+.style-retro .fab-menu { border: 2px solid var(--border); border-radius: var(--radius); }
+.style-retro .alliance-box { border: 2px solid var(--border) !important; }
 
 
-/* ══════════════════════════════════════════════════════════════
-   4. BASE ENGINE
-   ══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   BASE ENGINE
+   ══════════════════════════════════════════════════════ */
 
 * { box-sizing: border-box; }
 
@@ -585,10 +635,8 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 .container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 20px 20px 140px 20px;
-    box-sizing: border-box;
+    max-width: 500px; margin: 0 auto;
+    padding: 20px 20px 140px 20px; box-sizing: border-box;
 }
 .view { display: none; }
 .view.active { display: block; animation: fadeIn 0.3s ease; }
@@ -597,239 +645,169 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Typography */
+.welcome-header h1 { margin: 0; font-size: 2.2rem; font-weight: 900; letter-spacing: -0.5px; }
+.welcome-header p  { margin: 5px 0 25px; color: var(--sub-text); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; }
 
-/* ══════════════════════════════════════════════════════════════
-   5. TYPOGRAPHY
-   ══════════════════════════════════════════════════════════════ */
-
-.welcome-header h1 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-}
-.welcome-header p {
-    margin: 4px 0 22px;
-    color: var(--sub-text);
-    text-transform: uppercase;
-    font-size: 0.7rem;
-    letter-spacing: 2px;
-    font-weight: 600;
-}
-
-
-/* ══════════════════════════════════════════════════════════════
-   6. ICON ENGINE
-   ══════════════════════════════════════════════════════════════ */
-
+/* Icon engine */
 .icon {
     display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; margin-right: 16px;
+    width: 28px; height: 28px; margin-right: 18px;
     color: var(--icon-color); flex-shrink: 0;
 }
-.icon svg { width: 100%; height: 100%; stroke-width: 2px; }
+.icon svg { width: 100%; height: 100%; stroke-width: 2.2px; }
 
-
-/* ══════════════════════════════════════════════════════════════
-   7. HUB CARDS
-   ══════════════════════════════════════════════════════════════ */
-
+/* Hub cards */
 .hub-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: var(--card-shadow);
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; margin-bottom: 12px;
+    display: flex; align-items: center; cursor: pointer;
+    transition: var(--transition); box-shadow: var(--card-shadow);
 }
 .hub-card:active { transform: scale(0.97); }
-.hub-card b {
-    color: var(--primary);
-    font-size: 0.95rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
+.hub-card b { color: var(--primary); font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
 
-
-/* ══════════════════════════════════════════════════════════════
-   8. INPUTS & FORMS
-   ══════════════════════════════════════════════════════════════ */
-
+/* Inputs */
 input, select, textarea {
-    width: 100%;
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 13px 14px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 11px;
-    box-sizing: border-box;
-    font-family: inherit;
-    font-size: 0.9rem;
-    outline: none;
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+    color: var(--text); padding: 14px; border-radius: var(--radius-sm);
+    margin-bottom: 12px; box-sizing: border-box; font-family: inherit;
+    font-size: 0.9rem; outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    appearance: none;
-    -webkit-appearance: none;
+    appearance: none; -webkit-appearance: none;
 }
 input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 input::placeholder, textarea::placeholder { color: var(--sub-text); }
 label {
-    display: block;
-    font-size: 0.7rem; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: var(--sub-text); margin-bottom: 6px;
+    display: block; font-size: 0.7rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--sub-text); margin-bottom: 6px;
 }
 .save-btn {
-    width: 100%; padding: 16px;
-    background: var(--primary); color: var(--primary-fg);
-    border: none; border-radius: var(--radius);
-    font-weight: 900; font-size: 0.9rem; letter-spacing: 0.5px;
+    width: 100%; padding: 18px; background: var(--primary); color: var(--primary-fg);
+    border: none; border-radius: var(--radius); font-weight: 900; font-size: 0.9rem;
     cursor: pointer; transition: opacity 0.15s ease;
 }
 .save-btn:active { opacity: 0.8; }
 .search-bar { width: 100%; margin-bottom: 10px !important; }
 
-
-/* ══════════════════════════════════════════════════════════════
-   9. SORT / TAB SEGMENTS
-   ══════════════════════════════════════════════════════════════ */
-
+/* Sort segments */
 .sort-container {
-    display: flex; gap: 4px; margin-bottom: 14px;
-    background: var(--input-bg); padding: 4px;
+    display: flex; gap: 5px; margin-bottom: 15px;
+    background: var(--input-bg); padding: 5px;
     border-radius: var(--radius-sm); border: 1px solid var(--border);
 }
 .sort-btn {
-    flex: 1; padding: 9px; border: none; background: none;
+    flex: 1; padding: 10px; border: none; background: none;
     color: var(--sub-text); font-weight: 800; font-size: 0.75rem;
-    letter-spacing: 0.5px; cursor: pointer;
-    border-radius: calc(var(--radius-sm) - 2px); transition: var(--transition);
+    cursor: pointer; border-radius: calc(var(--radius-sm) - 2px); transition: var(--transition);
 }
 .sort-btn.active { background: var(--primary); color: var(--primary-fg); }
 
-
-/* ══════════════════════════════════════════════════════════════
-   10. NOTE CARDS
-   ══════════════════════════════════════════════════════════════ */
-
+/* Note cards */
 .note-card {
     background: var(--card-bg); border: 1px solid var(--border);
-    padding: 16px 18px; border-radius: var(--radius);
-    margin-bottom: 10px; display: flex; align-items: center;
-    justify-content: space-between; cursor: pointer;
-    transition: var(--transition); box-shadow: var(--card-shadow);
+    padding: 18px; border-radius: var(--radius); margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: var(--transition); box-shadow: var(--card-shadow);
 }
 .note-card:active { transform: scale(0.98); }
 
-
-/* ══════════════════════════════════════════════════════════════
-   11. SCORE CALCULATOR
-   ══════════════════════════════════════════════════════════════ */
-
-.side-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+/* Calculator */
+.side-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .alliance-box {
     background: var(--card-bg); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px;
-    display: flex; flex-direction: column; gap: 12px;
-    box-shadow: var(--card-shadow);
+    border-radius: var(--radius); padding: 15px;
+    display: flex; flex-direction: column; gap: 15px; box-shadow: var(--card-shadow);
 }
-.alliance-box.red  { border-top: 3px solid var(--red); }
-.alliance-box.blue { border-top: 3px solid var(--blue); }
-.counter { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
-.counter label { font-size: 0.6rem; font-weight: 800; color: var(--sub-text); text-transform: uppercase; letter-spacing: 0.5px; margin: 0; }
+.alliance-box.red  { border-top: 4px solid var(--red); }
+.alliance-box.blue { border-top: 4px solid var(--blue); }
+.counter { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.counter label { font-size: 0.7rem; font-weight: 800; color: var(--sub-text); text-transform: uppercase; margin: 0; }
 .ctrls {
     display: flex; align-items: center; justify-content: space-between;
-    background: var(--input-bg); padding: 4px;
+    background: var(--input-bg); padding: 5px;
     border-radius: var(--radius-sm); width: 100%; border: 1px solid var(--border);
 }
-.val-display { font-weight: 900; font-size: 1.1rem; min-width: 24px; text-align: center; }
+.val-display { font-weight: 900; font-size: 1.2rem; min-width: 25px; text-align: center; }
 .btn-math {
-    width: 30px; height: 30px;
-    border-radius: calc(var(--radius-sm) - 2px);
+    width: 32px; height: 32px; border-radius: var(--radius-sm);
     border: none; background: var(--border); color: var(--text);
-    cursor: pointer; font-size: 1.1rem; font-weight: 700; transition: var(--transition);
+    cursor: pointer; font-size: 1.2rem; font-weight: 700; transition: var(--transition);
 }
 .btn-math:active { opacity: 0.7; }
 .score-footer {
     grid-column: span 2; background: var(--primary); color: var(--primary-fg);
-    padding: 16px; border-radius: var(--radius);
-    display: flex; justify-content: space-around;
-    font-weight: 900; font-size: 1rem; margin-top: 8px;
+    padding: 18px; border-radius: var(--radius);
+    display: flex; justify-content: space-around; font-weight: 900; margin-top: 10px;
 }
 
-
-/* ══════════════════════════════════════════════════════════════
-   12. AUTON BUTTONS
-   ══════════════════════════════════════════════════════════════ */
-
-.auton-group { display: flex; gap: 6px; margin-bottom: 14px; }
+/* Auton buttons */
+.auton-group { display: flex; gap: 8px; margin-bottom: 15px; }
 .auton-btn {
-    flex: 1; padding: 11px; border-radius: var(--radius-sm);
-    border: 1px solid var(--border); background: var(--input-bg); color: var(--text);
-    font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: var(--transition);
+    flex: 1; padding: 12px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--input-bg);
+    color: var(--text); font-weight: 700; cursor: pointer; transition: var(--transition);
 }
 .auton-btn.active-red  { background: var(--red);     color: #fff;              border: none; }
 .auton-btn.active-blue { background: var(--blue);    color: #fff;              border: none; }
 .auton-btn.active-tie  { background: var(--primary); color: var(--primary-fg); border: none; }
 
-
-/* ══════════════════════════════════════════════════════════════
-   13. DOCK BAR
-   ══════════════════════════════════════════════════════════════ */
-
+/* Dock bar */
 .dock-bar {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 450px; height: 72px;
+    width: 100%; max-width: 450px; height: 75px;
     background: var(--card-bg); border-top: 1px solid var(--border);
     display: flex; justify-content: center; align-items: center;
-    gap: 36px; z-index: 1000; transition: all 0.3s ease;
+    gap: 40px; z-index: 1000; transition: all 0.4s ease;
 }
 .dock-btn {
-    width: 46px; height: 46px; border-radius: var(--radius-sm);
+    width: 50px; height: 50px; border-radius: var(--radius-sm);
     border: none; background: var(--input-bg);
-    color: var(--sub-text) !important;
-    font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: var(--transition);
+    color: var(--sub-text) !important; font-weight: 900; font-size: 1.1rem;
+    cursor: pointer; transition: var(--transition);
 }
 .dock-btn.alt { background: var(--primary); color: var(--primary-fg) !important; }
 .dock-btn:active { transform: scale(0.9); }
 
-
-/* ══════════════════════════════════════════════════════════════
-   14. FAB MENU
-   ══════════════════════════════════════════════════════════════ */
-
+/* FAB menu */
 .fab-menu {
-    position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%);
+    position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
     background: var(--card-bg); border: 1px solid var(--border);
-    border-radius: var(--radius); width: 210px; padding: 6px;
+    border-radius: 16px; width: 220px; padding: 8px;
     z-index: 1001; display: none; flex-direction: column;
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 .fab-menu.show { display: flex !important; }
 .menu-item {
-    padding: 13px 16px; font-weight: 700; font-size: 0.85rem;
-    cursor: pointer; border-radius: calc(var(--radius) - 4px);
-    color: var(--text); transition: background 0.15s ease;
+    padding: 14px; text-align: center; font-weight: 700; cursor: pointer;
+    border-radius: 10px; color: var(--text); transition: background 0.15s ease;
 }
 .menu-item:hover { background: var(--input-bg); }
 
+/* Event card */
+.event-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 16px; border-radius: var(--radius); box-shadow: var(--card-shadow);
+}
 
-/* ══════════════════════════════════════════════════════════════
-   15. SETTINGS PAGE
-   ══════════════════════════════════════════════════════════════ */
+/* Sketch */
+.sketch-item {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px; margin-bottom: 10px;
+    box-shadow: var(--card-shadow);
+}
+.sketch-preview {
+    width: 64px; height: 40px; object-fit: cover;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+}
 
+/* Settings */
 .settings-section { margin-bottom: 28px; }
 .settings-label {
     font-size: 0.68rem; font-weight: 900; text-transform: uppercase;
     letter-spacing: 1.5px; color: var(--sub-text); margin-bottom: 10px;
 }
-
-/* Dark/Light mode toggle */
 .mode-toggle {
     display: flex; background: var(--input-bg); border: 1px solid var(--border);
     border-radius: var(--radius-sm); padding: 4px; gap: 4px; margin-bottom: 20px;
@@ -837,98 +815,48 @@ label {
 .mode-btn {
     flex: 1; padding: 10px; border: none; background: none;
     color: var(--sub-text); font-weight: 800; font-size: 0.78rem;
-    letter-spacing: 0.5px; cursor: pointer;
-    border-radius: calc(var(--radius-sm) - 2px); transition: var(--transition);
+    cursor: pointer; border-radius: calc(var(--radius-sm) - 2px); transition: var(--transition);
 }
 .mode-btn.active { background: var(--primary); color: var(--primary-fg); }
-.mode-toggle.locked {
-    opacity: 0.45;
-    pointer-events: none;
-}
+.mode-toggle.locked { opacity: 0.4; pointer-events: none; }
 .mode-locked-note {
-    font-size: 0.65rem; color: var(--sub-text);
-    text-align: center; margin-top: -12px; margin-bottom: 16px;
-    letter-spacing: 0.5px;
+    font-size: 0.64rem; color: var(--sub-text); text-align: center;
+    margin-top: -12px; margin-bottom: 16px; letter-spacing: 0.5px;
 }
-
-/* Theme swatches — 2 column */
 .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .theme-swatch {
     border-radius: var(--radius-sm); padding: 13px 12px; cursor: pointer;
-    text-align: left; border: 2px solid transparent;
-    transition: var(--transition); position: relative;
+    border: 2px solid transparent; transition: var(--transition); position: relative;
     display: flex; align-items: center; gap: 10px;
 }
 .theme-swatch.active { border-color: var(--primary); }
 .theme-swatch .swatch-dot {
     width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-    border: 2px solid rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.1);
 }
 .theme-swatch .swatch-info { flex: 1; min-width: 0; }
-.theme-swatch .swatch-name {
-    font-size: 0.74rem; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 0.5px; color: var(--text);
-    display: block;
-}
-.theme-swatch .swatch-tag {
-    font-size: 0.58rem; color: var(--sub-text); letter-spacing: 0.5px; margin-top: 1px;
-    display: block;
-}
+.theme-swatch .swatch-name { font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text); display: block; }
+.theme-swatch .swatch-tag  { font-size: 0.58rem; color: var(--sub-text); display: block; margin-top: 1px; }
 .theme-swatch.active .swatch-name { color: var(--primary); }
-.theme-swatch .swatch-check {
-    position: absolute; top: 7px; right: 7px;
-    font-size: 0.6rem; opacity: 0; color: var(--primary);
-}
+.theme-swatch .swatch-check { position: absolute; top: 7px; right: 7px; font-size: 0.6rem; opacity: 0; color: var(--primary); }
 .theme-swatch.active .swatch-check { opacity: 1; }
 
-/* Style cards — 2 column */
 .style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .style-card {
     background: var(--input-bg); border: 2px solid var(--border);
     border-radius: var(--radius-sm); padding: 14px 12px;
     cursor: pointer; transition: var(--transition); text-align: center;
 }
-.style-card.active {
-    border-color: var(--primary);
-    background: rgba(var(--neon-rgb, 232,178,59), 0.05);
-}
+.style-card.active { border-color: var(--primary); }
 .style-card .style-preview { font-size: 1.4rem; margin-bottom: 5px; line-height: 1; }
-.style-card .style-name {
-    font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 0.5px; color: var(--text);
-}
-.style-card .style-desc { font-size: 0.6rem; color: var(--sub-text); margin-top: 2px; }
+.style-card .style-name { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text); }
+.style-card .style-desc  { font-size: 0.6rem; color: var(--sub-text); margin-top: 2px; }
 .style-card.active .style-name { color: var(--primary); }
 
-
-/* ══════════════════════════════════════════════════════════════
-   16. SKETCH / FIELD VIEWER
-   ══════════════════════════════════════════════════════════════ */
-
-.sketch-item {
-    display: flex; align-items: center; gap: 14px;
-    background: var(--card-bg); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 12px;
-    margin-bottom: 10px; box-shadow: var(--card-shadow);
-}
-.sketch-preview {
-    width: 64px; height: 40px; object-fit: cover;
-    border-radius: var(--radius-sm); border: 1px solid var(--border);
-}
-
-
-/* ══════════════════════════════════════════════════════════════
-   17. SHARED UTILITIES
-   ══════════════════════════════════════════════════════════════ */
-
+/* Spinner */
 .loading-spinner {
-    width: 26px; height: 26px;
-    border: 2.5px solid var(--border); border-top-color: var(--primary);
-    border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto;
+    width: 26px; height: 26px; border: 2.5px solid var(--border);
+    border-top-color: var(--primary); border-radius: 50%;
+    animation: spin 0.75s linear infinite; margin: 0 auto;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.event-card {
-    background: var(--card-bg); border: 1px solid var(--border);
-    padding: 15px; border-radius: var(--radius); box-shadow: var(--card-shadow);
-}

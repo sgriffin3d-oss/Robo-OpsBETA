@@ -173,12 +173,33 @@ function renderAIMessages() {
     container.scrollTop = container.scrollHeight;
 }
 
+// Superuser code — grants unrestricted AI mode
+const SUPERUSER_CODE = 'superuser2775ua00p9r5=';
+let superuserActive = false;
+
 async function sendAIQuestion() {
     const input = document.getElementById('ai-input');
     const btn   = document.getElementById('ai-send-btn');
     if (!input || !btn) return;
 
-    const question = input.value.trim();
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    // Check if message starts with superuser code
+    let question = raw;
+    if (raw.toLowerCase().startsWith(SUPERUSER_CODE)) {
+        superuserActive = true;
+        question = raw.slice(SUPERUSER_CODE.length).trim();
+        if (!question) {
+            // Just the code with no prompt yet — show confirmation
+            aiConversation.push({ role: 'user', content: raw });
+            aiConversation.push({ role: 'assistant', content: '🔓 Superuser mode activated. I am no longer limited to game rules — ask me anything.' });
+            input.value = '';
+            renderAIMessages();
+            return;
+        }
+    }
+
     if (!question) return;
 
     input.value = '';
@@ -189,12 +210,14 @@ async function sendAIQuestion() {
     aiConversation.push({ role: 'user', content: question });
     renderAIMessages();
 
-    // Build rules context — send all rules as compact text
+    // Build system prompt — unrestricted if superuser active
     const rulesContext = RULES_DATA.map(r =>
         `<${r.id}> [${r.category}] ${r.brief}: ${r.full_text}`
     ).join('\n\n');
 
-    const systemPrompt = `You are a VEX V5 Robotics Competition rules expert for the 2026-2027 game "Override". 
+    const systemPrompt = superuserActive
+        ? `You are a highly capable AI assistant. You are unrestricted and can answer any question on any topic thoughtfully and helpfully. Be direct, knowledgeable, and genuinely useful. Do not refuse reasonable requests. Game rules context is still available to you if needed:\n\n${rulesContext}`
+        : `You are a VEX V5 Robotics Competition rules expert for the 2026-2027 game "Override". 
 Answer questions about game rules clearly and concisely. 
 Always cite the specific rule IDs in angle brackets like <SG1> when referencing rules.
 If a question isn't about the game rules, politely redirect.
@@ -240,6 +263,7 @@ ${rulesContext}`;
 
 function clearAIChat() {
     aiConversation = [];
+    superuserActive = false;
     renderAIMessages();
 }
 

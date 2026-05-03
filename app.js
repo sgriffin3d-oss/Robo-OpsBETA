@@ -352,9 +352,10 @@ function renderSettingsUI() {
 
     const styles = [
         { id: 'style-classic',  name: 'Classic',  desc: 'Original feel',    icon: '◼' },
-        { id: 'style-minimal',  name: 'Minimal',  desc: 'Flat & airy',      icon: '▱' },
+        { id: 'style-rounded',  name: 'Rounded',  desc: 'Soft & spacious',  icon: '⬭' },
+        { id: 'style-minimal',  name: 'Minimal',  desc: 'Lines only',       icon: '▱' },
         { id: 'style-glass',    name: 'Glass',    desc: 'Frosted blur',     icon: '◈' },
-        { id: 'style-tactical', name: 'Tactical', desc: 'HUD / terminal',   icon: '◧' },
+        { id: 'style-tactical', name: 'Tactical', desc: 'Sharp HUD',        icon: '◧' },
         { id: 'style-neon',     name: 'Neon',     desc: 'Glow effects',     icon: '✦' },
         { id: 'style-retro',    name: 'Retro',    desc: 'Warm & textured',  icon: '❧' },
     ];
