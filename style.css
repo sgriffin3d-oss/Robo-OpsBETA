@@ -1,192 +1,278 @@
 /* ============================================================
-   PARAGON CORE X — DESIGN SYSTEM
-   style.css v2.0
+   PARAGON CORE X — DESIGN SYSTEM v3.0
    
-   ROLLBACK: To revert, restore the original style.css from
-   the Paragon-CoreX-main.zip you uploaded earlier.
+   ROLLBACK: Restore original style.css from Paragon-CoreX-main.zip
    
    ARCHITECTURE:
-   1. CSS custom properties define all colors/radii/shadows
-   2. Theme classes (.theme-*) override color variables only
-   3. Style classes (.style-*) override shape/feel variables
-   4. Component styles use variables throughout — never hardcode colors
+     Theme  (.theme-*)  — accent + dark backgrounds
+     Mode   (.mode-light) — flips to light backgrounds
+     Style  (.style-*)  — shape, typography, effects
+   
+   Locked themes:
+     .theme-gold   — always dark  (no .mode-light applied)
+     .theme-arctic — always light (always has .mode-light applied by JS)
    ============================================================ */
 
-/* ── 1. DEFAULT THEME: Midnight (dark gold) ────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   1. THEMES
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Default / Gold (dark amber — locked dark) ── */
 :root {
-    /* Colors */
-    --bg:          #050505;
-    --card-bg:     #111111;
-    --input-bg:    #1a1a1a;
-    --border:      #242424;
-    --text:        #f0f0f0;
-    --sub-text:    #777777;
-    --primary:     #e8b23b;
-    --primary-fg:  #000000;   /* text on primary */
-    --red:         #ff4d4d;
-    --blue:        #4d94ff;
-    --icon-color:  #cccccc;
-
-    /* Shape (overridden per style) */
-    --radius:      14px;
-    --radius-sm:   8px;
-    --radius-lg:   20px;
-    --shadow:      none;
-    --card-shadow: none;
-
-    /* Transitions */
-    --transition:  all 0.2s ease;
-}
-
-/* ── 2. COLOR THEMES ───────────────────────────────────────────────────────── */
-
-/* Arctic — clean white/light blue (mirrors original light) */
-.theme-arctic {
-    --bg:         #f4f4f6;
-    --card-bg:    #ffffff;
-    --input-bg:   #f0f0f2;
-    --border:     #e0e0e4;
-    --text:       #1a1a1a;
-    --sub-text:   #888888;
-    --primary:    #0071e3;
-    --primary-fg: #ffffff;
-    --icon-color: #0071e3;
-}
-
-/* Gold Rush — richer amber on deep charcoal */
-.theme-gold {
-    --bg:         #0a0800;
-    --card-bg:    #141200;
-    --input-bg:   #1c1900;
-    --border:     #2a2500;
-    --text:       #fff8e7;
-    --sub-text:   #8a7a50;
-    --primary:    #f5c842;
+    --bg:         #060501;
+    --card-bg:    #100e07;
+    --input-bg:   #1a1710;
+    --border:     #2a2518;
+    --text:       #f5efd8;
+    --sub-text:   #7a6e50;
+    --primary:    #e8b23b;
     --primary-fg: #000000;
-    --icon-color: #f5c842;
+    --red:        #ff4d4d;
+    --blue:       #4d94ff;
+    --icon-color: #b8922a;
+    --neon-rgb:   232, 178, 59;
+    --radius:     14px;
+    --radius-sm:  8px;
+    --radius-lg:  20px;
+    --card-shadow: none;
+    --transition: all 0.18s ease;
 }
 
-/* Red Alliance */
+/* ── Red Alliance ── */
 .theme-red {
-    --bg:         #080000;
-    --card-bg:    #130000;
-    --input-bg:   #1a0000;
-    --border:     #2a0505;
-    --text:       #fff0f0;
-    --sub-text:   #885555;
-    --primary:    #ff3333;
+    --bg:         #060000;
+    --card-bg:    #100000;
+    --input-bg:   #180000;
+    --border:     #260404;
+    --text:       #ffe8e8;
+    --sub-text:   #7a3a3a;
+    --primary:    #ff2222;
     --primary-fg: #ffffff;
-    --red:        #ff3333;
-    --icon-color: #ff5555;
+    --icon-color: #ff4444;
+    --neon-rgb:   255, 34, 34;
 }
 
-/* Blue Alliance */
+/* ── Blue Alliance ── */
 .theme-blue {
-    --bg:         #00060f;
-    --card-bg:    #000d1a;
-    --input-bg:   #001526;
-    --border:     #002040;
-    --text:       #e8f4ff;
-    --sub-text:   #456080;
-    --primary:    #2d8cff;
+    --bg:         #00050f;
+    --card-bg:    #000b1c;
+    --input-bg:   #001228;
+    --border:     #001c3c;
+    --text:       #e0efff;
+    --sub-text:   #3a5a80;
+    --primary:    #2882ff;
     --primary-fg: #ffffff;
-    --blue:       #2d8cff;
-    --icon-color: #4da0ff;
+    --icon-color: #4496ff;
+    --neon-rgb:   40, 130, 255;
 }
 
-/* Stealth — pure black with white accents */
+/* ── Stealth (pure black/white) ── */
 .theme-stealth {
     --bg:         #000000;
-    --card-bg:    #0d0d0d;
-    --input-bg:   #161616;
-    --border:     #202020;
-    --text:       #ffffff;
-    --sub-text:   #555555;
-    --primary:    #ffffff;
+    --card-bg:    #0c0c0c;
+    --input-bg:   #141414;
+    --border:     #1c1c1c;
+    --text:       #f0f0f0;
+    --sub-text:   #484848;
+    --primary:    #e0e0e0;
     --primary-fg: #000000;
-    --icon-color: #ffffff;
+    --icon-color: #c0c0c0;
+    --neon-rgb:   200, 200, 200;
 }
 
-/* ── 3. STYLE VARIANTS ─────────────────────────────────────────────────────── */
+/* ── Arctic (locked light — clean sky blue) ── */
+/* Arctic always runs in light mode — JS enforces this */
+.theme-arctic {
+    --bg:         #eef4fb;
+    --card-bg:    #ffffff;
+    --input-bg:   #f0f5fc;
+    --border:     #ccdcee;
+    --text:       #0e1c2e;
+    --sub-text:   #5a7a9a;
+    --primary:    #006edb;
+    --primary-fg: #ffffff;
+    --icon-color: #006edb;
+    --neon-rgb:   0, 110, 219;
+    /* Arctic is always light — override dark mode vars to same values */
+    --mode-bg:         #eef4fb;
+    --mode-card-bg:    #ffffff;
+    --mode-input-bg:   #f0f5fc;
+    --mode-border:     #ccdcee;
+    --mode-text:       #0e1c2e;
+    --mode-sub-text:   #5a7a9a;
+}
 
-/* ── Classic (default — matches original app feel) ── */
+
+/* ══════════════════════════════════════════════════════════════
+   2. LIGHT MODE MODIFIER
+   Applied by JS on top of any unlocked theme.
+   Ignored for arctic (already light) and gold (locked dark).
+   ══════════════════════════════════════════════════════════════ */
+
+.mode-light {
+    --bg:        #f2f2f5;
+    --card-bg:   #ffffff;
+    --input-bg:  #e8e8ec;
+    --border:    #d4d4da;
+    --text:      #0f0f12;
+    --sub-text:  #7a7a88;
+    --icon-color: var(--primary);
+}
+
+/* Per-theme light mode accent tweaks for legibility */
+.theme-red.mode-light {
+    --primary:   #c80000;
+    --neon-rgb:  200, 0, 0;
+    --bg:        #fff5f5;
+    --card-bg:   #ffffff;
+    --input-bg:  #ffe8e8;
+    --border:    #f5c0c0;
+    --text:      #1a0000;
+    --sub-text:  #884444;
+}
+.theme-blue.mode-light {
+    --primary:   #0055cc;
+    --neon-rgb:  0, 85, 204;
+    --bg:        #f2f7ff;
+    --card-bg:   #ffffff;
+    --input-bg:  #e4eeff;
+    --border:    #b8ccee;
+    --text:      #00101f;
+    --sub-text:  #445a7a;
+}
+.theme-stealth.mode-light {
+    --primary:   #1a1a1a;
+    --primary-fg: #ffffff;
+    --icon-color: #1a1a1a;
+    --neon-rgb:  30, 30, 30;
+    --bg:        #f5f5f5;
+    --card-bg:   #ffffff;
+    --input-bg:  #ebebeb;
+    --border:    #cccccc;
+    --text:      #0a0a0a;
+    --sub-text:  #666666;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   3. STYLE VARIANTS
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Classic — original feel, cards with borders ── */
 .style-classic {
-    --radius:    14px;
-    --radius-sm: 8px;
-    --radius-lg: 18px;
-    --shadow:    none;
+    --radius:     14px;
+    --radius-sm:  8px;
+    --radius-lg:  20px;
     --card-shadow: none;
 }
 
-/* ── Minimal — flat, lots of whitespace, Apple-ish ── */
+/* ── Minimal — flat, line-separated, no cards ── */
 .style-minimal {
-    --radius:    10px;
-    --radius-sm: 6px;
-    --radius-lg: 14px;
-    --border:    transparent;   /* almost no borders */
-    --card-bg:   transparent;
-    --shadow:    none;
+    --radius:     6px;
+    --radius-sm:  4px;
+    --radius-lg:  10px;
     --card-shadow: none;
 }
+body.style-minimal { line-height: 1.45; }
 .style-minimal .hub-card,
 .style-minimal .note-card,
 .style-minimal .event-item,
 .style-minimal .match-card,
 .style-minimal .rank-row,
 .style-minimal .rule-card,
-.style-minimal .team-row {
+.style-minimal .team-row,
+.style-minimal .sketch-item {
+    border: none !important;
     border-bottom: 1px solid var(--border) !important;
-    border-left: none !important;
-    border-right: none !important;
-    border-top: none !important;
     border-radius: 0 !important;
     background: transparent !important;
+    box-shadow: none !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
 }
 .style-minimal .sort-container,
-.style-minimal .detail-tabs,
-.style-minimal .evt-filter-bar {
+.style-minimal .detail-tabs {
     background: transparent;
     border: none;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    padding: 0 0 0 0;
+    gap: 2px;
+}
+.style-minimal .sort-btn,
+.style-minimal .detail-tab {
+    border-radius: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
 }
 .style-minimal .sort-btn.active,
 .style-minimal .detail-tab.active {
     background: none;
     color: var(--primary);
-    box-shadow: none;
     border-bottom: 2px solid var(--primary);
+    box-shadow: none;
+}
+.style-minimal .evt-filter-btn,
+.style-minimal .rules-cat-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
     border-radius: 0;
+    padding: 6px 8px;
+    color: var(--sub-text);
+}
+.style-minimal .evt-filter-btn.active,
+.style-minimal .rules-cat-btn.active {
+    background: none;
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
 }
 .style-minimal input,
 .style-minimal select,
 .style-minimal textarea {
-    border-radius: var(--radius-sm);
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    border-radius: 0;
     background: transparent;
+    border: none;
     border-bottom: 1px solid var(--border);
-    padding-left: 0;
+    border-radius: 0;
+    padding-left: 2px;
+    padding-right: 2px;
 }
+.style-minimal .alliance-box {
+    border-radius: var(--radius-sm) !important;
+    background: var(--card-bg) !important;
+    border: none !important;
+    border-top: 2px solid var(--border) !important;
+}
+.style-minimal .alliance-box.red  { border-top-color: var(--red) !important; }
+.style-minimal .alliance-box.blue { border-top-color: var(--blue) !important; }
+.style-minimal .dock-bar {
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    box-shadow: none;
+}
+.style-minimal .save-btn { border-radius: var(--radius-sm); }
+.style-minimal .fab-menu { border-radius: var(--radius); }
 
-/* ── Glassmorphism (modern) ── */
+/* ── Glass — frosted blur, gradient bg, rounded ── */
 .style-glass {
-    --radius:    24px;
-    --radius-sm: 14px;
-    --radius-lg: 32px;
-    --shadow:    0 8px 32px rgba(0,0,0,0.4);
-    --card-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    --radius:     22px;
+    --radius-sm:  13px;
+    --radius-lg:  32px;
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
-.style-glass body,
-body.style-glass {
-    background: radial-gradient(ellipse at 10% 10%, #0d1117 0%, #000000 100%);
-    background-attachment: fixed;
-}
-.theme-arctic.style-glass body,
-body.theme-arctic.style-glass {
-    background: radial-gradient(ellipse at 10% 10%, #dbeafe 0%, #f8fafc 100%);
-    background-attachment: fixed;
-}
+/* Per-theme glass backgrounds */
+body.style-glass                                 { background: radial-gradient(ellipse at 20% 20%, #12181f 0%, #000000 75%) fixed !important; }
+body.style-glass.mode-light                      { background: radial-gradient(ellipse at 20% 20%, #cce0f8 0%, #f0f6ff 75%) fixed !important; }
+body.style-glass.theme-red                       { background: radial-gradient(ellipse at 20% 20%, #180008 0%, #000000 75%) fixed !important; }
+body.style-glass.theme-red.mode-light            { background: radial-gradient(ellipse at 20% 20%, #fcc 0%, #fff5f5 75%) fixed !important; }
+body.style-glass.theme-blue                      { background: radial-gradient(ellipse at 20% 20%, #001428 0%, #000000 75%) fixed !important; }
+body.style-glass.theme-blue.mode-light           { background: radial-gradient(ellipse at 20% 20%, #b8d8ff 0%, #eef5ff 75%) fixed !important; }
+body.style-glass.theme-stealth                   { background: radial-gradient(ellipse at 20% 20%, #141414 0%, #000000 75%) fixed !important; }
+body.style-glass.theme-stealth.mode-light        { background: radial-gradient(ellipse at 20% 20%, #e0e0e0 0%, #f8f8f8 75%) fixed !important; }
+body.style-glass.theme-arctic                    { background: radial-gradient(ellipse at 20% 20%, #b4d4f0 0%, #e4f0ff 75%) fixed !important; }
+
 .style-glass .hub-card,
 .style-glass .note-card,
 .style-glass .event-item,
@@ -196,56 +282,82 @@ body.theme-arctic.style-glass {
 .style-glass .sort-container,
 .style-glass .detail-tabs,
 .style-glass .alliance-box,
+.style-glass .rank-row,
+.style-glass .team-row,
 .style-glass .fab-menu {
-    background: rgba(255,255,255,0.05) !important;
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border: 1px solid rgba(255,255,255,0.10) !important;
-    box-shadow: var(--card-shadow);
+    background: rgba(255,255,255,0.06) !important;
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    box-shadow: var(--card-shadow) !important;
 }
-.theme-arctic .style-glass .hub-card,
-.style-glass.theme-arctic .hub-card,
-.style-glass.theme-arctic .note-card,
-.style-glass.theme-arctic .event-item {
+body.style-glass.mode-light .hub-card,
+body.style-glass.mode-light .note-card,
+body.style-glass.mode-light .event-item,
+body.style-glass.mode-light .match-card,
+body.style-glass.mode-light .rule-card,
+body.style-glass.mode-light .rank-row,
+body.style-glass.mode-light .team-row,
+body.style-glass.mode-light .alliance-box {
+    background: rgba(255,255,255,0.6) !important;
+    border: 1px solid rgba(255,255,255,0.9) !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06) !important;
+}
+body.style-glass.theme-arctic .hub-card,
+body.style-glass.theme-arctic .note-card,
+body.style-glass.theme-arctic .event-item {
     background: rgba(255,255,255,0.65) !important;
-    border: 1px solid rgba(0,0,0,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.9) !important;
 }
 .style-glass .dock-bar {
-    bottom: 20px;
+    bottom: 18px;
     width: fit-content;
-    min-width: 200px;
-    height: 62px;
-    padding: 0 18px;
+    min-width: 190px;
+    height: 60px;
+    padding: 0 22px;
     border-radius: 50px;
-    background: rgba(255,255,255,0.08) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.15) !important;
+    background: rgba(255,255,255,0.09) !important;
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.16) !important;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    gap: 16px;
+    gap: 14px;
+}
+body.style-glass.mode-light .dock-bar,
+body.style-glass.theme-arctic .dock-bar {
+    background: rgba(255,255,255,0.65) !important;
+    border: 1px solid rgba(255,255,255,0.95) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 .style-glass .dock-btn {
     border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    background: rgba(255,255,255,0.12) !important;
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.10) !important;
 }
-.style-glass .dock-btn.alt {
-    background: var(--primary) !important;
-}
+.style-glass .dock-btn.alt { background: var(--primary) !important; }
 
-/* ── Tactical — sharp, dense, military HUD ── */
+/* ── Tactical — terminal HUD, sharp, monospaced ── */
 .style-tactical {
-    --radius:    4px;
-    --radius-sm: 2px;
-    --radius-lg: 6px;
-    --shadow:    none;
+    --radius:     3px;
+    --radius-sm:  2px;
+    --radius-lg:  4px;
     --card-shadow: none;
-    font-family: 'JetBrains Mono', 'Courier New', monospace !important;
 }
 body.style-tactical {
     font-family: 'JetBrains Mono', 'Courier New', monospace;
     letter-spacing: 0.3px;
+}
+/* Subtle scanline texture */
+body.style-tactical::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
 }
 .style-tactical .hub-card,
 .style-tactical .note-card,
@@ -257,94 +369,210 @@ body.style-tactical {
     border-radius: var(--radius) !important;
     border-left: 3px solid var(--primary) !important;
 }
+.style-tactical .alliance-box.red  { border-left: 3px solid var(--red) !important; }
+.style-tactical .alliance-box.blue { border-left: 3px solid var(--blue) !important; }
 .style-tactical .welcome-header h1 {
+    font-size: 1.5rem;
     text-transform: uppercase;
-    letter-spacing: 4px;
-    font-size: 1.6rem;
+    letter-spacing: 6px;
 }
-.style-tactical .welcome-header p {
-    letter-spacing: 4px;
-}
-.style-tactical .hub-card b {
-    letter-spacing: 3px;
-    font-size: 0.85rem;
-}
-.style-tactical .sort-btn.active,
-.style-tactical .detail-tab.active {
-    border-radius: var(--radius-sm);
-}
+.style-tactical .welcome-header p { letter-spacing: 5px; }
+.style-tactical .hub-card b { letter-spacing: 4px; font-size: 0.8rem; }
 .style-tactical .dock-bar {
-    border-radius: var(--radius);
+    border-radius: 0;
     border-top: 2px solid var(--primary);
+    height: 64px;
 }
-.style-tactical .dock-btn {
-    border-radius: var(--radius-sm);
-}
-.style-tactical input,
-.style-tactical select,
-.style-tactical textarea {
+.style-tactical .dock-btn { border-radius: var(--radius-sm); }
+.style-tactical input, .style-tactical select, .style-tactical textarea {
     border-radius: var(--radius-sm);
     font-family: inherit;
     letter-spacing: 0.5px;
 }
+.style-tactical .hub-card::after {
+    content: '●';
+    color: var(--primary);
+    font-size: 0.45rem;
+    opacity: 0.5;
+    margin-left: auto;
+    align-self: flex-start;
+    margin-top: 2px;
+}
 
-/* ── Neon — dark with glowing accents ── */
+/* ── Neon — glowing borders, works in dark AND light ── */
 .style-neon {
-    --radius:    12px;
-    --radius-sm: 6px;
-    --radius-lg: 16px;
-    --shadow:    0 0 20px rgba(var(--neon-glow), 0.3);
-    --card-shadow: 0 0 12px rgba(var(--neon-glow), 0.15);
-    --neon-glow: 232, 178, 59;
+    --radius:     13px;
+    --radius-sm:  7px;
+    --radius-lg:  18px;
+    --card-shadow: 0 0 18px rgba(var(--neon-rgb), 0.1);
 }
-body.style-neon {
-    background: #000 !important;
-}
-.style-neon.theme-red    { --neon-glow: 255, 51, 51; }
-.style-neon.theme-blue   { --neon-glow: 45, 140, 255; }
-.style-neon.theme-stealth { --neon-glow: 255, 255, 255; }
-.style-neon.theme-gold   { --neon-glow: 245, 200, 66; }
+body.style-neon         { background: #020202 !important; }
+body.style-neon.mode-light { background: #f6f6f8 !important; }
+body.style-neon.theme-arctic { background: #f0f6ff !important; }
 
+/* Dark neon cards */
 .style-neon .hub-card,
 .style-neon .note-card,
 .style-neon .event-item,
 .style-neon .match-card,
 .style-neon .rule-card,
-.style-neon .ai-panel {
-    border: 1px solid rgba(var(--neon-glow), 0.3) !important;
-    box-shadow: 0 0 12px rgba(var(--neon-glow), 0.08);
+.style-neon .ai-panel,
+.style-neon .rank-row,
+.style-neon .team-row,
+.style-neon .sketch-item {
+    border: 1px solid rgba(var(--neon-rgb), 0.3) !important;
+    box-shadow: 0 0 14px rgba(var(--neon-rgb), 0.07), 0 0 0 0 transparent;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
-.style-neon .hub-card:hover,
-.style-neon .event-item:hover,
-.style-neon .rule-card:hover {
-    border-color: rgba(var(--neon-glow), 0.7) !important;
-    box-shadow: 0 0 20px rgba(var(--neon-glow), 0.2);
+.style-neon .hub-card:active,
+.style-neon .event-item:active,
+.style-neon .rule-card:active {
+    border-color: rgba(var(--neon-rgb), 0.85) !important;
+    box-shadow: 0 0 24px rgba(var(--neon-rgb), 0.28) !important;
 }
-.style-neon .welcome-header h1 {
-    text-shadow: 0 0 20px rgba(var(--neon-glow), 0.5);
+/* Light neon — stronger borders on white bg */
+body.style-neon.mode-light .hub-card,
+body.style-neon.mode-light .note-card,
+body.style-neon.mode-light .event-item,
+body.style-neon.mode-light .match-card,
+body.style-neon.mode-light .rule-card,
+body.style-neon.mode-light .rank-row,
+body.style-neon.mode-light .team-row {
+    border: 1.5px solid rgba(var(--neon-rgb), 0.55) !important;
+    box-shadow: 0 0 12px rgba(var(--neon-rgb), 0.1) !important;
+    background: rgba(var(--neon-rgb), 0.02) !important;
 }
-.style-neon .rule-id,
+body.style-neon.theme-arctic .hub-card,
+body.style-neon.theme-arctic .note-card,
+body.style-neon.theme-arctic .event-item {
+    border: 1.5px solid rgba(var(--neon-rgb), 0.4) !important;
+    box-shadow: 0 0 12px rgba(var(--neon-rgb), 0.08) !important;
+}
+/* Glow text */
+.style-neon .welcome-header h1 { text-shadow: 0 0 28px rgba(var(--neon-rgb), 0.55); }
 .style-neon .hub-card b,
-.style-neon .team-number {
-    text-shadow: 0 0 10px rgba(var(--neon-glow), 0.6);
-}
+.style-neon .rule-id,
+.style-neon .team-number,
+.style-neon .event-item-name { text-shadow: 0 0 12px rgba(var(--neon-rgb), 0.5); }
+body.style-neon.mode-light .welcome-header h1 { text-shadow: 0 0 18px rgba(var(--neon-rgb), 0.4); }
+body.style-neon.mode-light .hub-card b,
+body.style-neon.mode-light .rule-id,
+body.style-neon.mode-light .event-item-name { text-shadow: 0 0 8px rgba(var(--neon-rgb), 0.3); }
+/* Glowing active pills */
 .style-neon .sort-btn.active,
 .style-neon .detail-tab.active,
 .style-neon .evt-filter-btn.active,
-.style-neon .rules-cat-btn.active {
-    box-shadow: 0 0 14px rgba(var(--neon-glow), 0.4);
-}
+.style-neon .rules-cat-btn.active { box-shadow: 0 0 18px rgba(var(--neon-rgb), 0.45) !important; }
+/* Dock */
 .style-neon .dock-bar {
-    border: 1px solid rgba(var(--neon-glow), 0.2);
-    box-shadow: 0 0 30px rgba(var(--neon-glow), 0.15);
+    border-top: 1px solid rgba(var(--neon-rgb), 0.25);
+    box-shadow: 0 -4px 24px rgba(var(--neon-rgb), 0.12);
     background: #050505;
 }
-.style-neon .dock-btn {
-    box-shadow: 0 0 10px rgba(var(--neon-glow), 0.3);
+body.style-neon.mode-light .dock-bar {
+    background: #f2f2f4;
+    border-top: 1px solid rgba(var(--neon-rgb), 0.35);
+    box-shadow: 0 -2px 16px rgba(var(--neon-rgb), 0.14);
+}
+body.style-neon.theme-arctic .dock-bar {
+    background: #eef4fb;
+    border-top: 1px solid rgba(var(--neon-rgb), 0.3);
+}
+.style-neon .dock-btn.alt { box-shadow: 0 0 16px rgba(var(--neon-rgb), 0.55); }
+.style-neon input:focus,
+.style-neon select:focus,
+.style-neon textarea:focus { box-shadow: 0 0 12px rgba(var(--neon-rgb), 0.3); }
+
+/* ── Retro — warm paper / aged terminal, high contrast ── */
+.style-retro {
+    --radius:     6px;
+    --radius-sm:  4px;
+    --radius-lg:  8px;
+    --card-shadow: 3px 3px 0px var(--border);
+}
+body.style-retro {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+}
+/* Dark retro: aged amber terminal */
+body.style-retro:not(.mode-light):not(.theme-arctic) {
+    background: #0c0a06 !important;
+    --bg: #0c0a06;
+}
+/* Light retro: warm paper */
+body.style-retro.mode-light {
+    background: #f5f0e8 !important;
+    --bg: #f5f0e8;
+    --card-bg: #fffef8;
+    --input-bg: #eee9dc;
+    --border: #c8b896;
+    --text: #1a1408;
+    --sub-text: #7a6a4a;
+}
+body.style-retro.theme-arctic {
+    background: #f0f5f8 !important;
+    --card-bg: #fafcff;
+}
+.style-retro .hub-card,
+.style-retro .note-card,
+.style-retro .event-item,
+.style-retro .match-card,
+.style-retro .rule-card,
+.style-retro .team-row,
+.style-retro .rank-row {
+    border: 2px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 3px 3px 0 var(--border) !important;
+}
+.style-retro .hub-card:active,
+.style-retro .note-card:active,
+.style-retro .event-item:active {
+    box-shadow: 1px 1px 0 var(--border) !important;
+    transform: translate(2px, 2px) !important;
+}
+.style-retro .hub-card b {
+    letter-spacing: 2px;
+    font-size: 0.88rem;
+    font-family: 'Courier New', monospace;
+}
+.style-retro .welcome-header h1 {
+    font-size: 2rem;
+    letter-spacing: 1px;
+}
+.style-retro .welcome-header p {
+    letter-spacing: 3px;
+    font-family: 'Courier New', monospace;
+}
+.style-retro .sort-container,
+.style-retro .detail-tabs {
+    border-radius: var(--radius) !important;
+    border: 2px solid var(--border);
+}
+.style-retro .dock-bar {
+    border-top: 2px solid var(--border);
+    border-radius: 0;
+}
+.style-retro .dock-btn {
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+}
+.style-retro .save-btn {
+    border-radius: var(--radius);
+    border: 2px solid rgba(0,0,0,0.15);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+}
+.style-retro input,
+.style-retro select,
+.style-retro textarea {
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    font-family: 'Courier New', monospace;
 }
 
 
-/* ── 4. BASE ENGINE ────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   4. BASE ENGINE
+   ══════════════════════════════════════════════════════════════ */
 
 * { box-sizing: border-box; }
 
@@ -353,28 +581,26 @@ body {
     background-color: var(--bg);
     color: var(--text);
     margin: 0;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.2s ease;
     -webkit-tap-highlight-color: transparent;
 }
-
 .container {
     max-width: 500px;
     margin: 0 auto;
     padding: 20px 20px 140px 20px;
     box-sizing: border-box;
 }
-
 .view { display: none; }
-.view.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
+.view.active { display: block; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── 5. TYPOGRAPHY ─────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   5. TYPOGRAPHY
+   ══════════════════════════════════════════════════════════════ */
 
 .welcome-header h1 {
     margin: 0;
@@ -383,7 +609,7 @@ body {
     letter-spacing: -0.5px;
 }
 .welcome-header p {
-    margin: 4px 0 22px 0;
+    margin: 4px 0 22px;
     color: var(--sub-text);
     text-transform: uppercase;
     font-size: 0.7rem;
@@ -391,25 +617,22 @@ body {
     font-weight: 600;
 }
 
-/* ── 6. ICON ENGINE ────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   6. ICON ENGINE
+   ══════════════════════════════════════════════════════════════ */
 
 .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    margin-right: 16px;
-    color: var(--icon-color);
-    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; margin-right: 16px;
+    color: var(--icon-color); flex-shrink: 0;
 }
-.icon svg {
-    width: 100%;
-    height: 100%;
-    stroke-width: 2px;
-}
+.icon svg { width: 100%; height: 100%; stroke-width: 2px; }
 
-/* ── 7. HUB CARDS ──────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   7. HUB CARDS
+   ══════════════════════════════════════════════════════════════ */
 
 .hub-card {
     background: var(--card-bg);
@@ -432,7 +655,10 @@ body {
     letter-spacing: 1px;
 }
 
-/* ── 8. INPUTS & FORMS ─────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   8. INPUTS & FORMS
+   ══════════════════════════════════════════════════════════════ */
 
 input, select, textarea {
     width: 100%;
@@ -440,399 +666,269 @@ input, select, textarea {
     border: 1px solid var(--border);
     color: var(--text);
     padding: 13px 14px;
-    border-radius: var(--radius-sm, 10px);
+    border-radius: var(--radius-sm);
     margin-bottom: 11px;
     box-sizing: border-box;
     font-family: inherit;
     font-size: 0.9rem;
     outline: none;
-    transition: border-color 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    appearance: none;
+    -webkit-appearance: none;
 }
-input:focus, select:focus, textarea:focus {
-    border-color: var(--primary);
-}
-input::placeholder, textarea::placeholder {
-    color: var(--sub-text);
-}
+input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+input::placeholder, textarea::placeholder { color: var(--sub-text); }
 label {
     display: block;
-    font-size: 0.72rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--sub-text);
-    margin-bottom: 6px;
+    font-size: 0.7rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--sub-text); margin-bottom: 6px;
 }
-
 .save-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--primary);
-    color: var(--primary-fg);
-    border: none;
-    border-radius: var(--radius);
-    font-weight: 900;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: opacity 0.15s ease;
+    width: 100%; padding: 16px;
+    background: var(--primary); color: var(--primary-fg);
+    border: none; border-radius: var(--radius);
+    font-weight: 900; font-size: 0.9rem; letter-spacing: 0.5px;
+    cursor: pointer; transition: opacity 0.15s ease;
 }
 .save-btn:active { opacity: 0.8; }
+.search-bar { width: 100%; margin-bottom: 10px !important; }
 
-/* ── 9. SORT / TAB SEGMENTS ────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   9. SORT / TAB SEGMENTS
+   ══════════════════════════════════════════════════════════════ */
 
 .sort-container {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 14px;
-    background: var(--input-bg);
-    padding: 4px;
-    border-radius: var(--radius-sm, 10px);
-    border: 1px solid var(--border);
+    display: flex; gap: 4px; margin-bottom: 14px;
+    background: var(--input-bg); padding: 4px;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
 }
 .sort-btn {
-    flex: 1;
-    padding: 9px;
-    border: none;
-    background: none;
-    color: var(--sub-text);
-    font-weight: 800;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    border-radius: calc(var(--radius-sm, 10px) - 2px);
-    transition: var(--transition);
+    flex: 1; padding: 9px; border: none; background: none;
+    color: var(--sub-text); font-weight: 800; font-size: 0.75rem;
+    letter-spacing: 0.5px; cursor: pointer;
+    border-radius: calc(var(--radius-sm) - 2px); transition: var(--transition);
 }
-.sort-btn.active {
-    background: var(--primary);
-    color: var(--primary-fg);
-}
+.sort-btn.active { background: var(--primary); color: var(--primary-fg); }
 
-.search-bar {
-    width: 100%;
-    margin-bottom: 10px !important;
-}
 
-/* ── 10. NOTE CARDS ────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   10. NOTE CARDS
+   ══════════════════════════════════════════════════════════════ */
 
 .note-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    padding: 16px 18px;
-    border-radius: var(--radius);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: var(--card-shadow);
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 16px 18px; border-radius: var(--radius);
+    margin-bottom: 10px; display: flex; align-items: center;
+    justify-content: space-between; cursor: pointer;
+    transition: var(--transition); box-shadow: var(--card-shadow);
 }
 .note-card:active { transform: scale(0.98); }
 
-/* ── 11. SCORE CALCULATOR ──────────────────────────────────────────────────── */
 
-.side-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
+/* ══════════════════════════════════════════════════════════════
+   11. SCORE CALCULATOR
+   ══════════════════════════════════════════════════════════════ */
+
+.side-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .alliance-box {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px;
+    display: flex; flex-direction: column; gap: 12px;
     box-shadow: var(--card-shadow);
 }
 .alliance-box.red  { border-top: 3px solid var(--red); }
 .alliance-box.blue { border-top: 3px solid var(--blue); }
-.counter {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-}
-.counter label {
-    font-size: 0.62rem;
-    font-weight: 800;
-    color: var(--sub-text);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0;
-}
+.counter { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.counter label { font-size: 0.6rem; font-weight: 800; color: var(--sub-text); text-transform: uppercase; letter-spacing: 0.5px; margin: 0; }
 .ctrls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--input-bg);
-    padding: 4px;
-    border-radius: var(--radius-sm, 8px);
-    width: 100%;
-    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--input-bg); padding: 4px;
+    border-radius: var(--radius-sm); width: 100%; border: 1px solid var(--border);
 }
-.val-display {
-    font-weight: 900;
-    font-size: 1.1rem;
-    min-width: 24px;
-    text-align: center;
-}
+.val-display { font-weight: 900; font-size: 1.1rem; min-width: 24px; text-align: center; }
 .btn-math {
-    width: 30px;
-    height: 30px;
-    border-radius: calc(var(--radius-sm, 8px) - 2px);
-    border: none;
-    background: var(--border);
-    color: var(--text);
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: 700;
-    transition: var(--transition);
+    width: 30px; height: 30px;
+    border-radius: calc(var(--radius-sm) - 2px);
+    border: none; background: var(--border); color: var(--text);
+    cursor: pointer; font-size: 1.1rem; font-weight: 700; transition: var(--transition);
 }
 .btn-math:active { opacity: 0.7; }
 .score-footer {
-    grid-column: span 2;
-    background: var(--primary);
-    color: var(--primary-fg);
-    padding: 16px;
-    border-radius: var(--radius);
-    display: flex;
-    justify-content: space-around;
-    font-weight: 900;
-    font-size: 1rem;
-    margin-top: 8px;
+    grid-column: span 2; background: var(--primary); color: var(--primary-fg);
+    padding: 16px; border-radius: var(--radius);
+    display: flex; justify-content: space-around;
+    font-weight: 900; font-size: 1rem; margin-top: 8px;
 }
 
-/* ── 12. AUTON BUTTONS ─────────────────────────────────────────────────────── */
 
-.auton-group {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 14px;
-}
+/* ══════════════════════════════════════════════════════════════
+   12. AUTON BUTTONS
+   ══════════════════════════════════════════════════════════════ */
+
+.auton-group { display: flex; gap: 6px; margin-bottom: 14px; }
 .auton-btn {
-    flex: 1;
-    padding: 11px;
-    border-radius: var(--radius-sm, 10px);
-    border: 1px solid var(--border);
-    background: var(--input-bg);
-    color: var(--text);
-    font-weight: 700;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: var(--transition);
+    flex: 1; padding: 11px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--input-bg); color: var(--text);
+    font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: var(--transition);
 }
-.auton-btn.active-red  { background: var(--red);     color: white; border: none; }
-.auton-btn.active-blue { background: var(--blue);    color: white; border: none; }
+.auton-btn.active-red  { background: var(--red);     color: #fff;              border: none; }
+.auton-btn.active-blue { background: var(--blue);    color: #fff;              border: none; }
 .auton-btn.active-tie  { background: var(--primary); color: var(--primary-fg); border: none; }
 
-/* ── 13. DOCK BAR ──────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   13. DOCK BAR
+   ══════════════════════════════════════════════════════════════ */
 
 .dock-bar {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 450px;
-    height: 72px;
-    background: var(--card-bg);
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 36px;
-    z-index: 1000;
-    transition: all 0.3s ease;
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 450px; height: 72px;
+    background: var(--card-bg); border-top: 1px solid var(--border);
+    display: flex; justify-content: center; align-items: center;
+    gap: 36px; z-index: 1000; transition: all 0.3s ease;
 }
 .dock-btn {
-    width: 46px;
-    height: 46px;
-    border-radius: var(--radius-sm, 10px);
-    border: none;
-    background: var(--input-bg);
+    width: 46px; height: 46px; border-radius: var(--radius-sm);
+    border: none; background: var(--input-bg);
     color: var(--sub-text) !important;
-    font-weight: 900;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: var(--transition);
+    font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: var(--transition);
 }
-.dock-btn.alt {
-    background: var(--primary);
-    color: var(--primary-fg) !important;
-    border-radius: var(--radius-sm, 10px);
-}
-.dock-btn:active { transform: scale(0.92); }
+.dock-btn.alt { background: var(--primary); color: var(--primary-fg) !important; }
+.dock-btn:active { transform: scale(0.9); }
 
-/* ── 14. FAB MENU ──────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   14. FAB MENU
+   ══════════════════════════════════════════════════════════════ */
 
 .fab-menu {
-    position: fixed;
-    bottom: 82px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    width: 210px;
-    padding: 6px;
-    z-index: 1001;
-    display: none;
-    flex-direction: column;
+    position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%);
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); width: 210px; padding: 6px;
+    z-index: 1001; display: none; flex-direction: column;
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 .fab-menu.show { display: flex !important; }
 .menu-item {
-    padding: 13px 16px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    border-radius: calc(var(--radius) - 4px);
-    color: var(--text);
-    transition: background 0.15s ease;
+    padding: 13px 16px; font-weight: 700; font-size: 0.85rem;
+    cursor: pointer; border-radius: calc(var(--radius) - 4px);
+    color: var(--text); transition: background 0.15s ease;
 }
 .menu-item:hover { background: var(--input-bg); }
 
-/* ── 15. EVENT CARD (legacy) ───────────────────────────────────────────────── */
 
-.event-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    padding: 15px;
-    border-radius: var(--radius);
-    box-shadow: var(--card-shadow);
-}
+/* ══════════════════════════════════════════════════════════════
+   15. SETTINGS PAGE
+   ══════════════════════════════════════════════════════════════ */
 
-/* ── 16. SETTINGS PAGE ─────────────────────────────────────────────────────── */
-
-.settings-section {
-    margin-bottom: 28px;
-}
+.settings-section { margin-bottom: 28px; }
 .settings-label {
-    font-size: 0.68rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--sub-text);
-    margin-bottom: 10px;
+    font-size: 0.68rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--sub-text); margin-bottom: 10px;
 }
 
-/* Theme swatches */
-.theme-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+/* Dark/Light mode toggle */
+.mode-toggle {
+    display: flex; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 4px; gap: 4px; margin-bottom: 20px;
 }
-.theme-swatch {
-    border-radius: var(--radius-sm);
-    padding: 12px 8px;
-    cursor: pointer;
-    text-align: center;
-    border: 2px solid transparent;
-    transition: var(--transition);
-    position: relative;
+.mode-btn {
+    flex: 1; padding: 10px; border: none; background: none;
+    color: var(--sub-text); font-weight: 800; font-size: 0.78rem;
+    letter-spacing: 0.5px; cursor: pointer;
+    border-radius: calc(var(--radius-sm) - 2px); transition: var(--transition);
 }
-.theme-swatch.active {
-    border-color: var(--primary);
+.mode-btn.active { background: var(--primary); color: var(--primary-fg); }
+.mode-toggle.locked {
+    opacity: 0.45;
+    pointer-events: none;
 }
-.theme-swatch .swatch-dot {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    margin: 0 auto 6px;
-    border: 2px solid rgba(255,255,255,0.1);
-}
-.theme-swatch .swatch-name {
-    font-size: 0.65rem;
-    font-weight: 800;
-    text-transform: uppercase;
+.mode-locked-note {
+    font-size: 0.65rem; color: var(--sub-text);
+    text-align: center; margin-top: -12px; margin-bottom: 16px;
     letter-spacing: 0.5px;
-    color: var(--sub-text);
 }
-.theme-swatch.active .swatch-name {
-    color: var(--primary);
+
+/* Theme swatches — 2 column */
+.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.theme-swatch {
+    border-radius: var(--radius-sm); padding: 13px 12px; cursor: pointer;
+    text-align: left; border: 2px solid transparent;
+    transition: var(--transition); position: relative;
+    display: flex; align-items: center; gap: 10px;
 }
+.theme-swatch.active { border-color: var(--primary); }
+.theme-swatch .swatch-dot {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.12);
+}
+.theme-swatch .swatch-info { flex: 1; min-width: 0; }
+.theme-swatch .swatch-name {
+    font-size: 0.74rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text);
+    display: block;
+}
+.theme-swatch .swatch-tag {
+    font-size: 0.58rem; color: var(--sub-text); letter-spacing: 0.5px; margin-top: 1px;
+    display: block;
+}
+.theme-swatch.active .swatch-name { color: var(--primary); }
 .theme-swatch .swatch-check {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    font-size: 0.6rem;
-    opacity: 0;
-    color: var(--primary);
+    position: absolute; top: 7px; right: 7px;
+    font-size: 0.6rem; opacity: 0; color: var(--primary);
 }
 .theme-swatch.active .swatch-check { opacity: 1; }
 
-/* Style cards */
-.style-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
+/* Style cards — 2 column */
+.style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .style-card {
-    background: var(--input-bg);
-    border: 2px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 12px;
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: center;
+    background: var(--input-bg); border: 2px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 12px;
+    cursor: pointer; transition: var(--transition); text-align: center;
 }
 .style-card.active {
     border-color: var(--primary);
-    background: rgba(232, 178, 59, 0.06);
+    background: rgba(var(--neon-rgb, 232,178,59), 0.05);
 }
-.style-card .style-preview {
-    font-size: 1.4rem;
-    margin-bottom: 6px;
-}
+.style-card .style-preview { font-size: 1.4rem; margin-bottom: 5px; line-height: 1; }
 .style-card .style-name {
-    font-size: 0.72rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text);
+    font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text);
 }
-.style-card .style-desc {
-    font-size: 0.62rem;
-    color: var(--sub-text);
-    margin-top: 2px;
-}
+.style-card .style-desc { font-size: 0.6rem; color: var(--sub-text); margin-top: 2px; }
 .style-card.active .style-name { color: var(--primary); }
 
-/* ── 17. SKETCH / FIELD VIEWER ─────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   16. SKETCH / FIELD VIEWER
+   ══════════════════════════════════════════════════════════════ */
 
 .sketch-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px;
-    margin-bottom: 10px;
-    box-shadow: var(--card-shadow);
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px;
+    margin-bottom: 10px; box-shadow: var(--card-shadow);
 }
 .sketch-preview {
-    width: 64px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
+    width: 64px; height: 40px; object-fit: cover;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
 }
 
-/* ── 18. LOADING SPINNER (shared) ──────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════
+   17. SHARED UTILITIES
+   ══════════════════════════════════════════════════════════════ */
 
 .loading-spinner {
-    width: 26px;
-    height: 26px;
-    border: 2.5px solid var(--border);
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin 0.75s linear infinite;
-    margin: 0 auto;
+    width: 26px; height: 26px;
+    border: 2.5px solid var(--border); border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+.event-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 15px; border-radius: var(--radius); box-shadow: var(--card-shadow);
+}

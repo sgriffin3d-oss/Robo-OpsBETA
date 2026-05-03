@@ -249,66 +249,114 @@ function importData(event) {
     reader.readAsText(file);
 }
 
+// ── THEMES: which ones are locked to a mode ──────────────────
+const LOCKED_DARK  = ['theme-gold'];     // always dark
+const LOCKED_LIGHT = ['theme-arctic'];   // always light
+
 function setTheme(theme) {
-    const saved = JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
-    saved.theme = theme;
-    localStorage.setItem('paragon_settings_v3', JSON.stringify(saved));
-    applySettings(saved);
+    const s = _getSettings();
+    s.theme = theme;
+    // Enforce locked modes
+    if (LOCKED_DARK.includes(theme))  s.mode = 'mode-dark';
+    if (LOCKED_LIGHT.includes(theme)) s.mode = 'mode-light';
+    _saveSettings(s);
+    _applySettings(s);
+    renderSettingsUI();
+}
+
+function setMode(mode) {
+    const s = _getSettings();
+    // Don't allow mode change on locked themes
+    if (LOCKED_DARK.includes(s.theme) || LOCKED_LIGHT.includes(s.theme)) return;
+    s.mode = mode;
+    _saveSettings(s);
+    _applySettings(s);
     renderSettingsUI();
 }
 
 function setStyle(style) {
-    const saved = JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
-    saved.style = style;
-    localStorage.setItem('paragon_settings_v3', JSON.stringify(saved));
-    applySettings(saved);
+    const s = _getSettings();
+    s.style = style;
+    _saveSettings(s);
+    _applySettings(s);
     renderSettingsUI();
 }
 
-function applySettings(settings) {
-    const theme = settings.theme || 'theme-midnight';
-    const style = settings.style || 'style-classic';
-    document.body.className = `${theme} ${style}`;
+function _getSettings() {
+    return JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
+}
+
+function _saveSettings(s) {
+    localStorage.setItem('paragon_settings_v3', JSON.stringify(s));
+}
+
+function _applySettings(s) {
+    const theme = s.theme || 'theme-gold';
+    const style = s.style || 'style-classic';
+    const mode  = s.mode  || 'mode-dark';
+    const modeClass = mode === 'mode-light' ? 'mode-light' : '';
+    document.body.className = [theme, style, modeClass].filter(Boolean).join(' ');
 }
 
 function loadSettings() {
-    // Migrate from old settings key
+    // Migrate from old keys
     const old = JSON.parse(localStorage.getItem('paragon_settings_v2'));
     if (old && !localStorage.getItem('paragon_settings_v3')) {
         const migrated = {
-            theme: old.theme === 'theme-light' ? 'theme-arctic' : 'theme-midnight',
-            style: old.style === 'style-modern' ? 'style-glass' : 'style-classic'
+            theme: old.theme === 'theme-light' ? 'theme-arctic' : 'theme-gold',
+            style: old.style === 'style-modern' ? 'style-glass' : 'style-classic',
+            mode:  old.theme === 'theme-light' ? 'mode-light' : 'mode-dark'
         };
-        localStorage.setItem('paragon_settings_v3', JSON.stringify(migrated));
+        _saveSettings(migrated);
     }
-    const saved = JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
-    applySettings(saved);
+    const s = _getSettings();
+    // Enforce locks on load
+    if (LOCKED_DARK.includes(s.theme))  s.mode = 'mode-dark';
+    if (LOCKED_LIGHT.includes(s.theme)) s.mode = 'mode-light';
+    _applySettings(s);
     renderSettingsUI();
 }
 
-// Legacy alias so any old onchange handlers still work
 function updateSettings() { loadSettings(); }
 
 function renderSettingsUI() {
-    const saved = JSON.parse(localStorage.getItem('paragon_settings_v3')) || {};
-    const currentTheme = saved.theme || 'theme-midnight';
-    const currentStyle = saved.style || 'style-classic';
+    const s = _getSettings();
+    const currentTheme = s.theme || 'theme-gold';
+    const currentStyle = s.style || 'style-classic';
+    const currentMode  = s.mode  || 'mode-dark';
+
+    const isLocked = LOCKED_DARK.includes(currentTheme) || LOCKED_LIGHT.includes(currentTheme);
+    const lockNote = LOCKED_DARK.includes(currentTheme)
+        ? 'Gold is always dark'
+        : LOCKED_LIGHT.includes(currentTheme)
+        ? 'Arctic is always light'
+        : '';
+
+    // Mode toggle
+    const toggle = document.getElementById('mode-toggle');
+    const noteEl = document.getElementById('mode-locked-note');
+    const mdark  = document.getElementById('mode-btn-dark');
+    const mlight = document.getElementById('mode-btn-light');
+    if (toggle) toggle.classList.toggle('locked', isLocked);
+    if (noteEl) { noteEl.textContent = lockNote; noteEl.style.display = lockNote ? 'block' : 'none'; }
+    if (mdark)  mdark.classList.toggle('active',  currentMode === 'mode-dark');
+    if (mlight) mlight.classList.toggle('active', currentMode === 'mode-light');
 
     const themes = [
-        { id: 'theme-midnight', name: 'Midnight', bg: '#050505', accent: '#e8b23b' },
-        { id: 'theme-arctic',   name: 'Arctic',   bg: '#f4f4f6', accent: '#0071e3' },
-        { id: 'theme-gold',     name: 'Gold',      bg: '#0a0800', accent: '#f5c842' },
-        { id: 'theme-red',      name: 'Red',       bg: '#080000', accent: '#ff3333' },
-        { id: 'theme-blue',     name: 'Blue',      bg: '#00060f', accent: '#2d8cff' },
-        { id: 'theme-stealth',  name: 'Stealth',   bg: '#000000', accent: '#ffffff' },
+        { id: 'theme-gold',    name: 'Gold',    tag: 'Dark only', accent: '#e8b23b', bg: '#060501' },
+        { id: 'theme-arctic',  name: 'Arctic',  tag: 'Light only', accent: '#006edb', bg: '#eef4fb' },
+        { id: 'theme-red',     name: 'Red',     tag: 'Dark & Light', accent: '#ff2222', bg: '#060000' },
+        { id: 'theme-blue',    name: 'Blue',    tag: 'Dark & Light', accent: '#2882ff', bg: '#00050f' },
+        { id: 'theme-stealth', name: 'Stealth', tag: 'Dark & Light', accent: '#e0e0e0', bg: '#000000' },
     ];
 
     const styles = [
-        { id: 'style-classic',  name: 'Classic',  desc: 'Clean & familiar', icon: '◼' },
-        { id: 'style-minimal',  name: 'Minimal',  desc: 'Flat & spacious',  icon: '▱' },
-        { id: 'style-glass',    name: 'Glass',    desc: 'Frosted & blurred', icon: '◈' },
-        { id: 'style-tactical', name: 'Tactical', desc: 'Sharp & dense',    icon: '◧' },
-        { id: 'style-neon',     name: 'Neon',     desc: 'Glowing accents',  icon: '✦' },
+        { id: 'style-classic',  name: 'Classic',  desc: 'Original feel',    icon: '◼' },
+        { id: 'style-minimal',  name: 'Minimal',  desc: 'Flat & airy',      icon: '▱' },
+        { id: 'style-glass',    name: 'Glass',    desc: 'Frosted blur',     icon: '◈' },
+        { id: 'style-tactical', name: 'Tactical', desc: 'HUD / terminal',   icon: '◧' },
+        { id: 'style-neon',     name: 'Neon',     desc: 'Glow effects',     icon: '✦' },
+        { id: 'style-retro',    name: 'Retro',    desc: 'Warm & textured',  icon: '❧' },
     ];
 
     const tg = document.getElementById('theme-grid');
@@ -316,21 +364,24 @@ function renderSettingsUI() {
         tg.innerHTML = themes.map(t => `
             <div class="theme-swatch ${t.id === currentTheme ? 'active' : ''}"
                  onclick="setTheme('${t.id}')"
-                 style="background:${t.bg};">
+                 style="background:${t.bg}; border-color:${t.id === currentTheme ? t.accent : 'transparent'};">
                 <div class="swatch-dot" style="background:${t.accent};"></div>
-                <div class="swatch-name" style="color:${t.bg === '#f4f4f6' ? '#555' : '#aaa'}">${t.name}</div>
-                <span class="swatch-check">✓</span>
+                <div class="swatch-info">
+                    <span class="swatch-name" style="color:${t.id === currentTheme ? t.accent : '#aaa'}">${t.name}</span>
+                    <span class="swatch-tag">${t.tag}</span>
+                </div>
+                <span class="swatch-check" style="color:${t.accent}">✓</span>
             </div>`).join('');
     }
 
     const sg = document.getElementById('style-grid');
     if (sg) {
-        sg.innerHTML = styles.map(s => `
-            <div class="style-card ${s.id === currentStyle ? 'active' : ''}"
-                 onclick="setStyle('${s.id}')">
-                <div class="style-preview">${s.icon}</div>
-                <div class="style-name">${s.name}</div>
-                <div class="style-desc">${s.desc}</div>
+        sg.innerHTML = styles.map(st => `
+            <div class="style-card ${st.id === currentStyle ? 'active' : ''}"
+                 onclick="setStyle('${st.id}')">
+                <div class="style-preview">${st.icon}</div>
+                <div class="style-name">${st.name}</div>
+                <div class="style-desc">${st.desc}</div>
             </div>`).join('');
     }
 }
