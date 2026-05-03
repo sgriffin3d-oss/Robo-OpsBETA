@@ -236,7 +236,8 @@ ${rulesContext}`;
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: 'gemini-1.5-flash',
-                max_tokens: 1000,
+                max_tokens: 8000,
+                superuser: superuserActive,
                 system: systemPrompt,
                 messages: messages
             })
