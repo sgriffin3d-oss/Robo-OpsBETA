@@ -46,8 +46,19 @@ function setFieldMode(mode) {
         document.getElementById('sub-draw').classList.add('active');
         if(subtitle) subtitle.innerText = "Draw Strategy";
         
-        // CRITICAL: Refresh the background when entering draw mode
-        toggleMap(currentField); 
+        // Refresh background image
+        toggleMap(currentField);
+        
+        // Sync canvas internal resolution to its rendered size
+        // so touch/mouse coordinates align with what you see
+        const c = document.getElementById('sketch-canvas');
+        if (c) {
+            const rect = c.getBoundingClientRect();
+            if (rect.width > 0) {
+                c.width  = rect.width;
+                c.height = rect.height;
+            }
+        }
     } else if (mode === 'saved') {
         if(saved) saved.style.display = 'block';
         document.getElementById('sub-saved').classList.add('active');
