@@ -1,9 +1,7 @@
 /* ============================================================
    PARAGON CORE X — DESIGN SYSTEM v4.0
-   New UI Settings
+   ROLLBACK: restore original style.css from your zip file
    ============================================================
-
-   Aurthor: Seth Griffin
 
    ARCHITECTURE:
    Theme  (.theme-*) = color palette
@@ -173,45 +171,6 @@ body {
    STYLE: ROUNDED
    Pillow-soft. Extra large radii, deep shadows,
    spacious padding, no hard edges anywhere.
-   ══════════════════════════════════════════════════════ */
-
-.style-rounded {
-    --radius:     24px;
-    --radius-sm:  16px;
-    --radius-lg:  36px;
-    --card-shadow: 0 6px 28px rgba(0,0,0,0.22);
-}
-body.style-rounded { letter-spacing: 0.1px; }
-.style-rounded .hub-card  { padding: 24px 22px; margin-bottom: 14px; }
-.style-rounded .note-card { padding: 20px 22px; }
-.style-rounded .dock-bar  {
-    border-radius: 40px;
-    bottom: 16px;
-    width: fit-content;
-    min-width: 180px;
-    height: 66px;
-    padding: 0 24px;
-    gap: 28px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.28);
-}
-.style-rounded .dock-btn {
-    border-radius: 50%;
-    width: 46px; height: 46px;
-}
-.style-rounded input,
-.style-rounded select,
-.style-rounded textarea { border-radius: 16px; }
-.style-rounded .sort-container { border-radius: 20px; padding: 5px; }
-.style-rounded .sort-btn { border-radius: 14px; }
-.style-rounded .save-btn { border-radius: 20px; padding: 18px; }
-.style-rounded .fab-menu { border-radius: 28px; }
-.style-rounded .alliance-box { border-radius: 22px; }
-
-
-/* ══════════════════════════════════════════════════════
-   STYLE: MINIMAL
-   Invisible cards. Line separators only.
-   Maximum whitespace and breathing room.
    ══════════════════════════════════════════════════════ */
 
 .style-minimal {
@@ -593,33 +552,26 @@ body.style-retro.theme-arctic {
 .style-retro .sort-btn.active,
 .style-retro .detail-tab.active { border-radius: 3px; }
 .style-retro .dock-bar {
-    border-radius: 0; border-top: 3px solid var(--border); height: 70px;
+    border-radius: 0;
+    border-top: 3px solid var(--border);
+    height: 68px;
+    background: var(--card-bg);
+    box-shadow: 0 -3px 0 var(--primary);
 }
 .style-retro .dock-btn {
-    border-radius: var(--radius); border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
     box-shadow: 2px 2px 0 var(--border);
+    font-family: 'Courier New', monospace;
+}
+.style-retro .dock-btn.alt {
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.25);
+    border-color: transparent;
 }
 .style-retro .dock-btn:active {
-    box-shadow: 0px 0px 0 var(--border);
-    transform: translate(2px, 2px);
+    box-shadow: none !important;
+    transform: translate(2px,2px) !important;
 }
-.style-retro .save-btn {
-    border-radius: var(--radius); border: 2px solid rgba(0,0,0,0.2);
-    box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-    letter-spacing: 2px;
-}
-.style-retro .save-btn:active {
-    box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
-    transform: translate(3px, 3px);
-}
-.style-retro input,
-.style-retro select,
-.style-retro textarea {
-    border: 2px solid var(--border); border-radius: var(--radius-sm);
-    font-family: 'Courier New', monospace; letter-spacing: 0.5px;
-}
-.style-retro .fab-menu { border: 2px solid var(--border); border-radius: var(--radius); }
-.style-retro .alliance-box { border: 2px solid var(--border) !important; }
 
 
 /* ══════════════════════════════════════════════════════
