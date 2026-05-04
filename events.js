@@ -45,8 +45,13 @@ async function loadEvents(query = '') {
 
     try {
         const trimmed = query.trim();
-        let url = `/api/robotevents?search=${encodeURIComponent(trimmed)}`;
-        if (!trimmed) url += `&start=${dateString}`;
+        // Always include a date window so RobotEvents returns results
+        // For searches: wide window (1 year back) to find any named event
+        // For default: 2 weeks back to show recent/upcoming events
+        const searchStart = trimmed
+            ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T00:00:00Z'
+            : dateString;
+        let url = `/api/robotevents?search=${encodeURIComponent(trimmed)}&start=${searchStart}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const result = await response.json();
