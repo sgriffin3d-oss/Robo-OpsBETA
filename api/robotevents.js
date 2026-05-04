@@ -28,8 +28,8 @@ export default async function handler(req, res) {
         }
         return res.status(200).json(await response.json());
     } else {
-        // Event list search — single page is fine
-        let url = `https://www.robotevents.com/api/v2/events?per_page=50`;
+        // Event list search — filter to V5RC (program 4) so results are relevant
+        let url = `https://www.robotevents.com/api/v2/events?per_page=50&program[]=4`;
         if (start) url += `&start=${start}`;
         if (search && search.trim() !== "") url += `&name[]=${encodeURIComponent(search)}`;
         const response = await fetch(url, {
