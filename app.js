@@ -81,29 +81,6 @@ function navBack() {
 function setPen(c) { penColor = c; }
 function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-let _drawFs = false;
-function toggleDrawFullscreen() {
-    const frame = document.getElementById('draw-frame');
-    const expand = document.getElementById('draw-fs-icon-expand');
-    const shrink = document.getElementById('draw-fs-icon-shrink');
-    _drawFs = !_drawFs;
-    frame.classList.toggle('draw-fs', _drawFs);
-    if (expand) expand.style.display = _drawFs ? 'none' : '';
-    if (shrink) shrink.style.display = _drawFs ? '' : 'none';
-    // Lock body scroll while fullscreen
-    document.body.style.overflow = _drawFs ? 'hidden' : '';
-    // Re-init canvas size so drawing coords stay accurate
-    if (canvas) {
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width || 800;
-        canvas.height = rect.height || 500;
-    }
-}
-// ESC to exit fullscreen draw
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && _drawFs) toggleDrawFullscreen();
-});
-
 function saveSketch() {
     const name = document.getElementById('sketch-name').value || "Unnamed Strategy";
     const imgData = canvas.toDataURL();
