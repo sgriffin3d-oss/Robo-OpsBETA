@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paragon-v4';
+const CACHE_NAME = 'paragon-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -13,7 +13,9 @@ const ASSETS = [
   './manifest.json',
   './images/field.png',
   './images/skills.png',
-  './images/icon.png'
+  './images/icon.png',
+  './images/icon-192.png',
+  './images/icon-512.png'
 ];
 
 // Installs assets for offline use

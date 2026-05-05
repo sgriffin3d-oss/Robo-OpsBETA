@@ -81,6 +81,29 @@ function navBack() {
 function setPen(c) { penColor = c; }
 function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
+let _drawFs = false;
+function toggleDrawFullscreen() {
+    const frame = document.getElementById('draw-frame');
+    const expand = document.getElementById('draw-fs-icon-expand');
+    const shrink = document.getElementById('draw-fs-icon-shrink');
+    _drawFs = !_drawFs;
+    frame.classList.toggle('draw-fs', _drawFs);
+    if (expand) expand.style.display = _drawFs ? 'none' : '';
+    if (shrink) shrink.style.display = _drawFs ? '' : 'none';
+    // Lock body scroll while fullscreen
+    document.body.style.overflow = _drawFs ? 'hidden' : '';
+    // Re-init canvas size so drawing coords stay accurate
+    if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width || 800;
+        canvas.height = rect.height || 500;
+    }
+}
+// ESC to exit fullscreen draw
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && _drawFs) toggleDrawFullscreen();
+});
+
 function saveSketch() {
     const name = document.getElementById('sketch-name').value || "Unnamed Strategy";
     const imgData = canvas.toDataURL();
@@ -290,7 +313,20 @@ function _getSettings() {
 
 function _saveSettings(s) {
     localStorage.setItem('paragon_settings_v3', JSON.stringify(s));
+    _applySettings(s);
 }
+
+// Map each theme+mode combo to its --bg color so the app bar matches
+const THEME_BG_COLORS = {
+    'theme-gold':          '#050505',
+    'theme-arctic':        '#e8f4ff',
+    'theme-red':           '#070000',
+    'theme-red-light':     '#fff4f4',
+    'theme-blue':          '#010810',
+    'theme-blue-light':    '#f0f6ff',
+    'theme-stealth':       '#000000',
+    'theme-stealth-light': '#f5f5f5',
+};
 
 function _applySettings(s) {
     const theme = s.theme || 'theme-gold';
@@ -298,6 +334,17 @@ function _applySettings(s) {
     const mode  = s.mode  || 'mode-dark';
     const modeClass = mode === 'mode-light' ? 'mode-light' : '';
     document.body.className = [theme, style, modeClass].filter(Boolean).join(' ');
+
+    // Update the theme-color meta tag so the app bar matches the background
+    const key = mode === 'mode-light' ? theme + '-light' : theme;
+    const bgColor = THEME_BG_COLORS[key] || THEME_BG_COLORS[theme] || '#050505';
+    let metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (!metaTheme) {
+        metaTheme = document.createElement('meta');
+        metaTheme.name = 'theme-color';
+        document.head.appendChild(metaTheme);
+    }
+    metaTheme.content = bgColor;
 }
 
 function loadSettings() {
