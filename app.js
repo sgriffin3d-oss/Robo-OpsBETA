@@ -12,6 +12,8 @@ window.onload = function() {
     drawNotes();
     initCanvas();
     nav('hub');
+    // Show first-visit onboarding (theme picker + install prompt)
+    maybeShowOnboarding();
 };
 
 function initCanvas() {

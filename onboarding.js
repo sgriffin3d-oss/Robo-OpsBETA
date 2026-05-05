@@ -1,0 +1,242 @@
+/* ============================================================
+   PARAGON CORE X — ONBOARDING
+   Shows on first visit: theme picker → install prompt
+   ============================================================ */
+
+const ONBOARDING_KEY = 'paragon_onboarded_v1';
+
+// Themes & styles pulled from app.js definitions
+const OB_THEMES = [
+    { id: 'theme-gold',    name: 'Gold',    tag: 'Dark',        accent: '#e8b23b', bg: '#060501',  mode: 'mode-dark'  },
+    { id: 'theme-arctic',  name: 'Arctic',  tag: 'Light',       accent: '#006edb', bg: '#eef4fb',  mode: 'mode-light' },
+    { id: 'theme-red',     name: 'Red',     tag: 'Dark',        accent: '#ff2222', bg: '#060000',  mode: 'mode-dark'  },
+    { id: 'theme-blue',    name: 'Blue',    tag: 'Dark',        accent: '#2882ff', bg: '#00050f',  mode: 'mode-dark'  },
+    { id: 'theme-stealth', name: 'Stealth', tag: 'Dark',        accent: '#e0e0e0', bg: '#000000',  mode: 'mode-dark'  },
+];
+
+const OB_STYLES = [
+    { id: 'style-classic',  name: 'Classic',  desc: 'Original feel',  icon: '◼' },
+    { id: 'style-minimal',  name: 'Minimal',  desc: 'Lines only',     icon: '▱' },
+    { id: 'style-glass',    name: 'Glass',    desc: 'Frosted blur',   icon: '◈' },
+    { id: 'style-tactical', name: 'Tactical', desc: 'Sharp HUD',      icon: '◧' },
+    { id: 'style-neon',     name: 'Neon',     desc: 'Glow effects',   icon: '✦' },
+    { id: 'style-retro',    name: 'Retro',    desc: 'Warm & textured',icon: '❧' },
+];
+
+let _obTheme = 'theme-gold';
+let _obStyle = 'style-classic';
+let _obMode  = 'mode-dark';
+let _deferredInstallPrompt = null; // stores the beforeinstallprompt event
+
+// ── Capture the install prompt as early as possible ─────────────────
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    _deferredInstallPrompt = e;
+});
+
+// ── Entry point called from app.js window.onload ─────────────────────
+function maybeShowOnboarding() {
+    const done = localStorage.getItem(ONBOARDING_KEY);
+    if (done) return false; // already onboarded
+    _showOnboarding();
+    return true;
+}
+
+function _showOnboarding() {
+    const overlay = document.getElementById('ob-overlay');
+    if (!overlay) return;
+    overlay.classList.add('ob-visible');
+    _renderStep1();
+}
+
+// ── STEP 1 — Choose theme & style ────────────────────────────────────
+function _renderStep1() {
+    const body = document.getElementById('ob-body');
+    body.innerHTML = `
+        <div class="ob-logo">
+            <img src="images/icon.png" alt="Paragon Core X">
+        </div>
+        <h1 class="ob-title">Welcome to<br><span>Paragon Core X</span></h1>
+        <p class="ob-sub">Pick your look — you can change it anytime in Settings.</p>
+
+        <div class="ob-section-label">Color Theme</div>
+        <div class="ob-theme-grid" id="ob-theme-grid">
+            ${OB_THEMES.map(t => `
+                <button class="ob-theme-swatch ${t.id === _obTheme ? 'ob-selected' : ''}"
+                        id="obs-${t.id}"
+                        onclick="obSelectTheme('${t.id}','${t.mode}')"
+                        style="background:${t.bg}; --ob-accent:${t.accent};">
+                    <div class="ob-swatch-dot" style="background:${t.accent};"></div>
+                    <div class="ob-swatch-name">${t.name}</div>
+                    <div class="ob-swatch-tag">${t.tag}</div>
+                </button>
+            `).join('')}
+        </div>
+
+        <div class="ob-section-label" style="margin-top:24px;">Interface Style</div>
+        <div class="ob-style-grid" id="ob-style-grid">
+            ${OB_STYLES.map(s => `
+                <button class="ob-style-card ${s.id === _obStyle ? 'ob-selected' : ''}"
+                        id="obst-${s.id}"
+                        onclick="obSelectStyle('${s.id}')">
+                    <div class="ob-style-icon">${s.icon}</div>
+                    <div class="ob-style-name">${s.name}</div>
+                    <div class="ob-style-desc">${s.desc}</div>
+                </button>
+            `).join('')}
+        </div>
+
+        <button class="ob-cta" onclick="obConfirmTheme()">
+            Look good — continue
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+    `;
+
+    // Live preview as user taps
+    _applyPreview();
+}
+
+function obSelectTheme(id, mode) {
+    _obTheme = id;
+    _obMode  = mode;
+    document.querySelectorAll('.ob-theme-swatch').forEach(el => el.classList.remove('ob-selected'));
+    const btn = document.getElementById('obs-' + id);
+    if (btn) btn.classList.add('ob-selected');
+    _applyPreview();
+}
+
+function obSelectStyle(id) {
+    _obStyle = id;
+    document.querySelectorAll('.ob-style-card').forEach(el => el.classList.remove('ob-selected'));
+    const btn = document.getElementById('obst-' + id);
+    if (btn) btn.classList.add('ob-selected');
+    _applyPreview();
+}
+
+function _applyPreview() {
+    // Live-preview theme on body behind the overlay
+    const modeClass = _obMode === 'mode-light' ? 'mode-light' : '';
+    document.body.className = [_obTheme, _obStyle, modeClass].filter(Boolean).join(' ');
+}
+
+function obConfirmTheme() {
+    // Save the chosen settings using app.js helpers (they exist by this point)
+    if (typeof _saveSettings === 'function') {
+        _saveSettings({ theme: _obTheme, style: _obStyle, mode: _obMode });
+    }
+    _renderStep2();
+}
+
+// ── STEP 2 — Install prompt ───────────────────────────────────────────
+function _renderStep2() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                      || window.navigator.standalone === true;
+
+    const body = document.getElementById('ob-body');
+
+    // Already installed — skip straight in
+    if (isStandalone) {
+        _finishOnboarding();
+        return;
+    }
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isAndroid = /Android/.test(navigator.userAgent);
+    const canNativePrompt = !!_deferredInstallPrompt;
+
+    let installHtml = '';
+
+    if (canNativePrompt) {
+        // Android / Desktop Chrome — we can trigger the native prompt
+        installHtml = `
+            <button class="ob-install-btn" onclick="obTriggerNativeInstall()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><polyline points="8 11 12 15 16 11"/><path d="M20 21H4"/></svg>
+                Add to Home Screen
+            </button>
+        `;
+    } else if (isIOS) {
+        // iOS Safari — manual instructions
+        installHtml = `
+            <div class="ob-install-manual">
+                <div class="ob-install-step">
+                    <span class="ob-step-num">1</span>
+                    Tap the <strong>Share</strong> button
+                    <svg class="ob-inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                    in Safari
+                </div>
+                <div class="ob-install-step">
+                    <span class="ob-step-num">2</span>
+                    Scroll down and tap <strong>"Add to Home Screen"</strong>
+                </div>
+                <div class="ob-install-step">
+                    <span class="ob-step-num">3</span>
+                    Tap <strong>Add</strong> — done!
+                </div>
+            </div>
+        `;
+    } else {
+        // Desktop or unsupported — show generic instructions
+        installHtml = `
+            <div class="ob-install-manual">
+                <div class="ob-install-step">
+                    <span class="ob-step-num">1</span>
+                    In Chrome or Edge, click the <strong>install icon</strong> in the address bar
+                </div>
+                <div class="ob-install-step">
+                    <span class="ob-step-num">2</span>
+                    Click <strong>"Install"</strong> in the popup
+                </div>
+                <div class="ob-install-step">
+                    <span class="ob-step-num">3</span>
+                    Paragon Core X opens as its own app!
+                </div>
+            </div>
+        `;
+    }
+
+    body.innerHTML = `
+        <div class="ob-install-icon">
+            <img src="images/icon.png" alt="Paragon Core X">
+        </div>
+        <h2 class="ob-title ob-title-sm">Install the App</h2>
+        <p class="ob-sub">Get the full experience — works offline, opens instantly, no browser chrome.</p>
+
+        ${installHtml}
+
+        <button class="ob-cta ob-cta-install" id="ob-install-cta" onclick="obTriggerNativeInstall()" style="${canNativePrompt ? '' : 'display:none'}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><polyline points="8 11 12 15 16 11"/><path d="M20 21H4"/></svg>
+            Install Now
+        </button>
+
+        <button class="ob-skip" onclick="_finishOnboarding()">
+            ${canNativePrompt ? 'Maybe later' : "I'll do it later — let me in"}
+        </button>
+    `;
+}
+
+async function obTriggerNativeInstall() {
+    if (!_deferredInstallPrompt) {
+        _finishOnboarding();
+        return;
+    }
+    _deferredInstallPrompt.prompt();
+    const { outcome } = await _deferredInstallPrompt.userChoice;
+    _deferredInstallPrompt = null;
+    // Whether they accepted or declined, move on
+    _finishOnboarding();
+}
+
+function _finishOnboarding() {
+    localStorage.setItem(ONBOARDING_KEY, '1');
+    const overlay = document.getElementById('ob-overlay');
+    if (overlay) {
+        overlay.classList.add('ob-exit');
+        setTimeout(() => overlay.remove(), 500);
+    }
+}
+
+// ── Dev helper — call resetOnboarding() in browser console to re-test ──
+function resetOnboarding() {
+    localStorage.removeItem(ONBOARDING_KEY);
+    location.reload();
+}

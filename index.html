@@ -9,6 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="onboarding.css">
     <link rel="stylesheet" href="events.css">
     <link rel="stylesheet" href="rules.css">
     <style>
@@ -66,6 +67,10 @@
 <body class="theme-dark style-classic">
 
 <div class="container">
+    <!-- ONBOARDING OVERLAY — shown on first visit only -->
+    <div id="ob-overlay">
+        <div id="ob-body"></div>
+    </div>
     <section id="view-hub" class="view active">
         <div class="welcome-header"><h1>Paragon Core X</h1><p>Strategic Command</p></div>
         
@@ -274,6 +279,7 @@
     <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
 </div>
 
+<script src="onboarding.js"></script>
 <script src="events.js"></script>
 <script src="app.js"></script>
 <script src="calc.js"></script>
