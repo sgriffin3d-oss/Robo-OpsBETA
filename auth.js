@@ -11,11 +11,19 @@ let supabase = null;
 let currentUser = null;
 let isGuest = false;
 
+// Show login immediately so buttons are visible while initAuth loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Show login screen right away — initAuth will redirect if already signed in
+    const loginView = document.getElementById('view-login');
+    if (loginView) loginView.classList.add('active');
+});
+
 // ── INIT ─────────────────────────────────────────────────────────────────────
 
 async function initAuth() {
-    // Load Supabase SDK (injected via CDN in index.html)
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // CDN exposes supabase-js as window.supabase — destructure createClient from it
+    const { createClient } = window.supabase;
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Listen for auth state changes
     supabase.auth.onAuthStateChange(async (event, session) => {

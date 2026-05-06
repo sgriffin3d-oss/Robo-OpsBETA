@@ -54,12 +54,13 @@
 
         .sketch-item { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
         .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: #000; object-fit: contain; border: 1px solid var(--border); }
+        #view-login.active { display: flex !important; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="theme-dark style-classic">
 
 <!-- LOGIN SCREEN -->
-<section id="view-login" class="view active" style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 24px;">
+<section id="view-login" class="view" style="min-height:100vh; display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px 24px;">
     <div style="width:100%; max-width:360px;">
         <div style="text-align:center; margin-bottom:36px;">
             <div style="font-size:2.4rem; font-weight:900; letter-spacing:-1px; color:var(--text);">Paragon</div>
