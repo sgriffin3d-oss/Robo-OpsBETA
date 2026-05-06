@@ -8,12 +8,8 @@ let detailOrigin = 'home';
 let canvas, ctx, drawing = false, penColor = 'white';
 
 window.onload = function() {
-    loadSettings();
-    drawNotes();
     initCanvas();
-    nav('hub');
-    // Show first-visit onboarding (theme picker + install prompt)
-    maybeShowOnboarding();
+    initAuth();  // handles login check, then calls loadSettings + nav('hub')
 };
 
 function initCanvas() {
@@ -91,7 +87,7 @@ function saveSketch() {
     } else {
         sketches.push({ id: Date.now().toString(), name, date: new Date().toLocaleDateString(), field: currentField, img: imgData });
     }
-    localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
+    cloudSaveSketch(sketches.find(s => s.id === (editingSketchId || Date.now().toString())) || sketches[sketches.length-1]);
     clearCanvas();
     document.getElementById('sketch-name').value = '';
     setFieldMode('saved');
@@ -133,7 +129,7 @@ function drawSketches() {
 function deleteSketch(id) {
     if(confirm("Delete this strategy?")) {
         sketches = sketches.filter(s => s.id !== id);
-        localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
+        cloudDeleteSketch(id);
         drawSketches();
     }
 }
@@ -194,7 +190,7 @@ function save() {
     if (!r.team) return alert("Missing Team #");
     let idx = db.findIndex(x => x.id === id);
     if (idx > -1) db[idx] = r; else db.push(r);
-    localStorage.setItem('paragon_db', JSON.stringify(db));
+    cloudSaveReport(r);
     nav('home');
 }
 
@@ -222,7 +218,7 @@ function edit(id) {
 function del(id, val) {
     if (confirm("Delete?")) {
         db = db.filter(x => x.id !== id);
-        localStorage.setItem('paragon_db', JSON.stringify(db));
+        cloudDeleteReport(id);
         showDet(val);
     }
 }
@@ -290,20 +286,8 @@ function _getSettings() {
 
 function _saveSettings(s) {
     localStorage.setItem('paragon_settings_v3', JSON.stringify(s));
-    _applySettings(s);
+    if (typeof cloudSaveSettings === 'function') cloudSaveSettings(s);
 }
-
-// Map each theme+mode combo to its --bg color so the app bar matches
-const THEME_BG_COLORS = {
-    'theme-gold':          '#050505',
-    'theme-arctic':        '#e8f4ff',
-    'theme-red':           '#070000',
-    'theme-red-light':     '#fff4f4',
-    'theme-blue':          '#010810',
-    'theme-blue-light':    '#f0f6ff',
-    'theme-stealth':       '#000000',
-    'theme-stealth-light': '#f5f5f5',
-};
 
 function _applySettings(s) {
     const theme = s.theme || 'theme-gold';
@@ -311,17 +295,6 @@ function _applySettings(s) {
     const mode  = s.mode  || 'mode-dark';
     const modeClass = mode === 'mode-light' ? 'mode-light' : '';
     document.body.className = [theme, style, modeClass].filter(Boolean).join(' ');
-
-    // Update the theme-color meta tag so the app bar matches the background
-    const key = mode === 'mode-light' ? theme + '-light' : theme;
-    const bgColor = THEME_BG_COLORS[key] || THEME_BG_COLORS[theme] || '#050505';
-    let metaTheme = document.querySelector('meta[name="theme-color"]');
-    if (!metaTheme) {
-        metaTheme = document.createElement('meta');
-        metaTheme.name = 'theme-color';
-        document.head.appendChild(metaTheme);
-    }
-    metaTheme.content = bgColor;
 }
 
 function loadSettings() {

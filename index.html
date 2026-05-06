@@ -7,36 +7,32 @@
     <link rel="icon" type="image/png" href="images/icon.png">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#050505" id="meta-theme-color">
-    <link rel="apple-touch-icon" href="images/icon-512.png">
+    <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="onboarding.css">
     <link rel="stylesheet" href="events.css">
     <link rel="stylesheet" href="rules.css">
     <style>
         /* --- MAP FRAME & ZOOM --- */
         .map-frame { 
             width: 100%; border-radius: 16px; overflow: hidden; 
-            border: 1px solid var(--border); background: var(--card-bg); 
-            position: relative; margin: 15px 0; overflow: hidden;
+            border: 1px solid var(--border); background: #000; 
+            position: relative; margin: 15px 0; padding: 80px 0;
             transition: background 0.3s ease; cursor: pointer;
-            padding: 50px 0px 50px 0px
         }
-        .theme-arctic .map-frame, body.mode-light .map-frame { background: var(--card-bg); }
+        .theme-light .map-frame { background: #ffffff; }
 
         #map-img, #sketch-canvas { 
             width: 100%; display: block; 
             transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
         }
 
-        .map-frame.zoomed #map-img { transform: scale(1.4); }
+        .map-frame.zoomed #map-img,
+        .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
 
         #sketch-canvas { 
-            width: 100%; display: block;
-            aspect-ratio: 800 / 500;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             touch-action: none; background-size: contain; 
-            background-repeat: no-repeat; background-position: center;
-            background-color: transparent;
+            background-repeat: no-repeat; background-position: center; 
         }
 
         /* --- DRAWING UI FIXES --- */
@@ -57,22 +53,51 @@
         .sub-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
         .sketch-item { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
-        .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: var(--input-bg); object-fit: contain; border: 1px solid var(--border); }
-
-        function toggleZoom(id) {
-            const frame = document.getElementById(id);
-            if (frame) frame.classList.toggle('zoomed');
-        }
+        .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: #000; object-fit: contain; border: 1px solid var(--border); }
     </style>
 </head>
 <body class="theme-dark style-classic">
 
-<div class="container">
-    <!-- ONBOARDING OVERLAY — shown on first visit only -->
-    <div id="ob-overlay">
-        <div id="ob-body"></div>
+<!-- LOGIN SCREEN -->
+<section id="view-login" class="view active" style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 24px;">
+    <div style="width:100%; max-width:360px;">
+        <div style="text-align:center; margin-bottom:36px;">
+            <div style="font-size:2.4rem; font-weight:900; letter-spacing:-1px; color:var(--text);">Paragon</div>
+            <div style="font-size:0.75rem; font-weight:700; letter-spacing:3px; color:var(--primary); text-transform:uppercase; margin-top:4px;">Core X</div>
+        </div>
+
+        <!-- Google -->
+        <button id="btn-google" onclick="signInWithGoogle()" style="width:100%; padding:15px; background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-weight:700; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px; transition:all 0.15s ease;">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Continue with Google
+        </button>
+
+        <!-- Divider -->
+        <div style="display:flex; align-items:center; gap:12px; margin:16px 0;">
+            <div style="flex:1; height:1px; background:var(--border);"></div>
+            <span style="font-size:0.72rem; color:var(--sub-text); font-weight:600;">OR</span>
+            <div style="flex:1; height:1px; background:var(--border);"></div>
+        </div>
+
+        <!-- Email form -->
+        <div id="auth-mode" data-mode="signin">
+            <div id="auth-form-title" style="font-size:0.78rem; font-weight:800; letter-spacing:1px; color:var(--sub-text); text-transform:uppercase; margin-bottom:12px;">Sign In</div>
+            <input type="email" id="auth-email" placeholder="Email address" style="margin-bottom:8px;">
+            <input type="password" id="auth-password" placeholder="Password" onkeydown="if(event.key==='Enter') signInWithEmail()">
+            <div id="auth-error" style="display:none; color:var(--red); font-size:0.78rem; margin:-4px 0 10px; font-weight:600;"></div>
+            <button id="btn-email" onclick="signInWithEmail()" style="width:100%; padding:15px; background:var(--primary); color:var(--primary-fg); border:none; border-radius:var(--radius); font-weight:900; font-size:0.88rem; cursor:pointer; letter-spacing:0.5px; margin-bottom:10px;">Sign In</button>
+            <button id="auth-toggle" onclick="toggleAuthMode()" style="width:100%; padding:10px; background:none; border:none; color:var(--sub-text); font-size:0.78rem; cursor:pointer; text-decoration:underline;">Don't have an account? Sign up</button>
+        </div>
+
+        <!-- Guest -->
+        <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border); text-align:center;">
+            <button onclick="continueAsGuest()" style="background:none; border:none; color:var(--sub-text); font-size:0.8rem; cursor:pointer; text-decoration:underline; font-weight:600;">Continue as guest (no sync)</button>
+        </div>
     </div>
-    <section id="view-hub" class="view active">
+</section>
+
+<div class="container">
+    <section id="view-hub" class="view">
         <div class="welcome-header"><h1>Paragon Core X</h1><p>Strategic Command</p></div>
         
         <div class="hub-card" onclick="openEventsHub()">
@@ -143,9 +168,8 @@
             </div>
         </div>
         <div id="draw-view" style="display:none;">
-            <div class="map-frame" id="draw-frame">
+            <div class="map-frame zoomed" id="draw-frame">
                 <canvas id="sketch-canvas"></canvas>
-
             </div>
             <div class="draw-tools">
                 <div class="color-dot" style="background:red" onclick="setPen('red')"></div>
@@ -209,6 +233,15 @@
 
     <section id="view-settings" class="view">
         <div class="welcome-header"><h1>Settings</h1><p>Appearance</p></div>
+
+        <div style="display:flex; align-items:center; gap:12px; background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:24px;">
+            <div id="account-avatar" style="width:36px; height:36px; border-radius:50%; background:var(--input-bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; background-size:cover; background-position:center;">👤</div>
+            <div style="flex:1; min-width:0;">
+                <div id="account-name" style="font-weight:800; font-size:0.88rem; color:var(--text);">Account</div>
+                <div style="font-size:0.7rem; color:var(--sub-text); margin-top:1px;">Signed in</div>
+            </div>
+            <button onclick="signOut()" style="background:var(--input-bg); border:1px solid var(--border); color:var(--sub-text); padding:8px 14px; border-radius:var(--radius-sm); font-size:0.75rem; font-weight:700; cursor:pointer;">Sign Out</button>
+        </div>
 
         <div class="settings-section">
             <div class="settings-label">Mode</div>
@@ -281,7 +314,6 @@
     <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
 </div>
 
-<script src="onboarding.js"></script>
 <script src="events.js"></script>
 <script src="app.js"></script>
 <script src="calc.js"></script>
@@ -298,6 +330,8 @@
     </div>
 </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
     <script src="rules.js"></script>
     <script src="rules_ui.js"></script>
 </body>
