@@ -1,54 +1,74 @@
 /**
  * auth.js - Paragon Core X
- * Supabase authentication + cloud sync
- * Supports: Google OAuth, Email/Password, Guest (local only)
+ * Supabase auth + cloud sync
+ * SAFE BOOT: app loads normally, auth check happens in background
  */
 
 const SUPABASE_URL = 'https://bccymltkymuokpjbrzfb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_W4DFizkRZQEHdh_xmXV4hQ_jVMMy0GX';
 
-let supabase = null;
+let _supabase = null;
 let currentUser = null;
 let isGuest = false;
+let authReady = false;
 
-// Show login immediately so buttons are visible while initAuth loads
-document.addEventListener('DOMContentLoaded', () => {
-    // Show login screen right away — initAuth will redirect if already signed in
-    const loginView = document.getElementById('view-login');
-    if (loginView) loginView.classList.add('active');
-});
-
-// ── INIT ─────────────────────────────────────────────────────────────────────
+// ── INIT (called from app.js window.onload) ───────────────────────────────────
 
 async function initAuth() {
-    // CDN exposes supabase-js as window.supabase — destructure createClient from it
-    const { createClient } = window.supabase;
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Guard: if Supabase CDN not loaded yet, skip auth (app works as guest)
+    if (!window.supabase) {
+        console.warn('Supabase SDK not loaded — running as guest');
+        isGuest = true;
+        loadLocalData();
+        return;
+    }
 
-    // Listen for auth state changes
-    supabase.auth.onAuthStateChange(async (event, session) => {
+    const { createClient } = window.supabase;
+    _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Check for existing session first
+    try {
+        const { data: { session } } = await _supabase.auth.getSession();
+
         if (session?.user) {
+            // Already signed in — load cloud data silently, stay on hub
             currentUser = session.user;
             isGuest = false;
-            await onSignedIn();
-        } else if (!isGuest) {
+            updateAccountUI();
+            await syncFromCloud();
+            drawNotes();
+        } else if (localStorage.getItem('paragon_guest_mode') === 'true') {
+            // Returning guest — load local data, stay on hub
+            isGuest = true;
+            loadLocalData();
+        } else {
+            // First visit — show login screen
+            showLoginScreen();
+        }
+    } catch (err) {
+        // Network error or Supabase down — fall back to guest/local
+        console.error('Auth init error:', err);
+        isGuest = true;
+        loadLocalData();
+    }
+
+    authReady = true;
+
+    // Listen for future auth changes (e.g. after Google redirect)
+    _supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+            currentUser = session.user;
+            isGuest = false;
+            localStorage.removeItem('paragon_guest_mode');
+            updateAccountUI();
+            await syncFromCloud();
+            drawNotes();
+            nav('hub');
+        } else if (event === 'SIGNED_OUT') {
             currentUser = null;
             showLoginScreen();
         }
     });
-
-    // Check existing session
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-        currentUser = session.user;
-        isGuest = false;
-        await onSignedIn();
-    } else if (localStorage.getItem('paragon_guest_mode') === 'true') {
-        isGuest = true;
-        continueAsGuest(false);
-    } else {
-        showLoginScreen();
-    }
 }
 
 // ── LOGIN SCREEN ──────────────────────────────────────────────────────────────
@@ -60,10 +80,11 @@ function showLoginScreen() {
 }
 
 async function signInWithGoogle() {
+    if (!_supabase) return showAuthError('Not connected to auth service.');
     const btn = document.getElementById('btn-google');
     if (btn) { btn.disabled = true; btn.textContent = 'Connecting...'; }
 
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: window.location.origin }
     });
@@ -75,51 +96,37 @@ async function signInWithGoogle() {
 }
 
 async function signInWithEmail() {
-    const email = document.getElementById('auth-email')?.value?.trim();
+    if (!_supabase) return showAuthError('Not connected to auth service.');
+    const email    = document.getElementById('auth-email')?.value?.trim();
     const password = document.getElementById('auth-password')?.value;
     const isSignUp = document.getElementById('auth-mode')?.dataset.mode === 'signup';
-
     if (!email || !password) return showAuthError('Please enter email and password.');
 
     const btn = document.getElementById('btn-email');
     if (btn) { btn.disabled = true; btn.textContent = '...'; }
 
-    let result;
-    if (isSignUp) {
-        result = await supabase.auth.signUp({ email, password });
-        if (!result.error && result.data.user?.identities?.length === 0) {
-            showAuthError('Email already registered. Try signing in.');
-            if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
-            return;
-        }
-    } else {
-        result = await supabase.auth.signInWithPassword({ email, password });
-    }
+    const { error } = isSignUp
+        ? await _supabase.auth.signUp({ email, password })
+        : await _supabase.auth.signInWithPassword({ email, password });
 
-    if (result.error) {
-        showAuthError(result.error.message);
+    if (error) {
+        showAuthError(error.message);
         if (btn) { btn.disabled = false; btn.textContent = isSignUp ? 'Create Account' : 'Sign In'; }
     }
+    // On success, onAuthStateChange handles the redirect
 }
 
 function toggleAuthMode() {
-    const modeEl = document.getElementById('auth-mode');
-    const btn = document.getElementById('btn-email');
-    const toggle = document.getElementById('auth-toggle');
-    const title = document.getElementById('auth-form-title');
+    const modeEl  = document.getElementById('auth-mode');
+    const btn     = document.getElementById('btn-email');
+    const toggle  = document.getElementById('auth-toggle');
+    const title   = document.getElementById('auth-form-title');
     if (!modeEl) return;
-
-    if (modeEl.dataset.mode === 'signin') {
-        modeEl.dataset.mode = 'signup';
-        if (btn) btn.textContent = 'Create Account';
-        if (toggle) toggle.textContent = 'Already have an account? Sign in';
-        if (title) title.textContent = 'Create Account';
-    } else {
-        modeEl.dataset.mode = 'signin';
-        if (btn) btn.textContent = 'Sign In';
-        if (toggle) toggle.textContent = "Don't have an account? Sign up";
-        if (title) title.textContent = 'Sign In';
-    }
+    const toSignup = modeEl.dataset.mode === 'signin';
+    modeEl.dataset.mode = toSignup ? 'signup' : 'signin';
+    if (btn)    btn.textContent    = toSignup ? 'Create Account' : 'Sign In';
+    if (toggle) toggle.textContent = toSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
+    if (title)  title.textContent  = toSignup ? 'Create Account' : 'Sign In';
     clearAuthError();
 }
 
@@ -127,11 +134,13 @@ function continueAsGuest(save = true) {
     isGuest = true;
     currentUser = null;
     if (save) localStorage.setItem('paragon_guest_mode', 'true');
-    onSignedIn();
+    loadLocalData();
+    drawNotes();
+    nav('hub');
 }
 
 async function signOut() {
-    if (!isGuest) await supabase.auth.signOut();
+    if (_supabase && !isGuest) await _supabase.auth.signOut();
     isGuest = false;
     currentUser = null;
     localStorage.removeItem('paragon_guest_mode');
@@ -147,12 +156,8 @@ function clearAuthError() {
     if (el) { el.textContent = ''; el.style.display = 'none'; }
 }
 
-// ── POST LOGIN ────────────────────────────────────────────────────────────────
-
-async function onSignedIn() {
-    // Update account bar
+function updateAccountUI() {
     const nameEl = document.getElementById('account-name');
-    const avatarEl = document.getElementById('account-avatar');
     if (nameEl) {
         if (isGuest) {
             nameEl.textContent = 'Guest';
@@ -161,112 +166,92 @@ async function onSignedIn() {
             nameEl.textContent = meta?.full_name || meta?.name || currentUser?.email || 'Account';
         }
     }
+    const avatarEl = document.getElementById('account-avatar');
     if (avatarEl) {
         const avatar = currentUser?.user_metadata?.avatar_url;
-        avatarEl.style.backgroundImage = avatar ? `url(${avatar})` : 'none';
-        avatarEl.textContent = avatar ? '' : (isGuest ? '👤' : '👤');
+        if (avatar) {
+            avatarEl.style.backgroundImage = `url(${avatar})`;
+            avatarEl.textContent = '';
+        }
     }
-
-    // Load cloud data if signed in, otherwise use localStorage
-    if (!isGuest && currentUser) {
-        await syncFromCloud();
-    } else {
-        loadLocalData();
-    }
-
-    // Navigate to hub
-    nav('hub');
-    drawNotes();
-    loadSettings();
 }
 
 // ── DATA SYNC ─────────────────────────────────────────────────────────────────
 
 async function syncFromCloud() {
-    if (isGuest || !currentUser) return;
-
+    if (isGuest || !currentUser || !_supabase) return;
     try {
         const [reportsRes, sketchesRes, settingsRes] = await Promise.all([
-            supabase.from('scout_reports').select('*').eq('user_id', currentUser.id),
-            supabase.from('sketches').select('*').eq('user_id', currentUser.id),
-            supabase.from('user_settings').select('*').eq('user_id', currentUser.id).single()
+            _supabase.from('scout_reports').select('*').eq('user_id', currentUser.id),
+            _supabase.from('sketches').select('*').eq('user_id', currentUser.id),
+            _supabase.from('user_settings').select('*').eq('user_id', currentUser.id).single()
         ]);
 
-        if (reportsRes.data) {
+        if (reportsRes.data?.length) {
             db = reportsRes.data.map(r => ({
                 id: r.id, team: r.team, event: r.event, res: r.res,
                 autores: r.autores, partner: r.partner, opp: r.opp,
                 score: r.score, oppscore: r.oppscore, notes: r.notes
             }));
         }
-
-        if (sketchesRes.data) {
+        if (sketchesRes.data?.length) {
             sketches = sketchesRes.data.map(s => ({
                 id: s.id, name: s.name, date: s.date, field: s.field, img: s.img
             }));
         }
-
         if (settingsRes.data) {
             localStorage.setItem('paragon_settings_v3', JSON.stringify({
                 theme: settingsRes.data.theme,
                 style: settingsRes.data.style,
                 mode:  settingsRes.data.mode
             }));
+            loadSettings();
         }
-
     } catch (err) {
-        console.error('Sync error:', err);
-        // Fall back to local data
+        console.error('Cloud sync error:', err);
         loadLocalData();
     }
 }
 
 function loadLocalData() {
-    db = JSON.parse(localStorage.getItem('paragon_db')) || [];
+    db       = JSON.parse(localStorage.getItem('paragon_db'))       || [];
     sketches = JSON.parse(localStorage.getItem('paragon_sketches')) || [];
 }
 
-// ── CLOUD WRITE HELPERS (called from app.js) ──────────────────────────────────
+// ── CLOUD WRITES ──────────────────────────────────────────────────────────────
 
 async function cloudSaveReport(report) {
-    if (isGuest || !currentUser) {
-        localStorage.setItem('paragon_db', JSON.stringify(db));
-        return;
+    if (isGuest || !currentUser || !_supabase) {
+        localStorage.setItem('paragon_db', JSON.stringify(db)); return;
     }
-    await supabase.from('scout_reports').upsert({
-        ...report, user_id: currentUser.id
-    });
+    await _supabase.from('scout_reports').upsert({ ...report, user_id: currentUser.id });
 }
 
 async function cloudDeleteReport(id) {
-    if (isGuest || !currentUser) {
-        localStorage.setItem('paragon_db', JSON.stringify(db));
-        return;
+    if (isGuest || !currentUser || !_supabase) {
+        localStorage.setItem('paragon_db', JSON.stringify(db)); return;
     }
-    await supabase.from('scout_reports').delete().eq('id', id).eq('user_id', currentUser.id);
+    await _supabase.from('scout_reports').delete().eq('id', id).eq('user_id', currentUser.id);
 }
 
 async function cloudSaveSketch(sketch) {
-    if (isGuest || !currentUser) {
-        localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
-        return;
+    if (!sketch) return;
+    if (isGuest || !currentUser || !_supabase) {
+        localStorage.setItem('paragon_sketches', JSON.stringify(sketches)); return;
     }
-    await supabase.from('sketches').upsert({
-        ...sketch, user_id: currentUser.id
-    });
+    await _supabase.from('sketches').upsert({ ...sketch, user_id: currentUser.id });
 }
 
 async function cloudDeleteSketch(id) {
-    if (isGuest || !currentUser) {
-        localStorage.setItem('paragon_sketches', JSON.stringify(sketches));
-        return;
+    if (isGuest || !currentUser || !_supabase) {
+        localStorage.setItem('paragon_sketches', JSON.stringify(sketches)); return;
     }
-    await supabase.from('sketches').delete().eq('id', id).eq('user_id', currentUser.id);
+    await _supabase.from('sketches').delete().eq('id', id).eq('user_id', currentUser.id);
 }
 
 async function cloudSaveSettings(settings) {
-    if (isGuest || !currentUser) return;
-    await supabase.from('user_settings').upsert({
+    if (isGuest || !currentUser || !_supabase) return;
+    await _supabase.from('user_settings').upsert({
         user_id: currentUser.id,
         theme: settings.theme || 'theme-gold',
         style: settings.style || 'style-classic',

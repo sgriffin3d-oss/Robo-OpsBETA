@@ -8,8 +8,13 @@ let detailOrigin = 'home';
 let canvas, ctx, drawing = false, penColor = 'white';
 
 window.onload = function() {
+    // Boot app normally first — no black screen ever
+    loadSettings();
+    drawNotes();
     initCanvas();
-    initAuth();  // handles login check, then calls loadSettings + nav('hub')
+    nav('hub');
+    // Then check auth in background — redirects to login if not signed in
+    if (typeof initAuth === 'function') initAuth();
 };
 
 function initCanvas() {
