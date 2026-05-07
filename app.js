@@ -52,6 +52,12 @@ function nav(v) {
     if (target) target.classList.add('active');
     if (v === 'home') drawNotes();
     if (v === 'rules' && typeof initRules === 'function') initRules();
+    if (v === 'settings') {
+        if (typeof updateAccountUI === 'function') updateAccountUI();
+        if (typeof renderSettingsUI === 'function') renderSettingsUI();
+        // Always start on Account tab when opening settings
+        switchSettingsTab('account');
+    }
     window.scrollTo(0, 0);
     closeMenu();
 }
@@ -390,5 +396,14 @@ function renderSettingsUI() {
     }
 }
 
+
+function switchSettingsTab(tab) {
+    document.getElementById('settings-tab-account').style.display    = tab === 'account'    ? 'block' : 'none';
+    document.getElementById('settings-tab-appearance').style.display = tab === 'appearance' ? 'block' : 'none';
+    document.getElementById('stab-account').classList.toggle('active',    tab === 'account');
+    document.getElementById('stab-appearance').classList.toggle('active', tab === 'appearance');
+    // Render appearance grids when switching to that tab
+    if (tab === 'appearance' && typeof renderSettingsUI === 'function') renderSettingsUI();
+}
 function toggleMenu() { document.getElementById('fabMenu').classList.toggle('show'); }
 function closeMenu() { document.getElementById('fabMenu').classList.remove('show'); }

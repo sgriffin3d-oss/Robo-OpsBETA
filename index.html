@@ -233,34 +233,59 @@
     </section>
 
     <section id="view-settings" class="view">
-        <div class="welcome-header"><h1>Settings</h1><p>Appearance</p></div>
+        <div class="welcome-header"><h1>Settings</h1><p>Configuration</p></div>
 
-        <div style="display:flex; align-items:center; gap:12px; background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:24px;">
-            <div id="account-avatar" style="width:36px; height:36px; border-radius:50%; background:var(--input-bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; background-size:cover; background-position:center;">👤</div>
-            <div style="flex:1; min-width:0;">
-                <div id="account-name" style="font-weight:800; font-size:0.88rem; color:var(--text);">Account</div>
-                <div style="font-size:0.7rem; color:var(--sub-text); margin-top:1px;">Signed in</div>
+        <!-- Settings tab bar -->
+        <div class="sort-container" style="margin-bottom:20px;">
+            <button class="sort-btn active" id="stab-account"    onclick="switchSettingsTab('account')">Account</button>
+            <button class="sort-btn"        id="stab-appearance" onclick="switchSettingsTab('appearance')">Appearance</button>
+        </div>
+
+        <!-- Account tab -->
+        <div id="settings-tab-account">
+            <!-- Profile card -->
+            <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:14px;">
+                <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+                    <div id="account-avatar" style="width:48px; height:48px; border-radius:50%; background:var(--input-bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; background-size:cover; background-position:center;">👤</div>
+                    <div style="flex:1; min-width:0;">
+                        <div id="account-name" style="font-weight:900; font-size:1rem; color:var(--text);">Account</div>
+                        <div id="account-subtitle" style="font-size:0.72rem; color:var(--sub-text); margin-top:2px;">Synced across devices</div>
+                    </div>
+                </div>
+                <button id="account-signout-btn" onclick="signOut()" style="width:100%; padding:13px; background:var(--input-bg); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); font-size:0.82rem; font-weight:800; cursor:pointer; letter-spacing:0.5px;">Sign Out</button>
             </div>
-            <button onclick="signOut()" style="background:var(--input-bg); border:1px solid var(--border); color:var(--sub-text); padding:8px 14px; border-radius:var(--radius-sm); font-size:0.75rem; font-weight:700; cursor:pointer;">Sign Out</button>
-        </div>
 
-        <div class="settings-section">
-            <div class="settings-label">Mode</div>
-            <div class="mode-toggle" id="mode-toggle">
-                <button class="mode-btn active" id="mode-btn-dark"  onclick="setMode('mode-dark')">🌑 Dark</button>
-                <button class="mode-btn"        id="mode-btn-light" onclick="setMode('mode-light')">☀️ Light</button>
+            <!-- Data card -->
+            <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:18px;">
+                <div class="settings-label" style="margin-bottom:12px;">Data</div>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="exportData()" style="flex:1; padding:12px; background:var(--input-bg); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); font-size:0.78rem; font-weight:700; cursor:pointer;">Export Backup</button>
+                    <button onclick="document.getElementById('importFile').click()" style="flex:1; padding:12px; background:var(--input-bg); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); font-size:0.78rem; font-weight:700; cursor:pointer;">Import Backup</button>
+                </div>
+                <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
             </div>
-            <div class="mode-locked-note" id="mode-locked-note" style="display:none;"></div>
         </div>
 
-        <div class="settings-section">
-            <div class="settings-label">Color Theme</div>
-            <div class="theme-grid" id="theme-grid"></div>
-        </div>
+        <!-- Appearance tab (hidden by default) -->
+        <div id="settings-tab-appearance" style="display:none;">
+            <div class="settings-section">
+                <div class="settings-label">Mode</div>
+                <div class="mode-toggle" id="mode-toggle">
+                    <button class="mode-btn active" id="mode-btn-dark"  onclick="setMode('mode-dark')">🌑 Dark</button>
+                    <button class="mode-btn"        id="mode-btn-light" onclick="setMode('mode-light')">☀️ Light</button>
+                </div>
+                <div class="mode-locked-note" id="mode-locked-note" style="display:none;"></div>
+            </div>
 
-        <div class="settings-section">
-            <div class="settings-label">Interface Style</div>
-            <div class="style-grid" id="style-grid"></div>
+            <div class="settings-section">
+                <div class="settings-label">Color Theme</div>
+                <div class="theme-grid" id="theme-grid"></div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-label">Interface Style</div>
+                <div class="style-grid" id="style-grid"></div>
+            </div>
         </div>
     </section>
 
@@ -304,9 +329,7 @@
 
 
 <div class="fab-menu" id="fabMenu">
-    <div class="menu-item" onclick="exportData()">Export (.paragon)</div>
-    <div class="menu-item" onclick="document.getElementById('importFile').click()">Import (.paragon)</div>
-    <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
+
 </div>
 
 <div class="dock-bar">

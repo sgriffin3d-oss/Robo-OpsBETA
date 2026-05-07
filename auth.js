@@ -64,7 +64,8 @@ async function initAuth() {
             await syncFromCloud();
             drawNotes();
             nav('hub');
-        } else if (event === 'SIGNED_OUT') {
+        } else if (event === 'SIGNED_OUT' && !_signingOut) {
+            // Only handle if not triggered by our own signOut() call
             currentUser = null;
             showLoginScreen();
         }
@@ -135,16 +136,27 @@ function continueAsGuest(save = true) {
     currentUser = null;
     if (save) localStorage.setItem('paragon_guest_mode', 'true');
     loadLocalData();
+    updateAccountUI();
     drawNotes();
-    nav('hub');
+    // Explicitly hide login and show hub
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const hub = document.getElementById('view-hub');
+    if (hub) hub.classList.add('active');
+    window.scrollTo(0, 0);
 }
 
+let _signingOut = false;
 async function signOut() {
+    if (_signingOut) return;
+    _signingOut = true;
     if (_supabase && !isGuest) await _supabase.auth.signOut();
     isGuest = false;
     currentUser = null;
+    db = [];
+    sketches = [];
     localStorage.removeItem('paragon_guest_mode');
     showLoginScreen();
+    setTimeout(() => { _signingOut = false; }, 1000);
 }
 
 function showAuthError(msg) {
@@ -157,14 +169,23 @@ function clearAuthError() {
 }
 
 function updateAccountUI() {
-    const nameEl = document.getElementById('account-name');
+    const nameEl    = document.getElementById('account-name');
+    const subtitleEl = document.getElementById('account-subtitle');
     if (nameEl) {
         if (isGuest) {
-            nameEl.textContent = 'Guest';
+            nameEl.textContent = 'Guest Mode';
         } else {
             const meta = currentUser?.user_metadata;
             nameEl.textContent = meta?.full_name || meta?.name || currentUser?.email || 'Account';
         }
+    }
+    if (subtitleEl) {
+        subtitleEl.textContent = isGuest ? 'Data saved locally only' : 'Synced across devices';
+    }
+    const signOutBtn = document.getElementById('account-signout-btn');
+    if (signOutBtn) {
+        signOutBtn.textContent = isGuest ? 'Sign In' : 'Sign Out';
+        signOutBtn.onclick = isGuest ? showLoginScreen : signOut;
     }
     const avatarEl = document.getElementById('account-avatar');
     if (avatarEl) {
@@ -172,6 +193,9 @@ function updateAccountUI() {
         if (avatar) {
             avatarEl.style.backgroundImage = `url(${avatar})`;
             avatarEl.textContent = '';
+        } else {
+            avatarEl.style.backgroundImage = 'none';
+            avatarEl.textContent = isGuest ? '👤' : '👤';
         }
     }
 }
