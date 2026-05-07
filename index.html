@@ -235,39 +235,64 @@
     <section id="view-settings" class="view">
         <div class="welcome-header"><h1>Settings</h1><p>Configuration</p></div>
 
-        <!-- Settings tab bar -->
-        <div class="sort-container" style="margin-bottom:20px;">
-            <button class="sort-btn active" id="stab-account"    onclick="switchSettingsTab('account')">Account</button>
-            <button class="sort-btn"        id="stab-appearance" onclick="switchSettingsTab('appearance')">Appearance</button>
-        </div>
-
-        <!-- Account tab -->
+        <!-- Hub-style nav cards -->
         <div id="settings-tab-account">
-            <!-- Profile card -->
-            <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:14px;">
-                <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
-                    <div id="account-avatar" style="width:48px; height:48px; border-radius:50%; background:var(--input-bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; background-size:cover; background-position:center;">👤</div>
+
+            <!-- Account card -->
+            <div class="hub-card" style="flex-direction:column; align-items:flex-start; cursor:default;">
+                <div style="display:flex; align-items:center; gap:14px; width:100%;">
+                    <div id="account-avatar" style="width:46px; height:46px; border-radius:50%; background:var(--input-bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; background-size:cover; background-position:center;">👤</div>
                     <div style="flex:1; min-width:0;">
-                        <div id="account-name" style="font-weight:900; font-size:1rem; color:var(--text);">Account</div>
-                        <div id="account-subtitle" style="font-size:0.72rem; color:var(--sub-text); margin-top:2px;">Synced across devices</div>
+                        <div id="account-name" style="font-weight:900; font-size:0.95rem; color:var(--text); text-transform:uppercase; letter-spacing:1px;">Account</div>
+                        <div id="account-subtitle" style="font-size:0.72rem; color:var(--sub-text); margin-top:3px; font-weight:500; text-transform:none; letter-spacing:0;">Synced across devices</div>
                     </div>
                 </div>
-                <button id="account-signout-btn" onclick="signOut()" style="width:100%; padding:13px; background:var(--input-bg); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); font-size:0.82rem; font-weight:800; cursor:pointer; letter-spacing:0.5px;">Sign Out</button>
             </div>
 
-            <!-- Data card -->
-            <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:18px;">
-                <div class="settings-label" style="margin-bottom:12px;">Data</div>
-                <div style="display:flex; gap:8px;">
-                    <button onclick="exportData()" style="flex:1; padding:12px; background:var(--input-bg); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); font-size:0.78rem; font-weight:700; cursor:pointer;">Export Backup</button>
-                    <button onclick="document.getElementById('importFile').click()" style="flex:1; padding:12px; background:var(--input-bg); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); font-size:0.78rem; font-weight:700; cursor:pointer;">Import Backup</button>
-                </div>
-                <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
+            <!-- Appearance card -->
+            <div class="hub-card" onclick="switchSettingsTab('appearance')">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </span>
+                <b>Appearance</b>
+            </div>
+
+            <!-- Export card -->
+            <div class="hub-card" onclick="exportData()">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </span>
+                <b>Export Backup</b>
+            </div>
+
+            <!-- Import card -->
+            <div class="hub-card" onclick="document.getElementById('importFile').click()">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </span>
+                <b>Import Backup</b>
+            </div>
+            <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
+
+            <!-- Sign out card -->
+            <div class="hub-card" id="account-signout-card" onclick="handleSignOutCard()" style="margin-top:6px;">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </span>
+                <b id="account-signout-label">Sign Out</b>
             </div>
         </div>
 
-        <!-- Appearance tab (hidden by default) -->
+        <!-- Appearance tab -->
         <div id="settings-tab-appearance" style="display:none;">
+            <!-- Back card -->
+            <div class="hub-card" onclick="switchSettingsTab('account')" style="margin-bottom:20px;">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </span>
+                <b>Back</b>
+            </div>
+
             <div class="settings-section">
                 <div class="settings-label">Mode</div>
                 <div class="mode-toggle" id="mode-toggle">

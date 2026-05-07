@@ -169,8 +169,8 @@ function clearAuthError() {
 }
 
 function updateAccountUI() {
-    const nameEl    = document.getElementById('account-name');
-    const subtitleEl = document.getElementById('account-subtitle');
+    // Name
+    const nameEl = document.getElementById('account-name');
     if (nameEl) {
         if (isGuest) {
             nameEl.textContent = 'Guest Mode';
@@ -179,23 +179,31 @@ function updateAccountUI() {
             nameEl.textContent = meta?.full_name || meta?.name || currentUser?.email || 'Account';
         }
     }
+
+    // Subtitle
+    const subtitleEl = document.getElementById('account-subtitle');
     if (subtitleEl) {
         subtitleEl.textContent = isGuest ? 'Data saved locally only' : 'Synced across devices';
     }
-    const signOutBtn = document.getElementById('account-signout-btn');
-    if (signOutBtn) {
-        signOutBtn.textContent = isGuest ? 'Sign In' : 'Sign Out';
-        signOutBtn.onclick = isGuest ? showLoginScreen : signOut;
+
+    // Sign out label
+    const labelEl = document.getElementById('account-signout-label');
+    if (labelEl) {
+        labelEl.textContent = isGuest ? 'Sign In' : 'Sign Out';
     }
+
+    // Avatar
     const avatarEl = document.getElementById('account-avatar');
     if (avatarEl) {
         const avatar = currentUser?.user_metadata?.avatar_url;
         if (avatar) {
             avatarEl.style.backgroundImage = `url(${avatar})`;
+            avatarEl.style.fontSize = '0';
             avatarEl.textContent = '';
         } else {
             avatarEl.style.backgroundImage = 'none';
-            avatarEl.textContent = isGuest ? '👤' : '👤';
+            avatarEl.style.fontSize = '1.3rem';
+            avatarEl.textContent = '👤';
         }
     }
 }

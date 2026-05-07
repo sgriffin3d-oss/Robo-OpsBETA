@@ -54,8 +54,6 @@ function nav(v) {
     if (v === 'rules' && typeof initRules === 'function') initRules();
     if (v === 'settings') {
         if (typeof updateAccountUI === 'function') updateAccountUI();
-        if (typeof renderSettingsUI === 'function') renderSettingsUI();
-        // Always start on Account tab when opening settings
         switchSettingsTab('account');
     }
     window.scrollTo(0, 0);
@@ -398,12 +396,22 @@ function renderSettingsUI() {
 
 
 function switchSettingsTab(tab) {
-    document.getElementById('settings-tab-account').style.display    = tab === 'account'    ? 'block' : 'none';
-    document.getElementById('settings-tab-appearance').style.display = tab === 'appearance' ? 'block' : 'none';
-    document.getElementById('stab-account').classList.toggle('active',    tab === 'account');
-    document.getElementById('stab-appearance').classList.toggle('active', tab === 'appearance');
-    // Render appearance grids when switching to that tab
+    const accountTab    = document.getElementById('settings-tab-account');
+    const appearanceTab = document.getElementById('settings-tab-appearance');
+    if (accountTab)    accountTab.style.display    = tab === 'account'    ? 'block' : 'none';
+    if (appearanceTab) appearanceTab.style.display = tab === 'appearance' ? 'block' : 'none';
     if (tab === 'appearance' && typeof renderSettingsUI === 'function') renderSettingsUI();
+    window.scrollTo(0, 0);
+}
+
+// Sign out card handler — works for both signed-in and guest
+function handleSignOutCard() {
+    if (typeof isGuest !== 'undefined' && isGuest) {
+        // Guest: go back to login so they can sign in
+        if (typeof showLoginScreen === 'function') showLoginScreen();
+    } else {
+        if (typeof signOut === 'function') signOut();
+    }
 }
 function toggleMenu() { document.getElementById('fabMenu').classList.toggle('show'); }
 function closeMenu() { document.getElementById('fabMenu').classList.remove('show'); }
