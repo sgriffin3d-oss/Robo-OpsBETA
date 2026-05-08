@@ -353,8 +353,8 @@ function renderSettingsUI() {
     const themes = [
         { id: 'theme-gold',    name: 'Gold',    tag: 'Dark only', accent: '#e8b23b', bg: '#060501' },
         { id: 'theme-arctic',  name: 'Arctic',  tag: 'Light only', accent: '#006edb', bg: '#eef4fb' },
-        { id: 'theme-red',     name: 'Red',     tag: 'Dark & Light', accent: '#ff2222', bg: '#060000' },
-        { id: 'theme-blue',    name: 'Blue',    tag: 'Dark & Light', accent: '#2882ff', bg: '#00050f' },
+        { id: 'theme-red',     name: 'Red',     tag: 'Dark & Light', accent: '#cc2200', bg: '#080808' },
+        { id: 'theme-blue',    name: 'Blue',    tag: 'Dark & Light', accent: '#1a6ccc', bg: '#080808' },
         { id: 'theme-stealth', name: 'Stealth', tag: 'Dark & Light', accent: '#e0e0e0', bg: '#000000' },
     ];
 

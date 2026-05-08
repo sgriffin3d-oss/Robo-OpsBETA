@@ -58,32 +58,30 @@ body {
 
 /* ── Red Alliance ── */
 .theme-red {
-    --bg:         #070000;
-    --card-bg:    #120000;
-    --input-bg:   #1a0000;
-    --border:     #2c0505;
-    --text:       #ffe8e8;
-    --sub-text:   #804040;
-    --primary:    #ff2020;
+    --bg:         #080808;
+    --card-bg:    #111111;
+    --input-bg:   #181818;
+    --border:     #242424;
+    --text:       #f0f0f0;
+    --sub-text:   #666666;
+    --primary:    #cc2200;
     --primary-fg: #ffffff;
-    --icon-color: #ff5555;
-    --neon-rgb:   255, 32, 32;
+    --icon-color: #cc2200;
+    --neon-rgb:   204, 34, 0;
 }
 
-/* ── Blue Alliance — deep ocean, NOT similar to arctic ──
-   Very dark navy, electric blue accent. Arctic is light+sky,
-   Blue is dark+ocean — maximally distinct from each other. */
+/* ── Blue Alliance — neutral dark base, clean blue accent ── */
 .theme-blue {
-    --bg:         #010810;
-    --card-bg:    #030f1e;
-    --input-bg:   #05162b;
-    --border:     #082038;
-    --text:       #c8e8ff;
-    --sub-text:   #2a5070;
-    --primary:    #00a8ff;
-    --primary-fg: #000000;
-    --icon-color: #00a8ff;
-    --neon-rgb:   0, 168, 255;
+    --bg:         #080808;
+    --card-bg:    #111111;
+    --input-bg:   #181818;
+    --border:     #242424;
+    --text:       #f0f0f0;
+    --sub-text:   #666666;
+    --primary:    #1a6ccc;
+    --primary-fg: #ffffff;
+    --icon-color: #1a6ccc;
+    --neon-rgb:   26, 108, 204;
 }
 
 /* ── Stealth — pure black, white accents ── */
@@ -119,25 +117,13 @@ body {
 
 /* Per-theme light accent tweaks */
 .theme-red.mode-light {
-    --primary:   #c50000;
-    --neon-rgb:  197, 0, 0;
-    --bg:        #fff4f4;
-    --card-bg:   #ffffff;
-    --input-bg:  #ffe8e8;
-    --border:    #f5bbbb;
-    --text:      #1a0000;
-    --sub-text:  #904040;
+    --primary:   #b51a00;
+    --neon-rgb:  181, 26, 0;
 }
 .theme-blue.mode-light {
-    --primary:   #0060cc;
+    --primary:   #1456aa;
     --primary-fg: #ffffff;
-    --neon-rgb:  0, 96, 204;
-    --bg:        #f0f6ff;
-    --card-bg:   #ffffff;
-    --input-bg:  #e2eeff;
-    --border:    #aaccee;
-    --text:      #000f20;
-    --sub-text:  #3a5a7a;
+    --neon-rgb:  20, 86, 170;
 }
 .theme-stealth.mode-light {
     --primary:   #181818;
@@ -273,10 +259,10 @@ body.style-minimal { line-height: 1.55; }
 
 body.style-glass                              { background: radial-gradient(ellipse at 20% 10%, #101820 0%, #000000 70%) fixed !important; }
 body.style-glass.mode-light                   { background: radial-gradient(ellipse at 20% 10%, #cce4f8 0%, #eef6ff 70%) fixed !important; }
-body.style-glass.theme-red                    { background: radial-gradient(ellipse at 20% 10%, #1a0008 0%, #000000 70%) fixed !important; }
-body.style-glass.theme-red.mode-light         { background: radial-gradient(ellipse at 20% 10%, #ffcccc 0%, #fff5f5 70%) fixed !important; }
-body.style-glass.theme-blue                   { background: radial-gradient(ellipse at 20% 10%, #001828 0%, #000000 70%) fixed !important; }
-body.style-glass.theme-blue.mode-light        { background: radial-gradient(ellipse at 20% 10%, #aad0f8 0%, #eef5ff 70%) fixed !important; }
+body.style-glass.theme-red                    { background: radial-gradient(ellipse at 20% 10%, #1a1a1a 0%, #000000 70%) fixed !important; }
+body.style-glass.theme-red.mode-light         { background: radial-gradient(ellipse at 20% 10%, #f0f0f0 0%, #ffffff 70%) fixed !important; }
+body.style-glass.theme-blue                   { background: radial-gradient(ellipse at 20% 10%, #1a1a1a 0%, #000000 70%) fixed !important; }
+body.style-glass.theme-blue.mode-light        { background: radial-gradient(ellipse at 20% 10%, #f0f0f0 0%, #ffffff 70%) fixed !important; }
 body.style-glass.theme-stealth                { background: radial-gradient(ellipse at 20% 10%, #141414 0%, #000000 70%) fixed !important; }
 body.style-glass.theme-stealth.mode-light     { background: radial-gradient(ellipse at 20% 10%, #dddddd 0%, #f6f6f6 70%) fixed !important; }
 body.style-glass.theme-arctic                 { background: radial-gradient(ellipse at 20% 10%, #a8d4f5 0%, #ddf0ff 70%) fixed !important; }

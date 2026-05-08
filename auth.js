@@ -64,9 +64,11 @@ async function initAuth() {
             await syncFromCloud();
             drawNotes();
             nav('hub');
-        } else if (event === 'SIGNED_OUT' && !_signingOut) {
-            // Only handle if not triggered by our own signOut() call
+        } else if (event === 'SIGNED_OUT') {
+            // Ignore if we triggered this ourselves via signOut()
+            if (_signingOut) return;
             currentUser = null;
+            isGuest = false;
             showLoginScreen();
         }
     });
@@ -132,13 +134,16 @@ function toggleAuthMode() {
 }
 
 function continueAsGuest(save = true) {
-    isGuest = true;
+    // Clear any stale signed-in state
     currentUser = null;
+    isGuest = true;
+
     if (save) localStorage.setItem('paragon_guest_mode', 'true');
     loadLocalData();
     updateAccountUI();
     drawNotes();
-    // Explicitly hide login and show hub
+
+    // Hide login, show hub
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const hub = document.getElementById('view-hub');
     if (hub) hub.classList.add('active');
@@ -149,14 +154,23 @@ let _signingOut = false;
 async function signOut() {
     if (_signingOut) return;
     _signingOut = true;
-    if (_supabase && !isGuest) await _supabase.auth.signOut();
-    isGuest = false;
-    currentUser = null;
+
+    // Clear all app state first
     db = [];
     sketches = [];
+    currentUser = null;
+    isGuest = false;
     localStorage.removeItem('paragon_guest_mode');
+
+    // Sign out from Supabase if we have a session
+    if (_supabase) {
+        try { await _supabase.auth.signOut(); } catch (e) { /* ignore */ }
+    }
+
     showLoginScreen();
-    setTimeout(() => { _signingOut = false; }, 1000);
+
+    // Allow signing out again after a short delay
+    setTimeout(() => { _signingOut = false; }, 800);
 }
 
 function showAuthError(msg) {
