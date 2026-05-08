@@ -8,18 +8,25 @@ let detailOrigin = 'home';
 let canvas, ctx, drawing = false, penColor = 'white';
 
 window.onload = function() {
-    // Boot app normally first — no black screen ever
     loadSettings();
     drawNotes();
     initCanvas();
-    nav('hub');
-    // Then check auth in background — redirects to login if not signed in
-    if (typeof initAuth === 'function') initAuth();
-    // Show install/welcome prompt after a short delay (gives auth time to redirect if needed)
-    setTimeout(() => {
-        if (typeof maybeShowInstall === 'function') maybeShowInstall();
-    }, 1200);
+
+    // Show welcome screen first if needed.
+    // It will call _launchAuth() itself when the user dismisses it.
+    // If welcome is not needed, _launchAuth() runs immediately.
+    if (typeof maybeShowInstall === 'function') {
+        maybeShowInstall(_launchAuth);
+    } else {
+        _launchAuth();
+    }
 };
+
+// Separated so welcome screen can call this after it closes
+function _launchAuth() {
+    nav('hub');
+    if (typeof initAuth === 'function') initAuth();
+}
 
 function initCanvas() {
     canvas = document.getElementById('sketch-canvas');
