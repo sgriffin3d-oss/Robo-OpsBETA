@@ -1,8 +1,7 @@
 {
   "name": "Paragon Core X",
   "short_name": "Paragon",
-  "description": "VEX tournament strategic command center",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#050505",

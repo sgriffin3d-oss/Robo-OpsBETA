@@ -70,45 +70,102 @@ function renderRulesList(query = '', category = 'All') {
 
     const q = query.trim().toLowerCase();
 
-    let filtered = RULES_DATA.filter(r => {
-        const catMatch = category === 'All' || r.category === category;
-        const textMatch = !q
-            || r.id.toLowerCase().includes(q)
-            || r.brief.toLowerCase().includes(q)
-            || r.full_text.toLowerCase().includes(q);
-        return catMatch && textMatch;
-    });
-
-    if (!filtered.length) {
-        list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--sub-text);font-size:0.85rem;">No rules found${q ? ` for "${query}"` : ''}.</div>`;
+    // No query — show all rules grouped by category as normal
+    if (!q) {
+        const pool = category === 'All'
+            ? RULES_DATA
+            : RULES_DATA.filter(r => r.category === category);
+        renderGrouped(list, pool, '');
         return;
     }
 
-    // Group by category
+    // Apply category filter to the pool we search within
+    const pool = category === 'All'
+        ? RULES_DATA
+        : RULES_DATA.filter(r => r.category === category);
+
+    // ── PRIORITY 1: Exact ID match (user typed "SG1" exactly) ──
+    const exactId = pool.filter(r => r.id.toLowerCase() === q);
+
+    // ── PRIORITY 2: ID starts with query (user typed "sg" or "sg1") ──
+    // but exclude exact matches already captured above
+    const startsId = pool.filter(r =>
+        r.id.toLowerCase().startsWith(q) &&
+        r.id.toLowerCase() !== q
+    );
+
+    // ── PRIORITY 3: ID contains query anywhere
+    // e.g. user typed "g7" — returns SG7, GG7 etc. but NOT exact or startsWith already shown
+    const containsId = pool.filter(r =>
+        r.id.toLowerCase().includes(q) &&
+        !r.id.toLowerCase().startsWith(q)
+    );
+
+    // ── PRIORITY 4: Text match (brief or full_text) but NOT an ID match
+    const idMatchIds = new Set([...exactId, ...startsId, ...containsId].map(r => r.id));
+    const textOnly = pool.filter(r =>
+        !idMatchIds.has(r.id) && (
+            r.brief.toLowerCase().includes(q) ||
+            r.full_text.toLowerCase().includes(q)
+        )
+    );
+
+    // Build the ordered result
+    const idMatches   = [...exactId, ...startsId, ...containsId];
+    const allResults  = [...idMatches, ...textOnly];
+
+    if (!allResults.length) {
+        list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--sub-text);font-size:0.85rem;">No rules found for "${query}".</div>`;
+        return;
+    }
+
+    let html = '';
+
+    // Show ID matches first under their own header (if any)
+    if (idMatches.length) {
+        html += `<div class="rules-section-header">Rule ID Matches</div>`;
+        idMatches.forEach(r => {
+            html += ruleCardHTML(r, q);
+        });
+    }
+
+    // Show text matches second under their own header (if any)
+    if (textOnly.length) {
+        html += `<div class="rules-section-header">${idMatches.length ? 'Also in Rule Text' : 'Rule Text Matches'}</div>`;
+        textOnly.forEach(r => {
+            html += ruleCardHTML(r, q);
+        });
+    }
+
+    list.innerHTML = html;
+}
+
+function ruleCardHTML(r, q) {
+    const highlightedBrief = q ? highlightMatch(r.brief, q) : r.brief;
+    const highlightedId    = q ? highlightMatch(r.id, q)    : r.id;
+    return `
+        <div class="rule-card" onclick="openRule('${r.id}')">
+            <span class="rule-id">${highlightedId}</span>
+            <span class="rule-brief">${highlightedBrief}</span>
+            <span class="rule-arrow">›</span>
+        </div>`;
+}
+
+function renderGrouped(list, pool, q) {
+    if (!pool.length) {
+        list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--sub-text);font-size:0.85rem;">No rules found.</div>`;
+        return;
+    }
     const groups = {};
-    filtered.forEach(r => {
+    pool.forEach(r => {
         if (!groups[r.category]) groups[r.category] = [];
         groups[r.category].push(r);
     });
-
     let html = '';
-    const orderedCats = category === 'All'
-        ? CATEGORY_ORDER.filter(c => groups[c])
-        : [category].filter(c => groups[c]);
-
-    orderedCats.forEach(cat => {
-        html += `<div class="rules-section-header">${CATEGORY_ICONS[cat] || ''} ${cat}</div>`;
-        groups[cat].forEach(r => {
-            const highlightedBrief = q ? highlightMatch(r.brief, q) : r.brief;
-            html += `
-                <div class="rule-card" onclick="openRule('${r.id}')">
-                    <span class="rule-id">${r.id}</span>
-                    <span class="rule-brief">${highlightedBrief}</span>
-                    <span class="rule-arrow">›</span>
-                </div>`;
-        });
+    CATEGORY_ORDER.filter(c => groups[c]).forEach(cat => {
+        html += `<div class="rules-section-header">${cat}</div>`;
+        groups[cat].forEach(r => { html += ruleCardHTML(r, q); });
     });
-
     list.innerHTML = html;
 }
 
