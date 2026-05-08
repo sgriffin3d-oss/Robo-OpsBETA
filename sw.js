@@ -1,15 +1,20 @@
-const CACHE_NAME = 'paragon-v5';
+const CACHE_NAME = 'paragon-v6';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './events.css',
-  './onboarding.css',
+  './rules.css',
+  './install.css',
   './app.js',
   './events.js',
-  './onboarding.js',
+  './install.js',
   './calc.js',
   './view.js',
+  './details.js',
+  './auth.js',
+  './rules.js',
+  './rules_ui.js',
   './manifest.json',
   './images/field.png',
   './images/skills.png',

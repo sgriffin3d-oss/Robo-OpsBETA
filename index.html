@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Paragon Core X</title>
-    <link rel="icon" type="image/png" href="images/icon.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="images/icon-512.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="images/icon.png">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#050505" id="meta-theme-color">
+    <link rel="apple-touch-icon" href="images/icon-512.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="events.css">
     <link rel="stylesheet" href="rules.css">
+    <link rel="stylesheet" href="install.css">
     <style>
         /* --- MAP FRAME & ZOOM --- */
         .map-frame { 
@@ -363,6 +367,7 @@
     <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
 </div>
 
+<script src="install.js"></script>
 <script src="events.js"></script>
 <script src="app.js"></script>
 <script src="calc.js"></script>
