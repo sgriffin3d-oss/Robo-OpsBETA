@@ -28,7 +28,9 @@ function maybeShowInstall() {
     const alreadyDone = localStorage.getItem(INSTALL_KEY);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                       || window.navigator.standalone === true;
-    if (alreadyDone || isStandalone) return;
+    // Don't show over the login screen
+    const loginVisible = document.getElementById('view-login')?.classList.contains('active');
+    if (alreadyDone || isStandalone || loginVisible) return;
     _buildAndShowOverlay();
 }
 

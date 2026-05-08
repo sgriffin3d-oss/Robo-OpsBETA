@@ -15,6 +15,10 @@ window.onload = function() {
     nav('hub');
     // Then check auth in background — redirects to login if not signed in
     if (typeof initAuth === 'function') initAuth();
+    // Show install/welcome prompt after a short delay (gives auth time to redirect if needed)
+    setTimeout(() => {
+        if (typeof maybeShowInstall === 'function') maybeShowInstall();
+    }, 1200);
 };
 
 function initCanvas() {

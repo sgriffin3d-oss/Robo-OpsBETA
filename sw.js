@@ -14,6 +14,8 @@ const ASSETS = [
   './view.js',
   './rules.js',
   './rules_ui.js',
+  './install.css',
+  './install.js',
   './manifest.json',
   './images/field.png',
   './images/skills.png',
