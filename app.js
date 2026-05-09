@@ -27,6 +27,8 @@ function _launchAuth() {
     if (typeof _authReady !== 'undefined') _authReady = true;
     nav('hub');
     if (typeof initAuth === 'function') initAuth();
+    // Sync install card in settings with actual install state
+    if (typeof updateInstallCardVisibility === 'function') updateInstallCardVisibility();
 }
 
 function initCanvas() {

@@ -1,67 +1,78 @@
 /* ============================================================
    PARAGON CORE X — WELCOME + INSTALL
-   
+
    Flow:
-     First visit (not installed, not signed in):
-       WELCOME SCREEN → LOGIN → APP
-     
-     Returning visit, not installed, not signed in:
-       WELCOME SCREEN → LOGIN → APP
-     
-     Returning visit, signed in OR installed as PWA:
-       Skip welcome → straight to auth/app
-   
+     Not installed as PWA:
+       → WELCOME SCREEN shown every open for guests.
+       → For real signed-in accounts: shown until they click
+         "Get Started" (sets WELCOME_SEEN_KEY) or install.
+
+     Already installed (standalone mode or INSTALL_KEY set):
+       → Skip welcome → straight to auth/app
+
+   Settings panel:
+     → Install card shown whenever not installed as PWA
+     → Hides itself after successful install
+
    Call resetInstall() in console to re-test.
    ============================================================ */
 
-const INSTALL_KEY = 'paragon_installed_v1';
+const INSTALL_KEY      = 'paragon_installed_v1';
+const WELCOME_SEEN_KEY = 'paragon_welcome_seen_v1';
 
 let _installDeferredPrompt = null;
 let _installOverlayEl      = null;
-let _onWelcomeDone         = null;   // callback to run when welcome closes
+let _onWelcomeDone         = null;
 
 // Capture install prompt as early as possible
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     _installDeferredPrompt = e;
     _refreshInstallBtn();
+    updateInstallCardVisibility();
 });
 
 window.addEventListener('appinstalled', () => {
     localStorage.setItem(INSTALL_KEY, '1');
     _closeInstallOverlay(true);
+    updateInstallCardVisibility();
 });
 
 // ── Entry point ───────────────────────────────────────────────
-// Called from window.onload. onDone is the callback to run
-// after the welcome screen closes (or immediately if skipped).
 function maybeShowInstall(onDone) {
     _onWelcomeDone = onDone || null;
 
     const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                       || window.navigator.standalone === true;
-    const isSignedIn   = !!localStorage.getItem('sb-bccymltkymuokpjbrzfb-auth-token');
-    const isGuest      = localStorage.getItem('paragon_guest_mode') === 'true';
 
-    // Already installed as PWA → never show, just launch
     if (isInstalled || isStandalone) {
         _onWelcomeDone && _onWelcomeDone();
         return;
     }
 
-    // Signed-in (real account) → skip welcome, just launch
-    if (isSignedIn && !isGuest) {
+    const isGuest     = localStorage.getItem('paragon_guest_mode') === 'true';
+    const welcomeSeen = localStorage.getItem(WELCOME_SEEN_KEY) === '1';
+    const isSignedIn  = !!localStorage.getItem('sb-bccymltkymuokpjbrzfb-auth-token');
+
+    // Guest → always show welcome (no persistent seen flag)
+    if (isGuest) {
+        _buildAndShowOverlay(false);
+        return;
+    }
+
+    // Real account that has already dismissed → skip
+    if (isSignedIn && welcomeSeen) {
         _onWelcomeDone && _onWelcomeDone();
         return;
     }
 
-    // Guest or brand-new user → show the install/welcome prompt
-    _buildAndShowOverlay();
+    // First visit or new account
+    _buildAndShowOverlay(true);
 }
 
 // ── Build the welcome overlay ─────────────────────────────────
-function _buildAndShowOverlay() {
+function _buildAndShowOverlay(persistSeen) {
     if (document.getElementById('install-overlay')) return;
 
     const el = document.createElement('div');
@@ -74,9 +85,9 @@ function _buildAndShowOverlay() {
             </div>
 
             <h1 class="inst-h1">Welcome to<br><span class="inst-accent">Paragon&nbsp;Core&nbsp;X</span></h1>
-            <p class="inst-sub">Your VEX tournament command center.<br>Install it for the best experience.</p>
+            <p class="inst-sub">Your VEX tournament command center.<br>Install for the best offline experience.</p>
 
-            <!-- Native install button (Chrome/Edge when prompt is available) -->
+            <!-- Native install button (Chrome/Edge when prompt available) -->
             <button class="inst-btn inst-btn-primary" id="inst-native-btn" onclick="_triggerNativeInstall()" style="display:none;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><polyline points="8 12 12 16 16 12"/><path d="M3 21h18"/></svg>
                 Install App
@@ -114,8 +125,8 @@ function _buildAndShowOverlay() {
                 </div>
             </div>
 
-            <!-- Get Started — always visible, proceeds to login -->
-            <button class="inst-btn inst-btn-secondary" onclick="_proceedToApp()">
+            <!-- Get Started — always visible -->
+            <button class="inst-btn inst-btn-secondary" id="inst-getstarted-btn" onclick="_proceedToApp()">
                 Get Started
             </button>
 
@@ -125,6 +136,7 @@ function _buildAndShowOverlay() {
 
     document.body.appendChild(el);
     _installOverlayEl = el;
+    _installOverlayEl._persistSeen = persistSeen;
 
     requestAnimationFrame(() => {
         requestAnimationFrame(() => el.classList.add('inst-visible'));
@@ -137,23 +149,27 @@ function _buildAndShowOverlay() {
 function _refreshInstallBtn() {
     if (!_installOverlayEl) return;
 
-    const nativeBtn    = document.getElementById('inst-native-btn');
-    const iosSteps     = document.getElementById('inst-ios-steps');
-    const desktopSteps = document.getElementById('inst-desktop-steps');
-    const isIOS        = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const nativeBtn     = document.getElementById('inst-native-btn');
+    const iosSteps      = document.getElementById('inst-ios-steps');
+    const desktopSteps  = document.getElementById('inst-desktop-steps');
+    const getStartedBtn = document.getElementById('inst-getstarted-btn');
+    const isIOS         = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
     if (_installDeferredPrompt) {
-        if (nativeBtn)    nativeBtn.style.display    = '';
-        if (iosSteps)     iosSteps.style.display     = 'none';
-        if (desktopSteps) desktopSteps.style.display = 'none';
+        if (nativeBtn)     nativeBtn.style.display    = '';
+        if (iosSteps)      iosSteps.style.display     = 'none';
+        if (desktopSteps)  desktopSteps.style.display = 'none';
+        if (getStartedBtn) getStartedBtn.classList.add('inst-btn-secondary-small');
     } else if (isIOS) {
-        if (nativeBtn)    nativeBtn.style.display    = 'none';
-        if (iosSteps)     iosSteps.style.display     = '';
-        if (desktopSteps) desktopSteps.style.display = 'none';
+        if (nativeBtn)     nativeBtn.style.display    = 'none';
+        if (iosSteps)      iosSteps.style.display     = '';
+        if (desktopSteps)  desktopSteps.style.display = 'none';
+        if (getStartedBtn) getStartedBtn.classList.remove('inst-btn-secondary-small');
     } else {
-        if (nativeBtn)    nativeBtn.style.display    = 'none';
-        if (iosSteps)     iosSteps.style.display     = 'none';
-        if (desktopSteps) desktopSteps.style.display = '';
+        if (nativeBtn)     nativeBtn.style.display    = 'none';
+        if (iosSteps)      iosSteps.style.display     = 'none';
+        if (desktopSteps)  desktopSteps.style.display = '';
+        if (getStartedBtn) getStartedBtn.classList.remove('inst-btn-secondary-small');
     }
 }
 
@@ -168,7 +184,6 @@ async function _triggerNativeInstall() {
             localStorage.setItem(INSTALL_KEY, '1');
             _closeInstallOverlay(true);
         } else {
-            // User declined install but we still proceed to the app
             _proceedToApp();
         }
     } catch(e) {
@@ -176,24 +191,47 @@ async function _triggerNativeInstall() {
     }
 }
 
-// ── Proceed to app (close welcome, launch auth) ───────────────
-// Skipping does NOT mark as installed — so guests see it again next time
+// ── Proceed to app ────────────────────────────────────────────
 function _proceedToApp() {
+    if (_installOverlayEl && _installOverlayEl._persistSeen) {
+        localStorage.setItem(WELCOME_SEEN_KEY, '1');
+    }
     _closeInstallOverlay(false);
 }
 
-// ── Show install prompt from Settings (on-demand) ─────────────
+// ── Show install prompt from Settings ─────────────────────────
 function showInstallPrompt() {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                       || window.navigator.standalone === true;
-    if (isStandalone) return; // already installed, button shouldn't be visible but guard anyway
-    _onWelcomeDone = null;    // no callback needed when triggered from settings
-    _buildAndShowOverlay();
+    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
+    if (isInstalled || isStandalone) return;
+
+    _onWelcomeDone = null;
+    const existing = document.getElementById('install-overlay');
+    if (existing) existing.remove();
+    _installOverlayEl = null;
+
+    _buildAndShowOverlay(false);
 }
 
-// ── Close overlay then fire the onDone callback ───────────────
+// ── Update settings install card visibility ───────────────────
+function updateInstallCardVisibility() {
+    const card = document.getElementById('settings-install-card');
+    if (!card) return;
+
+    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                      || window.navigator.standalone === true;
+
+    card.style.display = (isInstalled || isStandalone) ? 'none' : '';
+}
+
+// ── Close overlay ─────────────────────────────────────────────
 function _closeInstallOverlay(markInstalled) {
-    if (markInstalled) localStorage.setItem(INSTALL_KEY, '1');
+    if (markInstalled) {
+        localStorage.setItem(INSTALL_KEY, '1');
+        updateInstallCardVisibility();
+    }
 
     const el = _installOverlayEl || document.getElementById('install-overlay');
     if (el) {
@@ -214,5 +252,6 @@ function _closeInstallOverlay(markInstalled) {
 // ── Dev helper ────────────────────────────────────────────────
 function resetInstall() {
     localStorage.removeItem(INSTALL_KEY);
+    localStorage.removeItem(WELCOME_SEEN_KEY);
     location.reload();
 }
