@@ -1,15 +1,9 @@
-/**
- * rules_ui.js - Paragon Core X
- * Game Manual Rules Browser + AI Rules Assistant
- * Uses RULES_DATA from rules.js
- */
-
 let rulesActiveCategory = 'All';
 let rulesSearchTimer = null;
 let aiConversation = [];
 
 const CATEGORY_ORDER = ['Scoring','Specific Game','Safety','General','General Game','Robot Skills','Robot','Tournament'];
-const CATEGORY_ICONS = {}; // No icons — text-only category pills
+const CATEGORY_ICONS = {}; 
 
 let aiPanelOpen = false;
 
@@ -18,7 +12,7 @@ function initRules() {
     renderRulesList('', 'All');
     aiConversation = [];
     renderAIMessages();
-    // Start collapsed
+    
     const body = document.getElementById('ai-panel-body');
     if (body) body.style.display = 'none';
 }
@@ -38,8 +32,6 @@ function toggleAIPanel() {
     }
 }
 
-// ── CATEGORY BAR ─────────────────────────────────────────────────────────────
-
 function renderCategoryBar() {
     const bar = document.getElementById('rules-cat-bar');
     if (!bar) return;
@@ -57,8 +49,6 @@ function setRulesCategory(cat) {
     renderRulesList(query, cat);
 }
 
-// ── RULES LIST ────────────────────────────────────────────────────────────────
-
 function onRulesSearch(value) {
     clearTimeout(rulesSearchTimer);
     rulesSearchTimer = setTimeout(() => renderRulesList(value, rulesActiveCategory), 200);
@@ -70,7 +60,7 @@ function renderRulesList(query = '', category = 'All') {
 
     const q = query.trim().toLowerCase();
 
-    // No query — show all rules grouped by category as normal
+    
     if (!q) {
         const pool = category === 'All'
             ? RULES_DATA
@@ -79,29 +69,29 @@ function renderRulesList(query = '', category = 'All') {
         return;
     }
 
-    // Apply category filter to the pool we search within
+    
     const pool = category === 'All'
         ? RULES_DATA
         : RULES_DATA.filter(r => r.category === category);
 
-    // ── PRIORITY 1: Exact ID match (user typed "SG1" exactly) ──
+    
     const exactId = pool.filter(r => r.id.toLowerCase() === q);
 
-    // ── PRIORITY 2: ID starts with query (user typed "sg" or "sg1") ──
-    // but exclude exact matches already captured above
+    
+    
     const startsId = pool.filter(r =>
         r.id.toLowerCase().startsWith(q) &&
         r.id.toLowerCase() !== q
     );
 
-    // ── PRIORITY 3: ID contains query anywhere
-    // e.g. user typed "g7" — returns SG7, GG7 etc. but NOT exact or startsWith already shown
+    
+    
     const containsId = pool.filter(r =>
         r.id.toLowerCase().includes(q) &&
         !r.id.toLowerCase().startsWith(q)
     );
 
-    // ── PRIORITY 4: Text match (brief or full_text) but NOT an ID match
+    
     const idMatchIds = new Set([...exactId, ...startsId, ...containsId].map(r => r.id));
     const textOnly = pool.filter(r =>
         !idMatchIds.has(r.id) && (
@@ -110,7 +100,7 @@ function renderRulesList(query = '', category = 'All') {
         )
     );
 
-    // Build the ordered result
+    
     const idMatches   = [...exactId, ...startsId, ...containsId];
     const allResults  = [...idMatches, ...textOnly];
 
@@ -121,7 +111,7 @@ function renderRulesList(query = '', category = 'All') {
 
     let html = '';
 
-    // Show ID matches first under their own header (if any)
+    
     if (idMatches.length) {
         html += `<div class="rules-section-header">Rule ID Matches</div>`;
         idMatches.forEach(r => {
@@ -129,7 +119,7 @@ function renderRulesList(query = '', category = 'All') {
         });
     }
 
-    // Show text matches second under their own header (if any)
+    
     if (textOnly.length) {
         html += `<div class="rules-section-header">${idMatches.length ? 'Also in Rule Text' : 'Rule Text Matches'}</div>`;
         textOnly.forEach(r => {
@@ -174,8 +164,6 @@ function highlightMatch(text, query) {
     return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
 }
 
-// ── RULE DETAIL ───────────────────────────────────────────────────────────────
-
 function openRule(ruleId) {
     const rule = RULES_DATA.find(r => r.id === ruleId);
     if (!rule) return;
@@ -187,12 +175,12 @@ function openRule(ruleId) {
 
     title.innerHTML = `<span class="rule-id" style="font-size:1rem;">${rule.id}</span> ${rule.brief}`;
 
-    // Format full text: split on lettered sub-points (a., b., 1., 2.)
+    
     let text = rule.full_text;
-    // Break before a. b. c. or 1. 2. 3. sub-points
+    
     text = text.replace(/ ([a-z]\.) /g, '<br><br><b>$1</b> ');
     text = text.replace(/ (\d+\.) /g, '<br><br><b>$1</b> ');
-    // Highlight rule references like <SG1>
+    
     text = text.replace(/&lt;([A-Z]+\d+)&gt;/g, '<span class="rule-ref">$1</span>');
     text = text.replace(/<([A-Z]+\d+)>/g, '<span class="rule-ref">$1</span>');
 
@@ -204,8 +192,6 @@ function openRule(ruleId) {
 function closeRule() {
     document.getElementById('rule-overlay')?.classList.remove('active');
 }
-
-// ── AI RULES ASSISTANT ────────────────────────────────────────────────────────
 
 function renderAIMessages() {
     const container = document.getElementById('ai-messages');
@@ -226,11 +212,10 @@ function renderAIMessages() {
             <div class="ai-msg-bubble">${msg.content.replace(/\n/g, '<br>').replace(/<([A-Z]+\d+)>/g, '<span class="rule-ref">$1</span>')}</div>
         </div>`).join('');
 
-    // Scroll to bottom
+    
     container.scrollTop = container.scrollHeight;
 }
 
-// Superuser code — grants unrestricted AI mode
 const SUPERUSER_CODE = 'superuser2775ua00p9r5=';
 let superuserActive = false;
 
@@ -242,13 +227,13 @@ async function sendAIQuestion() {
     const raw = input.value.trim();
     if (!raw) return;
 
-    // Check if message starts with superuser code
+    
     let question = raw;
     if (raw.toLowerCase().startsWith(SUPERUSER_CODE)) {
         superuserActive = true;
         question = raw.slice(SUPERUSER_CODE.length).trim();
         if (!question) {
-            // Just the code with no prompt yet — show confirmation
+            
             aiConversation.push({ role: 'user', content: raw });
             aiConversation.push({ role: 'assistant', content: '🔓 Superuser mode activated. I am no longer limited to game rules — ask me anything.' });
             input.value = '';
@@ -263,11 +248,11 @@ async function sendAIQuestion() {
     btn.disabled = true;
     btn.textContent = '...';
 
-    // Add user message
+    
     aiConversation.push({ role: 'user', content: question });
     renderAIMessages();
 
-    // Build system prompt — unrestricted if superuser active
+    
     const rulesContext = RULES_DATA.map(r =>
         `<${r.id}> [${r.category}] ${r.brief}: ${r.full_text}`
     ).join('\n\n');
@@ -284,7 +269,7 @@ Here are all the game rules:
 
 ${rulesContext}`;
 
-    // Build messages array with conversation history
+    
     const messages = aiConversation.map(m => ({ role: m.role, content: m.content }));
 
     try {
@@ -301,7 +286,7 @@ ${rulesContext}`;
         });
 
         const data = await response.json();
-        // If Anthropic returned an error object, surface it
+        
         if (data.error) {
             throw new Error(data.error.message || JSON.stringify(data.error));
         }
@@ -325,7 +310,6 @@ function clearAIChat() {
     renderAIMessages();
 }
 
-// Allow Enter key to send
 function onAIKeydown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();

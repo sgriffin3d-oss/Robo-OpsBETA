@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paragon-v6';
+const CACHE_NAME = 'robo-ops-v1';
 const ASSETS = [
   './',
   './index.html',
@@ -24,7 +24,6 @@ const ASSETS = [
   './images/icon-512.png'
 ];
 
-// Install: cache assets one by one so a single missing file doesn't kill everything
 self.addEventListener('install', (e) => {
   self.skipWaiting();
   e.waitUntil(
@@ -38,7 +37,6 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// Activate: clean up old caches
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
@@ -48,27 +46,26 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Fetch: network-only for APIs, cache-first for everything else
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // Network-only: RobotEvents API (live match data)
+  
   if (url.hostname.includes('robotevents.com') || url.hostname.includes('supabase.co')) {
     e.respondWith(fetch(e.request));
     return;
   }
 
-  // Cache-first: app shell and assets
+  
   e.respondWith(
     caches.match(e.request).then((cached) => {
       return cached || fetch(e.request).then((response) => {
-        // Opportunistically cache new successful responses
+        
         if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
         }
         return response;
       });
-    }).catch(() => caches.match('./index.html')) // Fallback to app shell if offline
+    }).catch(() => caches.match('./index.html')) 
   );
 });

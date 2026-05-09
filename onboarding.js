@@ -1,11 +1,5 @@
-/* ============================================================
-   PARAGON CORE X — ONBOARDING
-   Shows on first visit: theme picker → install prompt
-   ============================================================ */
-
 const ONBOARDING_KEY = 'paragon_onboarded_v1';
 
-// Themes & styles pulled from app.js definitions
 const OB_THEMES = [
     { id: 'theme-gold',    name: 'Gold',    tag: 'Dark',        accent: '#e8b23b', bg: '#060501',  mode: 'mode-dark'  },
     { id: 'theme-arctic',  name: 'Arctic',  tag: 'Light',       accent: '#006edb', bg: '#eef4fb',  mode: 'mode-light' },
@@ -26,18 +20,16 @@ const OB_STYLES = [
 let _obTheme = 'theme-gold';
 let _obStyle = 'style-classic';
 let _obMode  = 'mode-dark';
-let _deferredInstallPrompt = null; // stores the beforeinstallprompt event
+let _deferredInstallPrompt = null; 
 
-// ── Capture the install prompt as early as possible ─────────────────
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     _deferredInstallPrompt = e;
 });
 
-// ── Entry point called from app.js window.onload ─────────────────────
 function maybeShowOnboarding() {
     const done = localStorage.getItem(ONBOARDING_KEY);
-    if (done) return false; // already onboarded
+    if (done) return false; 
     _showOnboarding();
     return true;
 }
@@ -49,14 +41,13 @@ function _showOnboarding() {
     _renderStep1();
 }
 
-// ── STEP 1 — Choose theme & style ────────────────────────────────────
 function _renderStep1() {
     const body = document.getElementById('ob-body');
     body.innerHTML = `
         <div class="ob-logo">
-            <img src="images/icon.png" alt="Paragon Core X">
+            <img src="images/icon.png" alt="Robo Ops">
         </div>
-        <h1 class="ob-title">Welcome to<br><span>Paragon Core X</span></h1>
+        <h1 class="ob-title">Welcome to<br><span>Robo Ops</span></h1>
         <p class="ob-sub">Pick your look — you can change it anytime in Settings.</p>
 
         <div class="ob-section-label">Color Theme</div>
@@ -92,7 +83,7 @@ function _renderStep1() {
         </button>
     `;
 
-    // Live preview as user taps
+    
     _applyPreview();
 }
 
@@ -114,27 +105,26 @@ function obSelectStyle(id) {
 }
 
 function _applyPreview() {
-    // Live-preview theme on body behind the overlay
+    
     const modeClass = _obMode === 'mode-light' ? 'mode-light' : '';
     document.body.className = [_obTheme, _obStyle, modeClass].filter(Boolean).join(' ');
 }
 
 function obConfirmTheme() {
-    // Save the chosen settings using app.js helpers (they exist by this point)
+    
     if (typeof _saveSettings === 'function') {
         _saveSettings({ theme: _obTheme, style: _obStyle, mode: _obMode });
     }
     _renderStep2();
 }
 
-// ── STEP 2 — Install prompt ───────────────────────────────────────────
 function _renderStep2() {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                       || window.navigator.standalone === true;
 
     const body = document.getElementById('ob-body');
 
-    // Already installed — skip straight in
+    
     if (isStandalone) {
         _finishOnboarding();
         return;
@@ -147,7 +137,7 @@ function _renderStep2() {
     let installHtml = '';
 
     if (canNativePrompt) {
-        // Android / Desktop Chrome — we can trigger the native prompt
+        
         installHtml = `
             <button class="ob-install-btn" onclick="obTriggerNativeInstall()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><polyline points="8 11 12 15 16 11"/><path d="M20 21H4"/></svg>
@@ -155,7 +145,7 @@ function _renderStep2() {
             </button>
         `;
     } else if (isIOS) {
-        // iOS Safari — manual instructions
+        
         installHtml = `
             <div class="ob-install-manual">
                 <div class="ob-install-step">
@@ -175,7 +165,7 @@ function _renderStep2() {
             </div>
         `;
     } else {
-        // Desktop or unsupported — show generic instructions
+        
         installHtml = `
             <div class="ob-install-manual">
                 <div class="ob-install-step">
@@ -188,7 +178,7 @@ function _renderStep2() {
                 </div>
                 <div class="ob-install-step">
                     <span class="ob-step-num">3</span>
-                    Paragon Core X opens as its own app!
+                    Robo Ops opens as its own app!
                 </div>
             </div>
         `;
@@ -196,7 +186,7 @@ function _renderStep2() {
 
     body.innerHTML = `
         <div class="ob-install-icon">
-            <img src="images/icon.png" alt="Paragon Core X">
+            <img src="images/icon.png" alt="Robo Ops">
         </div>
         <h2 class="ob-title ob-title-sm">Install the App</h2>
         <p class="ob-sub">Get the full experience — works offline, opens instantly, no browser chrome.</p>
@@ -222,7 +212,7 @@ async function obTriggerNativeInstall() {
     _deferredInstallPrompt.prompt();
     const { outcome } = await _deferredInstallPrompt.userChoice;
     _deferredInstallPrompt = null;
-    // Whether they accepted or declined, move on
+    
     _finishOnboarding();
 }
 
@@ -235,7 +225,6 @@ function _finishOnboarding() {
     }
 }
 
-// ── Dev helper — call resetOnboarding() in browser console to re-test ──
 function resetOnboarding() {
     localStorage.removeItem(ONBOARDING_KEY);
     location.reload();

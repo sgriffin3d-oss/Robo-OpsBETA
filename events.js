@@ -1,30 +1,23 @@
-/**
- * events.js - Paragon Core X
- */
-
 let allEvents = [];
 let activeFilter = 'all';
 let searchTimer = null;
 let lastEventId = null;
 let lastEventName = null;
 
-// Called by nav('events') — i.e. back button from detail. Re-opens last event if there was one.
 function restoreLastEvent() {
     if (lastEventId !== null) {
         _openEventDetailView(lastEventId, lastEventName);
     } else {
-        // No event was open, just show the list (already rendered)
+        
         if (allEvents.length === 0) loadEvents();
     }
 }
 
-// Called by openEventsHub() in app.js — hub card tap. Always shows the list.
 function clearEventState() {
     lastEventId = null;
     lastEventName = null;
 }
 
-// Debounced search — waits 450ms after last keystroke
 function onEventSearch(value) {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => loadEvents(value), 450);
@@ -45,9 +38,9 @@ async function loadEvents(query = '') {
 
     try {
         const trimmed = query.trim();
-        // Always include a date window so RobotEvents returns results
-        // For searches: wide window (1 year back) to find any named event
-        // For default: 2 weeks back to show recent/upcoming events
+        
+        
+        
         const searchStart = trimmed
             ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T00:00:00Z'
             : dateString;
@@ -143,15 +136,13 @@ function getEventStatus(start, end) {
     return 'Upcoming';
 }
 
-// Tap an event from the list
 function openEventDetail(id, name) {
     lastEventId = id;
     lastEventName = name;
-    detailOrigin = 'events'; // tell app.js back button goes to events
+    detailOrigin = 'events'; 
     _openEventDetailView(id, name);
 }
 
-// Internal — actually renders the detail view (used by both openEventDetail and restoreLastEvent)
 function _openEventDetailView(id, name) {
     document.getElementById('detName').innerText = name;
     document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));

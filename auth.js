@@ -1,9 +1,3 @@
-/**
- * auth.js - Paragon Core X
- * Supabase auth + cloud sync
- * SAFE BOOT: app loads normally, auth check happens in background
- */
-
 const SUPABASE_URL = 'https://bccymltkymuokpjbrzfb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_W4DFizkRZQEHdh_xmXV4hQ_jVMMy0GX';
 
@@ -12,10 +6,8 @@ let currentUser = null;
 let isGuest = false;
 let authReady = false;
 
-// ── INIT (called from app.js window.onload) ───────────────────────────────────
-
 async function initAuth() {
-    // Guard: if Supabase CDN not loaded yet, skip auth (app works as guest)
+    
     if (!window.supabase) {
         console.warn('Supabase SDK not loaded — running as guest');
         isGuest = true;
@@ -26,27 +18,27 @@ async function initAuth() {
     const { createClient } = window.supabase;
     _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Check for existing session first
+    
     try {
         const { data: { session } } = await _supabase.auth.getSession();
 
         if (session?.user) {
-            // Already signed in — load cloud data silently, stay on hub
+            
             currentUser = session.user;
             isGuest = false;
             updateAccountUI();
             await syncFromCloud();
             drawNotes();
         } else if (localStorage.getItem('paragon_guest_mode') === 'true') {
-            // Returning guest — load local data, stay on hub
+            
             isGuest = true;
             loadLocalData();
         } else {
-            // First visit — show login screen
+            
             showLoginScreen();
         }
     } catch (err) {
-        // Network error or Supabase down — fall back to guest/local
+        
         console.error('Auth init error:', err);
         isGuest = true;
         loadLocalData();
@@ -54,7 +46,7 @@ async function initAuth() {
 
     authReady = true;
 
-    // Listen for future auth changes (e.g. after Google redirect)
+    
     _supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
             currentUser = session.user;
@@ -65,7 +57,7 @@ async function initAuth() {
             drawNotes();
             nav('hub');
         } else if (event === 'SIGNED_OUT') {
-            // Ignore if we triggered this ourselves via signOut()
+            
             if (_signingOut) return;
             currentUser = null;
             isGuest = false;
@@ -74,12 +66,10 @@ async function initAuth() {
     });
 }
 
-// ── LOGIN SCREEN ──────────────────────────────────────────────────────────────
-
-let _authReady = false;  // set true only after welcome screen is dismissed
+let _authReady = false;  
 
 function showLoginScreen() {
-    if (!_authReady) return;  // welcome screen hasn't closed yet — don't show login
+    if (!_authReady) return;  
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const loginView = document.getElementById('view-login');
     if (loginView) loginView.classList.add('active');
@@ -119,7 +109,7 @@ async function signInWithEmail() {
         showAuthError(error.message);
         if (btn) { btn.disabled = false; btn.textContent = isSignUp ? 'Create Account' : 'Sign In'; }
     }
-    // On success, onAuthStateChange handles the redirect
+    
 }
 
 function toggleAuthMode() {
@@ -137,7 +127,7 @@ function toggleAuthMode() {
 }
 
 function continueAsGuest(save = true) {
-    // Clear any stale signed-in state
+    
     currentUser = null;
     isGuest = true;
 
@@ -146,7 +136,7 @@ function continueAsGuest(save = true) {
     updateAccountUI();
     drawNotes();
 
-    // Hide login, show hub
+    
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const hub = document.getElementById('view-hub');
     if (hub) hub.classList.add('active');
@@ -158,21 +148,21 @@ async function signOut() {
     if (_signingOut) return;
     _signingOut = true;
 
-    // Clear all app state first
+    
     db = [];
     sketches = [];
     currentUser = null;
     isGuest = false;
     localStorage.removeItem('paragon_guest_mode');
 
-    // Sign out from Supabase if we have a session
+    
     if (_supabase) {
-        try { await _supabase.auth.signOut(); } catch (e) { /* ignore */ }
+        try { await _supabase.auth.signOut(); } catch (e) {  }
     }
 
     showLoginScreen();
 
-    // Allow signing out again after a short delay
+    
     setTimeout(() => { _signingOut = false; }, 800);
 }
 
@@ -186,7 +176,7 @@ function clearAuthError() {
 }
 
 function updateAccountUI() {
-    // Name
+    
     const nameEl = document.getElementById('account-name');
     if (nameEl) {
         if (isGuest) {
@@ -197,19 +187,19 @@ function updateAccountUI() {
         }
     }
 
-    // Subtitle
+    
     const subtitleEl = document.getElementById('account-subtitle');
     if (subtitleEl) {
         subtitleEl.textContent = isGuest ? 'Data saved locally only' : 'Synced across devices';
     }
 
-    // Sign out label
+    
     const labelEl = document.getElementById('account-signout-label');
     if (labelEl) {
         labelEl.textContent = isGuest ? 'Sign In' : 'Sign Out';
     }
 
-    // Avatar
+    
     const avatarEl = document.getElementById('account-avatar');
     if (avatarEl) {
         const avatar = currentUser?.user_metadata?.avatar_url;
@@ -224,7 +214,7 @@ function updateAccountUI() {
         }
     }
 
-    // Install App card — visible only when not installed as PWA
+    
     const installCard = document.getElementById('settings-install-card');
     if (installCard) {
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches
@@ -233,8 +223,6 @@ function updateAccountUI() {
         installCard.style.display = (isStandalone || isMarkedInstalled) ? 'none' : '';
     }
 }
-
-// ── DATA SYNC ─────────────────────────────────────────────────────────────────
 
 async function syncFromCloud() {
     if (isGuest || !currentUser || !_supabase) return;
@@ -275,8 +263,6 @@ function loadLocalData() {
     db       = JSON.parse(localStorage.getItem('paragon_db'))       || [];
     sketches = JSON.parse(localStorage.getItem('paragon_sketches')) || [];
 }
-
-// ── CLOUD WRITES ──────────────────────────────────────────────────────────────
 
 async function cloudSaveReport(report) {
     if (isGuest || !currentUser || !_supabase) {

@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Paragon Core X",
-  "short_name": "Paragon",
+  "name": "Robo Ops",
+  "short_name": "Robo Ops",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

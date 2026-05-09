@@ -12,9 +12,9 @@ window.onload = function() {
     drawNotes();
     initCanvas();
 
-    // Show welcome screen first if needed.
-    // It will call _launchAuth() itself when the user dismisses it.
-    // If welcome is not needed, _launchAuth() runs immediately.
+    
+    
+    
     if (typeof maybeShowInstall === 'function') {
         maybeShowInstall(_launchAuth);
     } else {
@@ -22,12 +22,11 @@ window.onload = function() {
     }
 };
 
-// Called after welcome screen closes (or immediately if welcome was skipped)
 function _launchAuth() {
     if (typeof _authReady !== 'undefined') _authReady = true;
     nav('hub');
     if (typeof initAuth === 'function') initAuth();
-    // Sync install card in settings with actual install state
+    
     if (typeof updateInstallCardVisibility === 'function') updateInstallCardVisibility();
 }
 
@@ -74,22 +73,20 @@ function nav(v) {
     closeMenu();
 }
 
-// Hub card tap — always clears event state and shows the list
 function openEventsHub() {
     if (typeof clearEventState === 'function') clearEventState();
     nav('events');
     if (typeof loadEvents === 'function') loadEvents();
 }
 
-// Back button on detail view
 function navBack() {
-    // Clear last event so nav('events') shows the list, not the last event
+    
     if (typeof clearEventState === 'function') clearEventState();
     if (detailOrigin === 'events') {
-        // Go straight to events list — do NOT restore the last event
+        
         nav('events');
-        // Show the already-rendered list (don't reload)
-        // If list is empty for some reason, load it
+        
+        
         const list = document.getElementById('event-list');
         if (list && list.children.length === 0 && typeof loadEvents === 'function') loadEvents();
     } else {
@@ -270,14 +267,13 @@ function importData(event) {
     reader.readAsText(file);
 }
 
-// ── THEMES: which ones are locked to a mode ──────────────────
-const LOCKED_DARK  = ['theme-gold'];     // always dark
-const LOCKED_LIGHT = ['theme-arctic'];   // always light
+const LOCKED_DARK  = ['theme-gold'];     
+const LOCKED_LIGHT = ['theme-arctic'];   
 
 function setTheme(theme) {
     const s = _getSettings();
     s.theme = theme;
-    // Enforce locked modes
+    
     if (LOCKED_DARK.includes(theme))  s.mode = 'mode-dark';
     if (LOCKED_LIGHT.includes(theme)) s.mode = 'mode-light';
     _saveSettings(s);
@@ -287,7 +283,7 @@ function setTheme(theme) {
 
 function setMode(mode) {
     const s = _getSettings();
-    // Don't allow mode change on locked themes
+    
     if (LOCKED_DARK.includes(s.theme) || LOCKED_LIGHT.includes(s.theme)) return;
     s.mode = mode;
     _saveSettings(s);
@@ -321,7 +317,7 @@ function _applySettings(s) {
 }
 
 function loadSettings() {
-    // Migrate from old keys
+    
     const old = JSON.parse(localStorage.getItem('paragon_settings_v2'));
     if (old && !localStorage.getItem('paragon_settings_v3')) {
         const migrated = {
@@ -332,7 +328,7 @@ function loadSettings() {
         _saveSettings(migrated);
     }
     const s = _getSettings();
-    // Enforce locks on load
+    
     if (LOCKED_DARK.includes(s.theme))  s.mode = 'mode-dark';
     if (LOCKED_LIGHT.includes(s.theme)) s.mode = 'mode-light';
     _applySettings(s);
@@ -354,7 +350,7 @@ function renderSettingsUI() {
         ? 'Arctic is always light'
         : '';
 
-    // Mode toggle
+    
     const toggle = document.getElementById('mode-toggle');
     const noteEl = document.getElementById('mode-locked-note');
     const mdark  = document.getElementById('mode-btn-dark');
@@ -408,7 +404,6 @@ function renderSettingsUI() {
     }
 }
 
-
 function switchSettingsTab(tab) {
     const accountTab    = document.getElementById('settings-tab-account');
     const appearanceTab = document.getElementById('settings-tab-appearance');
@@ -418,10 +413,9 @@ function switchSettingsTab(tab) {
     window.scrollTo(0, 0);
 }
 
-// Sign out card handler — works for both signed-in and guest
 function handleSignOutCard() {
     if (typeof isGuest !== 'undefined' && isGuest) {
-        // Guest: go back to login so they can sign in
+        
         if (typeof showLoginScreen === 'function') showLoginScreen();
     } else {
         if (typeof signOut === 'function') signOut();

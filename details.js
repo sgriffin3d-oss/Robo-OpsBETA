@@ -1,9 +1,3 @@
-/**
- * details.js - Paragon Core X
- * Teams: fetched from /events/{id}/teams, filtered by team numbers in current division's rankings
- * Division selector: slim inline row, aligned with baseline fix
- */
-
 let currentEventId = null;
 let activeTab = 'schedule';
 let activeDivId = null;
@@ -46,9 +40,9 @@ async function loadEventDeepData(id) {
 }
 
 async function fetchDivisionData(eventId, divId) {
-    // Fetch matches, rankings, skills, and ALL event teams in parallel.
-    // Teams don't have a division endpoint — we get all teams then filter
-    // to only those whose numbers appear in the current division's rankings.
+    
+    
+    
     const [matchRes, rankRes, skillsRes, teamRes] = await Promise.all([
         fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=matches`),
         fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=rankings`),
@@ -132,7 +126,7 @@ function renderSchedule(container) {
     );
     let html = '';
     sorted.forEach(m => {
-        // scheduled = planned time, started = actual start (may be null for upcoming)
+        
         const scheduledTime = m.scheduled ? formatMatchTime(m.scheduled) : null;
         const startedTime   = m.started   ? formatMatchTime(m.started)   : null;
         const timeDisplay   = startedTime
@@ -248,8 +242,8 @@ function renderTeams(container) {
         container.innerHTML = emptyState('Team list not available.');
         return;
     }
-    // The /events/{id}/teams endpoint returns Team objects where the team number
-    // is in t.number (e.g. "229V"). Sort numerically/alphanumerically.
+    
+    
     const sorted = [...teams].sort((a, b) => {
         const na = a.number || a.team_name || '';
         const nb = b.number || b.team_name || '';
