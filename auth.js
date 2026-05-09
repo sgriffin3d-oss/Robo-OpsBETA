@@ -76,7 +76,10 @@ async function initAuth() {
 
 // ── LOGIN SCREEN ──────────────────────────────────────────────────────────────
 
+let _authReady = false;  // set true only after welcome screen is dismissed
+
 function showLoginScreen() {
+    if (!_authReady) return;  // welcome screen hasn't closed yet — don't show login
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const loginView = document.getElementById('view-login');
     if (loginView) loginView.classList.add('active');

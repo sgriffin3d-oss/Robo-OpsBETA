@@ -22,8 +22,9 @@ window.onload = function() {
     }
 };
 
-// Separated so welcome screen can call this after it closes
+// Called after welcome screen closes (or immediately if welcome was skipped)
 function _launchAuth() {
+    if (typeof _authReady !== 'undefined') _authReady = true;
     nav('hub');
     if (typeof initAuth === 'function') initAuth();
 }
