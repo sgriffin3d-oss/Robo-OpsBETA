@@ -1,8 +1,3 @@
-/**
- * api/robotevents.js - Paragon Core X
- * Fixed: fetches ALL pages for matches, rankings, skills, teams
- */
-
 export default async function handler(req, res) {
     const { search, start, type, id, div } = req.query;
     const token = process.env.ROBOT_EVENTS_TOKEN;
@@ -18,7 +13,7 @@ export default async function handler(req, res) {
     } else if (id && type) {
         baseUrl = `https://www.robotevents.com/api/v2/events/${id}/${type}`;
     } else if (id) {
-        // Single event fetch — not paginated
+        
         const response = await fetch(`https://www.robotevents.com/api/v2/events/${id}`, {
             headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         });
@@ -28,7 +23,7 @@ export default async function handler(req, res) {
         }
         return res.status(200).json(await response.json());
     } else {
-        // Event list search — filter to V5RC (program 4) so results are relevant
+        
         let url = `https://www.robotevents.com/api/v2/events?per_page=50&program[]=4`;
         if (start) url += `&start=${start}`;
         if (search && search.trim() !== "") url += `&name[]=${encodeURIComponent(search)}`;
@@ -42,7 +37,7 @@ export default async function handler(req, res) {
         return res.status(200).json(await response.json());
     }
 
-    // For sub-data endpoints: paginate through ALL pages
+    
     try {
         let allData = [];
         let page = 1;
@@ -62,7 +57,7 @@ export default async function handler(req, res) {
             const data = await response.json();
             allData = allData.concat(data.data || []);
 
-            // RobotEvents returns meta.last_page for pagination
+            
             lastPage = data.meta?.last_page ?? 1;
             page++;
 
