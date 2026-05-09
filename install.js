@@ -19,6 +19,20 @@
 
 const INSTALL_KEY      = 'paragon_installed_v1';
 const WELCOME_SEEN_KEY = 'paragon_welcome_seen_v1';
+const INSTALL_RESET_KEY = 'paragon_install_reset_v2'; // bump this key to force another reset
+
+// ── One-time forced reset ─────────────────────────────────────
+// Clears stale install/welcome flags from old app versions so
+// the welcome screen shows correctly for everyone on first load
+// after this update. Only runs once per browser.
+(function _forceResetOnce() {
+    if (!localStorage.getItem(INSTALL_RESET_KEY)) {
+        localStorage.removeItem(INSTALL_KEY);
+        localStorage.removeItem(WELCOME_SEEN_KEY);
+        localStorage.removeItem('paragon_installed_v1'); // belt & suspenders
+        localStorage.setItem(INSTALL_RESET_KEY, '1');
+    }
+})();
 
 let _installDeferredPrompt = null;
 let _installOverlayEl      = null;
