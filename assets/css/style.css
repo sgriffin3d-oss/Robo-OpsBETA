@@ -1,0 +1,802 @@
+/* ============================================================
+   PARAGON CORE X — DESIGN SYSTEM v4.0
+   ROLLBACK: restore original style.css from your zip file
+   ============================================================
+
+   ARCHITECTURE:
+   Theme  (.theme-*) = color palette
+   Mode   (.mode-light) = flips bg/text to light
+   Style  (.style-*) = shape, spacing, font, effects
+
+   LOCKED:
+   .theme-midnight = always dark  (original app look)
+   .theme-arctic   = always light (clean crisp whites)
+   ============================================================ */
+
+
+/* ══════════════════════════════════════════════════════
+   THEMES
+   ══════════════════════════════════════════════════════ */
+
+/* ── Midnight — original app. Pure black, gold accent. LOCKED DARK. ── */
+:root,
+body {
+    --bg:         #050505;
+    --card-bg:    #121212;
+    --input-bg:   #1d1d1d;
+    --border:     #252525;
+    --text:       #ffffff;
+    --sub-text:   #888888;
+    --primary:    #e8b23b;
+    --primary-fg: #000000;
+    --red:        #ff4d4d;
+    --blue:       #4d94ff;
+    --icon-color: #d1d1d1;
+    --neon-rgb:   232, 178, 59;
+    --radius:     14px;
+    --radius-sm:  8px;
+    --radius-lg:  20px;
+    --card-shadow: none;
+    --transition: all 0.2s ease;
+}
+
+/* ── Arctic — crisp white, ice blue. LOCKED LIGHT. ──
+   Very deliberate: pure white cards, sky blue accent, dark navy text.
+   Nothing dark about it — maximally distinct from Midnight. */
+.theme-arctic {
+    --bg:         #e8f4ff;
+    --card-bg:    #ffffff;
+    --input-bg:   #f0f8ff;
+    --border:     #b8d8f0;
+    --text:       #0a1929;
+    --sub-text:   #4a7090;
+    --primary:    #0078d4;
+    --primary-fg: #ffffff;
+    --icon-color: #0078d4;
+    --neon-rgb:   0, 120, 212;
+}
+
+/* ── Red Alliance ── */
+.theme-red {
+    --bg:         #080808;
+    --card-bg:    #111111;
+    --input-bg:   #181818;
+    --border:     #242424;
+    --text:       #f0f0f0;
+    --sub-text:   #666666;
+    --primary:    #cc2200;
+    --primary-fg: #ffffff;
+    --icon-color: #cc2200;
+    --neon-rgb:   204, 34, 0;
+}
+
+/* ── Blue Alliance — neutral dark base, clean blue accent ── */
+.theme-blue {
+    --bg:         #080808;
+    --card-bg:    #111111;
+    --input-bg:   #181818;
+    --border:     #242424;
+    --text:       #f0f0f0;
+    --sub-text:   #666666;
+    --primary:    #1a6ccc;
+    --primary-fg: #ffffff;
+    --icon-color: #1a6ccc;
+    --neon-rgb:   26, 108, 204;
+}
+
+/* ── Stealth — pure black, white accents ── */
+.theme-stealth {
+    --bg:         #000000;
+    --card-bg:    #0c0c0c;
+    --input-bg:   #141414;
+    --border:     #1e1e1e;
+    --text:       #f0f0f0;
+    --sub-text:   #484848;
+    --primary:    #e0e0e0;
+    --primary-fg: #000000;
+    --icon-color: #b0b0b0;
+    --neon-rgb:   210, 210, 210;
+}
+
+
+/* ══════════════════════════════════════════════════════
+   LIGHT MODE MODIFIER
+   Applied by JS on top of Red, Blue, Stealth only.
+   Midnight and Arctic are locked — JS never toggles them.
+   ══════════════════════════════════════════════════════ */
+
+.mode-light {
+    --bg:        #f4f4f6;
+    --card-bg:   #ffffff;
+    --input-bg:  #ebebee;
+    --border:    #d4d4da;
+    --text:      #0f0f14;
+    --sub-text:  #74747e;
+    --icon-color: var(--primary);
+}
+
+/* Per-theme light accent tweaks */
+.theme-red.mode-light {
+    --primary:   #b51a00;
+    --neon-rgb:  181, 26, 0;
+}
+.theme-blue.mode-light {
+    --primary:   #1456aa;
+    --primary-fg: #ffffff;
+    --neon-rgb:  20, 86, 170;
+}
+.theme-stealth.mode-light {
+    --primary:   #181818;
+    --primary-fg: #ffffff;
+    --icon-color: #181818;
+    --neon-rgb:  24, 24, 24;
+    --bg:        #f5f5f5;
+    --card-bg:   #ffffff;
+    --input-bg:  #ebebeb;
+    --border:    #cccccc;
+    --text:      #080808;
+    --sub-text:  #686868;
+}
+
+
+/* ══════════════════════════════════════════════════════
+   STYLE: CLASSIC
+   The original app feel. Rounded cards, solid borders.
+   Baseline — everything else is measured against this.
+   ══════════════════════════════════════════════════════ */
+
+.style-classic {
+    --radius:     14px;
+    --radius-sm:  8px;
+    --radius-lg:  20px;
+    --card-shadow: none;
+}
+
+
+/* ══════════════════════════════════════════════════════
+   STYLE: ROUNDED
+   Pillow-soft. Extra large radii, deep shadows,
+   spacious padding, no hard edges anywhere.
+   ══════════════════════════════════════════════════════ */
+
+.style-minimal {
+    --radius:     6px;
+    --radius-sm:  4px;
+    --radius-lg:  10px;
+    --card-shadow: none;
+}
+body.style-minimal { line-height: 1.55; }
+
+.style-minimal .hub-card,
+.style-minimal .note-card,
+.style-minimal .event-item,
+.style-minimal .match-card,
+.style-minimal .rank-row,
+.style-minimal .rule-card,
+.style-minimal .team-row,
+.style-minimal .sketch-item {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid var(--border) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+}
+.style-minimal .sort-container,
+.style-minimal .detail-tabs {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--border);
+    border-radius: 0;
+    padding: 0;
+    gap: 0;
+}
+.style-minimal .sort-btn,
+.style-minimal .detail-tab {
+    border-radius: 0;
+    padding-bottom: 11px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+.style-minimal .sort-btn.active,
+.style-minimal .detail-tab.active {
+    background: none;
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+    box-shadow: none;
+}
+.style-minimal .evt-filter-btn,
+.style-minimal .rules-cat-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 6px 8px;
+    color: var(--sub-text);
+}
+.style-minimal .evt-filter-btn.active,
+.style-minimal .rules-cat-btn.active {
+    background: none;
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+}
+.style-minimal input,
+.style-minimal select,
+.style-minimal textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+.style-minimal .alliance-box {
+    background: var(--card-bg) !important;
+    border: none !important;
+    border-top: 3px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+}
+.style-minimal .alliance-box.red  { border-top-color: var(--red)  !important; }
+.style-minimal .alliance-box.blue { border-top-color: var(--blue) !important; }
+.style-minimal .dock-bar  { border-top: 1px solid var(--border); background: var(--bg); box-shadow: none; }
+.style-minimal .save-btn  { border-radius: 6px; }
+.style-minimal .fab-menu  { border-radius: 8px; }
+
+
+/* ══════════════════════════════════════════════════════
+   STYLE: GLASS
+   Frosted blur, gradient backgrounds.
+   Cards feel translucent and layered.
+   ══════════════════════════════════════════════════════ */
+
+.style-glass {
+    --radius:     22px;
+    --radius-sm:  14px;
+    --radius-lg:  32px;
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+body.style-glass                              { background: radial-gradient(ellipse at 20% 10%, #101820 0%, #000000 70%) fixed !important; }
+body.style-glass.mode-light                   { background: radial-gradient(ellipse at 20% 10%, #cce4f8 0%, #eef6ff 70%) fixed !important; }
+body.style-glass.theme-red                    { background: radial-gradient(ellipse at 20% 10%, #1a1a1a 0%, #000000 70%) fixed !important; }
+body.style-glass.theme-red.mode-light         { background: radial-gradient(ellipse at 20% 10%, #f0f0f0 0%, #ffffff 70%) fixed !important; }
+body.style-glass.theme-blue                   { background: radial-gradient(ellipse at 20% 10%, #1a1a1a 0%, #000000 70%) fixed !important; }
+body.style-glass.theme-blue.mode-light        { background: radial-gradient(ellipse at 20% 10%, #f0f0f0 0%, #ffffff 70%) fixed !important; }
+body.style-glass.theme-stealth                { background: radial-gradient(ellipse at 20% 10%, #141414 0%, #000000 70%) fixed !important; }
+body.style-glass.theme-stealth.mode-light     { background: radial-gradient(ellipse at 20% 10%, #dddddd 0%, #f6f6f6 70%) fixed !important; }
+body.style-glass.theme-arctic                 { background: radial-gradient(ellipse at 20% 10%, #a8d4f5 0%, #ddf0ff 70%) fixed !important; }
+
+.style-glass .hub-card,
+.style-glass .note-card,
+.style-glass .event-item,
+.style-glass .match-card,
+.style-glass .rule-card,
+.style-glass .ai-panel,
+.style-glass .sort-container,
+.style-glass .detail-tabs,
+.style-glass .alliance-box,
+.style-glass .rank-row,
+.style-glass .team-row,
+.style-glass .fab-menu {
+    background: rgba(255,255,255,0.07) !important;
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.13) !important;
+    box-shadow: var(--card-shadow) !important;
+}
+body.style-glass.mode-light .hub-card,
+body.style-glass.mode-light .note-card,
+body.style-glass.mode-light .event-item,
+body.style-glass.mode-light .match-card,
+body.style-glass.mode-light .rule-card,
+body.style-glass.mode-light .rank-row,
+body.style-glass.mode-light .team-row,
+body.style-glass.mode-light .alliance-box,
+body.style-glass.theme-arctic .hub-card,
+body.style-glass.theme-arctic .note-card,
+body.style-glass.theme-arctic .event-item {
+    background: rgba(255,255,255,0.62) !important;
+    border: 1px solid rgba(255,255,255,0.92) !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06) !important;
+}
+.style-glass .dock-bar {
+    bottom: 18px;
+    width: fit-content; min-width: 190px; height: 60px;
+    padding: 0 22px; border-radius: 50px; gap: 14px;
+    background: rgba(255,255,255,0.09) !important;
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.16) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+body.style-glass.mode-light .dock-bar,
+body.style-glass.theme-arctic .dock-bar {
+    background: rgba(255,255,255,0.68) !important;
+    border: 1px solid rgba(255,255,255,0.95) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.style-glass .dock-btn { border-radius: 50%; width: 42px; height: 42px; background: rgba(255,255,255,0.10) !important; }
+.style-glass .dock-btn.alt { background: var(--primary) !important; }
+
+
+/* ══════════════════════════════════════════════════════
+   STYLE: TACTICAL
+   Sharp 90° corners. Monospace font. Dense information.
+   Left-border accent on every card. HUD scanlines.
+   ══════════════════════════════════════════════════════ */
+
+.style-tactical {
+    --radius:     2px;
+    --radius-sm:  1px;
+    --radius-lg:  3px;
+    --card-shadow: none;
+}
+body.style-tactical {
+    font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+}
+/* Scanline overlay */
+body.style-tactical::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px
+    );
+}
+/* Boxy cards with strong left accent */
+.style-tactical .hub-card,
+.style-tactical .note-card,
+.style-tactical .event-item,
+.style-tactical .match-card,
+.style-tactical .rule-card,
+.style-tactical .team-row,
+.style-tactical .rank-row {
+    border-radius: 0 !important;
+    border: 1px solid var(--border) !important;
+    border-left: 4px solid var(--primary) !important;
+}
+.style-tactical .alliance-box { border-radius: 0 !important; }
+.style-tactical .alliance-box.red  { border-left: 4px solid var(--red) !important; }
+.style-tactical .alliance-box.blue { border-left: 4px solid var(--blue) !important; }
+/* All typography: uppercase + wide spacing */
+.style-tactical .welcome-header h1 {
+    font-size: 1.4rem; text-transform: uppercase; letter-spacing: 8px;
+}
+.style-tactical .welcome-header p { letter-spacing: 6px; }
+.style-tactical .hub-card b { letter-spacing: 4px; font-size: 0.78rem; }
+/* Segments: square tabs */
+.style-tactical .sort-container { border-radius: 0; gap: 2px; }
+.style-tactical .sort-btn { border-radius: 0; }
+.style-tactical .sort-btn.active {
+    background: var(--primary); color: var(--primary-fg);
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+/* Square dock */
+.style-tactical .dock-bar {
+    border-radius: 0; border-top: 3px solid var(--primary); height: 64px;
+}
+.style-tactical .dock-btn { border-radius: 0; }
+.style-tactical .dock-btn.alt { border-radius: 0; }
+/* Inputs */
+.style-tactical input,
+.style-tactical select,
+.style-tactical textarea {
+    border-radius: 0; font-family: inherit; letter-spacing: 0.5px;
+}
+.style-tactical .save-btn { border-radius: 0; }
+/* Status dot on hub cards */
+.style-tactical .hub-card::after {
+    content: '■'; color: var(--primary); font-size: 0.45rem;
+    opacity: 0.6; margin-left: auto; align-self: flex-start; margin-top: 3px;
+}
+
+
+/* ══════════════════════════════════════════════════════
+   STYLE: NEON
+   Dark canvas, glowing colored borders.
+   Glow text on headings and key labels.
+   Works in light mode: strong color borders on white.
+   ══════════════════════════════════════════════════════ */
+
+.style-neon {
+    --radius:     12px;
+    --radius-sm:  7px;
+    --radius-lg:  18px;
+    --card-shadow: 0 0 18px rgba(var(--neon-rgb),0.1);
+}
+body.style-neon           { background: #010101 !important; }
+body.style-neon.mode-light { background: #f4f4f6 !important; }
+body.style-neon.theme-arctic { background: #e8f4ff !important; }
+
+/* Dark neon cards */
+.style-neon .hub-card,
+.style-neon .note-card,
+.style-neon .event-item,
+.style-neon .match-card,
+.style-neon .rule-card,
+.style-neon .ai-panel,
+.style-neon .rank-row,
+.style-neon .team-row,
+.style-neon .sketch-item {
+    border: 1px solid rgba(var(--neon-rgb),0.3) !important;
+    box-shadow: 0 0 14px rgba(var(--neon-rgb),0.07);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: rgba(var(--neon-rgb),0.02) !important;
+}
+.style-neon .hub-card:active,
+.style-neon .event-item:active,
+.style-neon .rule-card:active {
+    border-color: rgba(var(--neon-rgb),0.85) !important;
+    box-shadow: 0 0 26px rgba(var(--neon-rgb),0.28) !important;
+}
+/* Light neon */
+body.style-neon.mode-light .hub-card,
+body.style-neon.mode-light .note-card,
+body.style-neon.mode-light .event-item,
+body.style-neon.mode-light .rule-card,
+body.style-neon.mode-light .rank-row,
+body.style-neon.mode-light .team-row,
+body.style-neon.theme-arctic .hub-card,
+body.style-neon.theme-arctic .note-card,
+body.style-neon.theme-arctic .event-item {
+    border: 2px solid rgba(var(--neon-rgb),0.55) !important;
+    box-shadow: 0 0 12px rgba(var(--neon-rgb),0.12) !important;
+    background: rgba(var(--neon-rgb),0.03) !important;
+}
+/* Glow text */
+.style-neon .welcome-header h1 { text-shadow: 0 0 30px rgba(var(--neon-rgb),0.6); }
+.style-neon .hub-card b,
+.style-neon .rule-id,
+.style-neon .team-number,
+.style-neon .event-item-name { text-shadow: 0 0 12px rgba(var(--neon-rgb),0.55); }
+body.style-neon.mode-light .welcome-header h1 { text-shadow: 0 0 18px rgba(var(--neon-rgb),0.45); }
+body.style-neon.mode-light .hub-card b,
+body.style-neon.theme-arctic .hub-card b { text-shadow: 0 0 8px rgba(var(--neon-rgb),0.35); }
+/* Glowing active states */
+.style-neon .sort-btn.active,
+.style-neon .detail-tab.active,
+.style-neon .evt-filter-btn.active,
+.style-neon .rules-cat-btn.active { box-shadow: 0 0 18px rgba(var(--neon-rgb),0.5) !important; }
+/* Dock */
+.style-neon .dock-bar {
+    background: #050505;
+    border-top: 1px solid rgba(var(--neon-rgb),0.25);
+    box-shadow: 0 -4px 24px rgba(var(--neon-rgb),0.12);
+}
+body.style-neon.mode-light .dock-bar {
+    background: #f0f0f2;
+    border-top: 1px solid rgba(var(--neon-rgb),0.35);
+    box-shadow: 0 -2px 16px rgba(var(--neon-rgb),0.14);
+}
+body.style-neon.theme-arctic .dock-bar {
+    background: #ddeeff;
+    border-top: 1px solid rgba(var(--neon-rgb),0.3);
+}
+.style-neon .dock-btn.alt { box-shadow: 0 0 16px rgba(var(--neon-rgb),0.55); }
+.style-neon input:focus,
+.style-neon select:focus,
+.style-neon textarea:focus { box-shadow: 0 0 12px rgba(var(--neon-rgb),0.3); }
+
+
+/* ══════════════════════════════════════════════════════
+   STYLE: RETRO
+   Warm serif font. Hard offset drop shadows.
+   Thick borders. Press-down button feel.
+   Completely unlike every other style.
+   ══════════════════════════════════════════════════════ */
+
+.style-retro {
+    --radius:     5px;
+    --radius-sm:  3px;
+    --radius-lg:  8px;
+    --card-shadow: 3px 3px 0px var(--border);
+}
+body.style-retro {
+    font-family: 'Georgia', 'Palatino', 'Times New Roman', serif;
+}
+body.style-retro:not(.mode-light):not(.theme-arctic) {
+    background: #080604 !important;
+    --bg: #080604; --card-bg: #110e08; --input-bg: #1a1610; --border: #3a3020;
+}
+body.style-retro.mode-light {
+    background: #f4ede0 !important;
+    --bg: #f4ede0; --card-bg: #fffef6; --input-bg: #eee8d8; --border: #b8a888;
+    --text: #1a1408; --sub-text: #7a6a4a;
+}
+body.style-retro.theme-arctic {
+    background: #f0f4f0 !important;
+    --card-bg: #fafffe; --border: #a8c8b8;
+}
+.style-retro .hub-card,
+.style-retro .note-card,
+.style-retro .event-item,
+.style-retro .match-card,
+.style-retro .rule-card,
+.style-retro .team-row,
+.style-retro .rank-row {
+    border: 2px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 3px 3px 0 var(--border) !important;
+    transition: box-shadow 0.08s ease, transform 0.08s ease !important;
+}
+.style-retro .hub-card:active,
+.style-retro .event-item:active,
+.style-retro .rule-card:active {
+    box-shadow: 1px 1px 0 var(--border) !important;
+    transform: translate(2px, 2px) !important;
+}
+.style-retro .hub-card b {
+    letter-spacing: 2px; font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+}
+.style-retro .welcome-header h1 { letter-spacing: 2px; font-size: 2rem; }
+.style-retro .welcome-header p  { letter-spacing: 4px; font-family: 'Courier New', monospace; }
+.style-retro .sort-container,
+.style-retro .detail-tabs { border: 2px solid var(--border) !important; border-radius: var(--radius); }
+.style-retro .sort-btn.active,
+.style-retro .detail-tab.active { border-radius: 3px; }
+.style-retro .dock-bar {
+    border-radius: 0;
+    border-top: 3px solid var(--border);
+    height: 68px;
+    background: var(--card-bg);
+    box-shadow: 0 -3px 0 var(--primary);
+}
+.style-retro .dock-btn {
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    box-shadow: 2px 2px 0 var(--border);
+    font-family: 'Courier New', monospace;
+}
+.style-retro .dock-btn.alt {
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.25);
+    border-color: transparent;
+}
+.style-retro .dock-btn:active {
+    box-shadow: none !important;
+    transform: translate(2px,2px) !important;
+}
+
+
+/* ══════════════════════════════════════════════════════
+   BASE ENGINE
+   ══════════════════════════════════════════════════════ */
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    transition: background-color 0.3s ease, color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.container {
+    max-width: 500px; margin: 0 auto;
+    padding: 20px 20px 140px 20px; box-sizing: border-box;
+}
+.view { display: none; }
+.view.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Typography */
+.welcome-header h1 { margin: 0; font-size: 2.2rem; font-weight: 900; letter-spacing: -0.5px; }
+.welcome-header p  { margin: 5px 0 25px; color: var(--sub-text); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; }
+
+/* Icon engine */
+.icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; margin-right: 18px;
+    color: var(--icon-color); flex-shrink: 0;
+}
+.icon svg { width: 100%; height: 100%; stroke-width: 2.2px; }
+
+/* Hub cards */
+.hub-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; margin-bottom: 12px;
+    display: flex; align-items: center; cursor: pointer;
+    transition: var(--transition); box-shadow: var(--card-shadow);
+}
+.hub-card:active { transform: scale(0.97); }
+.hub-card b { color: var(--primary); font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Inputs */
+input, select, textarea {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+    color: var(--text); padding: 14px; border-radius: var(--radius-sm);
+    margin-bottom: 12px; box-sizing: border-box; font-family: inherit;
+    font-size: 0.9rem; outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    appearance: none; -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+input::placeholder, textarea::placeholder { color: var(--sub-text); }
+label {
+    display: block; font-size: 0.7rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--sub-text); margin-bottom: 6px;
+}
+.save-btn {
+    width: 100%; padding: 18px; background: var(--primary); color: var(--primary-fg);
+    border: none; border-radius: var(--radius); font-weight: 900; font-size: 0.9rem;
+    cursor: pointer; transition: opacity 0.15s ease;
+}
+.save-btn:active { opacity: 0.8; }
+.search-bar { width: 100%; margin-bottom: 10px !important; }
+
+/* Sort segments */
+.sort-container {
+    display: flex; gap: 5px; margin-bottom: 15px;
+    background: var(--input-bg); padding: 5px;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+}
+.sort-btn {
+    flex: 1; padding: 10px; border: none; background: none;
+    color: var(--sub-text); font-weight: 800; font-size: 0.75rem;
+    cursor: pointer; border-radius: calc(var(--radius-sm) - 2px); transition: var(--transition);
+}
+.sort-btn.active { background: var(--primary); color: var(--primary-fg); }
+
+/* Note cards */
+.note-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 18px; border-radius: var(--radius); margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: var(--transition); box-shadow: var(--card-shadow);
+}
+.note-card:active { transform: scale(0.98); }
+
+/* Calculator */
+.side-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.alliance-box {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 15px;
+    display: flex; flex-direction: column; gap: 15px; box-shadow: var(--card-shadow);
+}
+.alliance-box.red  { border-top: 4px solid var(--red); }
+.alliance-box.blue { border-top: 4px solid var(--blue); }
+.counter { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.counter label { font-size: 0.7rem; font-weight: 800; color: var(--sub-text); text-transform: uppercase; margin: 0; }
+.ctrls {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--input-bg); padding: 5px;
+    border-radius: var(--radius-sm); width: 100%; border: 1px solid var(--border);
+}
+.val-display { font-weight: 900; font-size: 1.2rem; min-width: 25px; text-align: center; }
+.btn-math {
+    width: 32px; height: 32px; border-radius: var(--radius-sm);
+    border: none; background: var(--border); color: var(--text);
+    cursor: pointer; font-size: 1.2rem; font-weight: 700; transition: var(--transition);
+}
+.btn-math:active { opacity: 0.7; }
+.score-footer {
+    grid-column: span 2; background: var(--primary); color: var(--primary-fg);
+    padding: 18px; border-radius: var(--radius);
+    display: flex; justify-content: space-around; font-weight: 900; margin-top: 10px;
+}
+
+/* Auton buttons */
+.auton-group { display: flex; gap: 8px; margin-bottom: 15px; }
+.auton-btn {
+    flex: 1; padding: 12px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--input-bg);
+    color: var(--text); font-weight: 700; cursor: pointer; transition: var(--transition);
+}
+.auton-btn.active-red  { background: var(--red);     color: #fff;              border: none; }
+.auton-btn.active-blue { background: var(--blue);    color: #fff;              border: none; }
+.auton-btn.active-tie  { background: var(--primary); color: var(--primary-fg); border: none; }
+
+/* Dock bar */
+.dock-bar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 450px; height: 75px;
+    background: var(--card-bg); border-top: 1px solid var(--border);
+    display: flex; justify-content: center; align-items: center;
+    gap: 40px; z-index: 1000; transition: all 0.4s ease;
+}
+.dock-btn {
+    width: 50px; height: 50px; border-radius: var(--radius-sm);
+    border: none; background: var(--input-bg);
+    color: var(--sub-text) !important; font-weight: 900; font-size: 1.1rem;
+    cursor: pointer; transition: var(--transition);
+}
+.dock-btn.alt { background: var(--primary); color: var(--primary-fg) !important; }
+.dock-btn:active { transform: scale(0.9); }
+
+/* FAB menu */
+.fab-menu {
+    position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 16px; width: 220px; padding: 8px;
+    z-index: 1001; display: none; flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.fab-menu.show { display: flex !important; }
+.menu-item {
+    padding: 14px; text-align: center; font-weight: 700; cursor: pointer;
+    border-radius: 10px; color: var(--text); transition: background 0.15s ease;
+}
+.menu-item:hover { background: var(--input-bg); }
+
+/* Event card */
+.event-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 16px; border-radius: var(--radius); box-shadow: var(--card-shadow);
+}
+
+/* Sketch */
+.sketch-item {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px; margin-bottom: 10px;
+    box-shadow: var(--card-shadow);
+}
+.sketch-preview {
+    width: 64px; height: 40px; object-fit: cover;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+}
+
+/* Settings */
+.settings-section { margin-bottom: 28px; }
+.settings-label {
+    font-size: 0.68rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--sub-text); margin-bottom: 10px;
+}
+.mode-toggle {
+    display: flex; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 4px; gap: 4px; margin-bottom: 20px;
+}
+.mode-btn {
+    flex: 1; padding: 10px; border: none; background: none;
+    color: var(--sub-text); font-weight: 800; font-size: 0.78rem;
+    cursor: pointer; border-radius: calc(var(--radius-sm) - 2px); transition: var(--transition);
+}
+.mode-btn.active { background: var(--primary); color: var(--primary-fg); }
+.mode-toggle.locked { opacity: 0.4; pointer-events: none; }
+.mode-locked-note {
+    font-size: 0.64rem; color: var(--sub-text); text-align: center;
+    margin-top: -12px; margin-bottom: 16px; letter-spacing: 0.5px;
+}
+.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.theme-swatch {
+    border-radius: var(--radius-sm); padding: 13px 12px; cursor: pointer;
+    border: 2px solid transparent; transition: var(--transition); position: relative;
+    display: flex; align-items: center; gap: 10px;
+}
+.theme-swatch.active { border-color: var(--primary); }
+.theme-swatch .swatch-dot {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.1);
+}
+.theme-swatch .swatch-info { flex: 1; min-width: 0; }
+.theme-swatch .swatch-name { font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text); display: block; }
+.theme-swatch .swatch-tag  { font-size: 0.58rem; color: var(--sub-text); display: block; margin-top: 1px; }
+.theme-swatch.active .swatch-name { color: var(--primary); }
+.theme-swatch .swatch-check { position: absolute; top: 7px; right: 7px; font-size: 0.6rem; opacity: 0; color: var(--primary); }
+.theme-swatch.active .swatch-check { opacity: 1; }
+
+.style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.style-card {
+    background: var(--input-bg); border: 2px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 12px;
+    cursor: pointer; transition: var(--transition); text-align: center;
+}
+.style-card.active { border-color: var(--primary); }
+.style-card .style-preview { font-size: 1.4rem; margin-bottom: 5px; line-height: 1; }
+.style-card .style-name { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text); }
+.style-card .style-desc  { font-size: 0.6rem; color: var(--sub-text); margin-top: 2px; }
+.style-card.active .style-name { color: var(--primary); }
+
+/* Spinner */
+.loading-spinner {
+    width: 26px; height: 26px; border: 2.5px solid var(--border);
+    border-top-color: var(--primary); border-radius: 50%;
+    animation: spin 0.75s linear infinite; margin: 0 auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
