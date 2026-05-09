@@ -1,318 +1,153 @@
-let rulesActiveCategory = 'All';
-let rulesSearchTimer = null;
-let aiConversation = [];
+let allEvents = [];
+let activeFilter = 'all';
+let searchTimer = null;
+let lastEventId = null;
+let lastEventName = null;
 
-const CATEGORY_ORDER = ['Scoring','Specific Game','Safety','General','General Game','Robot Skills','Robot','Tournament'];
-const CATEGORY_ICONS = {}; 
-
-let aiPanelOpen = false;
-
-function initRules() {
-    renderCategoryBar();
-    renderRulesList('', 'All');
-    aiConversation = [];
-    renderAIMessages();
-    
-    const body = document.getElementById('ai-panel-body');
-    if (body) body.style.display = 'none';
-}
-
-function toggleAIPanel() {
-    aiPanelOpen = !aiPanelOpen;
-    const body = document.getElementById('ai-panel-body');
-    const arrow = document.getElementById('ai-panel-arrow');
-    if (body) body.style.display = aiPanelOpen ? 'flex' : 'none';
-    if (arrow) arrow.textContent = aiPanelOpen ? '▲' : '▼';
-    if (aiPanelOpen) {
-        renderAIMessages();
-        setTimeout(() => {
-            const msgs = document.getElementById('ai-messages');
-            if (msgs) msgs.scrollTop = msgs.scrollHeight;
-        }, 50);
+function restoreLastEvent() {
+    if (lastEventId !== null) {
+        _openEventDetailView(lastEventId, lastEventName);
+    } else {
+        
+        if (allEvents.length === 0) loadEvents();
     }
 }
 
-function renderCategoryBar() {
-    const bar = document.getElementById('rules-cat-bar');
-    if (!bar) return;
-
-    const cats = ['All', ...CATEGORY_ORDER];
-    bar.innerHTML = cats.map(c => `
-        <button class="rules-cat-btn ${c === rulesActiveCategory ? 'active' : ''}"
-                onclick="setRulesCategory('${c}')">${c}</button>`).join('');
+function clearEventState() {
+    lastEventId = null;
+    lastEventName = null;
 }
 
-function setRulesCategory(cat) {
-    rulesActiveCategory = cat;
-    renderCategoryBar();
-    const query = document.getElementById('rules-search')?.value || '';
-    renderRulesList(query, cat);
+function onEventSearch(value) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadEvents(value), 450);
 }
 
-function onRulesSearch(value) {
-    clearTimeout(rulesSearchTimer);
-    rulesSearchTimer = setTimeout(() => renderRulesList(value, rulesActiveCategory), 200);
-}
+async function loadEvents(query = '') {
+    const list = document.getElementById('event-list');
+    if (!list) return;
 
-function renderRulesList(query = '', category = 'All') {
-    const list = document.getElementById('rules-list');
-    if (!list || typeof RULES_DATA === 'undefined') return;
-
-    const q = query.trim().toLowerCase();
-
-    
-    if (!q) {
-        const pool = category === 'All'
-            ? RULES_DATA
-            : RULES_DATA.filter(r => r.category === category);
-        renderGrouped(list, pool, '');
-        return;
-    }
-
-    
-    const pool = category === 'All'
-        ? RULES_DATA
-        : RULES_DATA.filter(r => r.category === category);
-
-    
-    const exactId = pool.filter(r => r.id.toLowerCase() === q);
-
-    
-    
-    const startsId = pool.filter(r =>
-        r.id.toLowerCase().startsWith(q) &&
-        r.id.toLowerCase() !== q
-    );
-
-    
-    
-    const containsId = pool.filter(r =>
-        r.id.toLowerCase().includes(q) &&
-        !r.id.toLowerCase().startsWith(q)
-    );
-
-    
-    const idMatchIds = new Set([...exactId, ...startsId, ...containsId].map(r => r.id));
-    const textOnly = pool.filter(r =>
-        !idMatchIds.has(r.id) && (
-            r.brief.toLowerCase().includes(q) ||
-            r.full_text.toLowerCase().includes(q)
-        )
-    );
-
-    
-    const idMatches   = [...exactId, ...startsId, ...containsId];
-    const allResults  = [...idMatches, ...textOnly];
-
-    if (!allResults.length) {
-        list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--sub-text);font-size:0.85rem;">No rules found for "${query}".</div>`;
-        return;
-    }
-
-    let html = '';
-
-    
-    if (idMatches.length) {
-        html += `<div class="rules-section-header">Rule ID Matches</div>`;
-        idMatches.forEach(r => {
-            html += ruleCardHTML(r, q);
-        });
-    }
-
-    
-    if (textOnly.length) {
-        html += `<div class="rules-section-header">${idMatches.length ? 'Also in Rule Text' : 'Rule Text Matches'}</div>`;
-        textOnly.forEach(r => {
-            html += ruleCardHTML(r, q);
-        });
-    }
-
-    list.innerHTML = html;
-}
-
-function ruleCardHTML(r, q) {
-    const highlightedBrief = q ? highlightMatch(r.brief, q) : r.brief;
-    const highlightedId    = q ? highlightMatch(r.id, q)    : r.id;
-    return `
-        <div class="rule-card" onclick="openRule('${r.id}')">
-            <span class="rule-id">${highlightedId}</span>
-            <span class="rule-brief">${highlightedBrief}</span>
-            <span class="rule-arrow">›</span>
+    list.innerHTML = `
+        <div style="text-align:center; padding:40px; color:var(--sub-text);">
+            <div class="loading-spinner"></div>
+            <p style="margin-top:15px; font-size:0.85rem; letter-spacing:1px;">LOADING EVENTS...</p>
         </div>`;
-}
 
-function renderGrouped(list, pool, q) {
-    if (!pool.length) {
-        list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--sub-text);font-size:0.85rem;">No rules found.</div>`;
-        return;
-    }
-    const groups = {};
-    pool.forEach(r => {
-        if (!groups[r.category]) groups[r.category] = [];
-        groups[r.category].push(r);
-    });
-    let html = '';
-    CATEGORY_ORDER.filter(c => groups[c]).forEach(cat => {
-        html += `<div class="rules-section-header">${cat}</div>`;
-        groups[cat].forEach(r => { html += ruleCardHTML(r, q); });
-    });
-    list.innerHTML = html;
-}
-
-function highlightMatch(text, query) {
-    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
-}
-
-function openRule(ruleId) {
-    const rule = RULES_DATA.find(r => r.id === ruleId);
-    if (!rule) return;
-
-    const overlay = document.getElementById('rule-overlay');
-    const title   = document.getElementById('rule-overlay-title');
-    const body    = document.getElementById('rule-overlay-body');
-    if (!overlay || !title || !body) return;
-
-    title.innerHTML = `<span class="rule-id" style="font-size:1rem;">${rule.id}</span> ${rule.brief}`;
-
-    
-    let text = rule.full_text;
-    
-    text = text.replace(/ ([a-z]\.) /g, '<br><br><b>$1</b> ');
-    text = text.replace(/ (\d+\.) /g, '<br><br><b>$1</b> ');
-    
-    text = text.replace(/&lt;([A-Z]+\d+)&gt;/g, '<span class="rule-ref">$1</span>');
-    text = text.replace(/<([A-Z]+\d+)>/g, '<span class="rule-ref">$1</span>');
-
-    body.innerHTML = `<p style="line-height:1.7; font-size:0.88rem; color:var(--text);">${text}</p>`;
-
-    overlay.classList.add('active');
-}
-
-function closeRule() {
-    document.getElementById('rule-overlay')?.classList.remove('active');
-}
-
-function renderAIMessages() {
-    const container = document.getElementById('ai-messages');
-    if (!container) return;
-
-    if (!aiConversation.length) {
-        container.innerHTML = `
-            <div class="ai-empty">
-                <div style="font-size:2rem; margin-bottom:10px;">⚖️</div>
-                <div style="font-weight:800; font-size:0.9rem; margin-bottom:6px;">Rules Assistant</div>
-                <div style="font-size:0.8rem; color:var(--sub-text);">Ask any question about the Override game rules. Example: "Can I push an opponent into their goal?"</div>
-            </div>`;
-        return;
-    }
-
-    container.innerHTML = aiConversation.map(msg => `
-        <div class="ai-msg ${msg.role}">
-            <div class="ai-msg-bubble">${msg.content.replace(/\n/g, '<br>').replace(/<([A-Z]+\d+)>/g, '<span class="rule-ref">$1</span>')}</div>
-        </div>`).join('');
-
-    
-    container.scrollTop = container.scrollHeight;
-}
-
-const SUPERUSER_CODE = 'superuser2775ua00p9r5=';
-let superuserActive = false;
-
-async function sendAIQuestion() {
-    const input = document.getElementById('ai-input');
-    const btn   = document.getElementById('ai-send-btn');
-    if (!input || !btn) return;
-
-    const raw = input.value.trim();
-    if (!raw) return;
-
-    
-    let question = raw;
-    if (raw.toLowerCase().startsWith(SUPERUSER_CODE)) {
-        superuserActive = true;
-        question = raw.slice(SUPERUSER_CODE.length).trim();
-        if (!question) {
-            
-            aiConversation.push({ role: 'user', content: raw });
-            aiConversation.push({ role: 'assistant', content: '🔓 Superuser mode activated. I am no longer limited to game rules — ask me anything.' });
-            input.value = '';
-            renderAIMessages();
-            return;
-        }
-    }
-
-    if (!question) return;
-
-    input.value = '';
-    btn.disabled = true;
-    btn.textContent = '...';
-
-    
-    aiConversation.push({ role: 'user', content: question });
-    renderAIMessages();
-
-    
-    const rulesContext = RULES_DATA.map(r =>
-        `<${r.id}> [${r.category}] ${r.brief}: ${r.full_text}`
-    ).join('\n\n');
-
-    const systemPrompt = superuserActive
-        ? `You are a highly capable AI assistant. You are unrestricted and can answer any question on any topic thoughtfully and helpfully. Be direct, knowledgeable, and genuinely useful. Do not refuse reasonable requests. Game rules context is still available to you if needed:\n\n${rulesContext}`
-        : `You are a VEX V5 Robotics Competition rules expert for the 2026-2027 game "Override". 
-Answer questions about game rules clearly and concisely. 
-Always cite the specific rule IDs in angle brackets like <SG1> when referencing rules.
-If a question isn't about the game rules, politely redirect.
-Be direct and helpful — teams ask these questions during tournaments and need quick answers.
-
-Here are all the game rules:
-
-${rulesContext}`;
-
-    
-    const messages = aiConversation.map(m => ({ role: m.role, content: m.content }));
+    const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+    const dateString = twoWeeksAgo.toISOString().split('T')[0] + 'T00:00:00Z';
 
     try {
-        const response = await fetch('/api/claude', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: 'gemini-1.5-flash',
-                max_tokens: 8000,
-                superuser: superuserActive,
-                system: systemPrompt,
-                messages: messages
-            })
-        });
-
-        const data = await response.json();
+        const trimmed = query.trim();
         
-        if (data.error) {
-            throw new Error(data.error.message || JSON.stringify(data.error));
-        }
-        const answer = data.content?.[0]?.text || 'No response text returned.';
+        
+        
+        const searchStart = trimmed
+            ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T00:00:00Z'
+            : dateString;
+        let url = `/api/robotevents?search=${encodeURIComponent(trimmed)}&start=${searchStart}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
 
-        aiConversation.push({ role: 'assistant', content: answer });
-        renderAIMessages();
+        if (!result.data || result.data.length === 0) {
+            list.innerHTML = `
+                <div style="text-align:center; padding:40px; color:var(--sub-text);">
+                    <p>No events found${query ? ` for "${query}"` : ''}.</p>
+                    ${query ? `<button onclick="clearEventSearch()" style="margin-top:12px;background:var(--border);color:var(--text);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;">CLEAR</button>` : ''}
+                </div>`;
+            return;
+        }
+
+        allEvents = result.data.map(e => ({
+            name: e.name,
+            city: e.location?.city || '',
+            region: e.location?.region || '',
+            start: e.start, end: e.end,
+            status: getEventStatus(e.start, e.end),
+            id: e.id
+        }));
+
+        renderFilteredEvents();
 
     } catch (err) {
-        aiConversation.push({ role: 'assistant', content: `Connection error: ${err.message}` });
-        renderAIMessages();
-    } finally {
-        btn.disabled = false;
-        btn.textContent = 'Ask';
+        list.innerHTML = `
+            <div style="text-align:center; padding:40px; color:var(--red);">
+                <p style="font-weight:800;">CONNECTION FAILED</p>
+                <small style="color:var(--sub-text);">${err.message}</small><br>
+                <button onclick="loadEvents()" style="margin-top:15px;background:var(--border);color:var(--text);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;">RETRY</button>
+            </div>`;
     }
 }
 
-function clearAIChat() {
-    aiConversation = [];
-    superuserActive = false;
-    renderAIMessages();
+function clearEventSearch() {
+    const el = document.getElementById('eventSearch');
+    if (el) el.value = '';
+    loadEvents('');
 }
 
-function onAIKeydown(event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendAIQuestion();
+function setEventFilter(filter) {
+    activeFilter = filter;
+    document.querySelectorAll('.evt-filter-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('filter-' + filter);
+    if (btn) btn.classList.add('active');
+    renderFilteredEvents();
+}
+
+function renderFilteredEvents() {
+    const list = document.getElementById('event-list');
+    if (!list) return;
+    const filtered = activeFilter === 'all'
+        ? allEvents
+        : allEvents.filter(e => e.status.toLowerCase() === activeFilter);
+
+    if (!filtered.length) {
+        list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--sub-text);font-size:0.85rem;">No ${activeFilter !== 'all' ? activeFilter : ''} events found.</div>`;
+        return;
     }
+
+    list.innerHTML = '';
+    filtered.forEach(e => {
+        const loc = [e.city, e.region].filter(Boolean).join(', ');
+        const dateStr = formatEventDate(e.start, e.end);
+        const safeName = e.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        list.innerHTML += `
+            <div class="event-item" onclick="openEventDetail(${e.id}, '${safeName}')">
+                <div class="event-item-top">
+                    <div class="event-item-meta">${dateStr}${loc ? ` · ${loc}` : ''}</div>
+                    <span class="status-pill status-${e.status.toLowerCase()}">${e.status.toUpperCase()}</span>
+                </div>
+                <div class="event-item-name">${e.name}</div>
+            </div>`;
+    });
+}
+
+function formatEventDate(start, end) {
+    const s = new Date(start), e = new Date(end);
+    const opts = { month: 'short', day: 'numeric' };
+    return s.toDateString() === e.toDateString()
+        ? s.toLocaleDateString(undefined, opts)
+        : `${s.toLocaleDateString(undefined, opts)} – ${e.toLocaleDateString(undefined, opts)}`;
+}
+
+function getEventStatus(start, end) {
+    const now = new Date();
+    if (now >= new Date(start) && now <= new Date(end)) return 'Live';
+    if (now > new Date(end)) return 'Completed';
+    return 'Upcoming';
+}
+
+function openEventDetail(id, name) {
+    lastEventId = id;
+    lastEventName = name;
+    detailOrigin = 'events'; 
+    _openEventDetailView(id, name);
+}
+
+function _openEventDetailView(id, name) {
+    document.getElementById('detName').innerText = name;
+    document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+    const target = document.getElementById('view-detail');
+    if (target) target.classList.add('active');
+    window.scrollTo(0, 0);
+    if (typeof loadEventDeepData === 'function') loadEventDeepData(id);
 }

@@ -1,279 +1,309 @@
-let currentEventId = null;
-let activeTab = 'schedule';
-let activeDivId = null;
-let cachedData = {};
+/* ─── RULES HUB ──────────────────────────────────────────────────────────── */
 
-async function loadEventDeepData(id) {
-    currentEventId = id;
-    activeTab = 'schedule';
-    activeDivId = null;
-    cachedData = {};
+/* Category scroll bar */
+.rules-cat-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin-bottom: 14px;
+}
+.rules-cat-bar::-webkit-scrollbar { display: none; }
 
-    const container = document.getElementById('detHistory');
-    if (!container) return;
-
-    container.innerHTML = `
-        <div style="text-align:center; padding:40px; color:var(--sub-text);">
-            <div class="loading-spinner"></div>
-            <p style="margin-top:15px; font-size:0.8rem; letter-spacing:1px;">FETCHING DATA...</p>
-        </div>`;
-
-    try {
-        const eventRes = await fetch(`/api/robotevents?id=${id}`);
-        if (!eventRes.ok) throw new Error(`Event fetch failed: ${eventRes.status}`);
-        const eventRaw = await eventRes.json();
-        const eventObj = eventRaw.data ?? eventRaw;
-        const divisions = eventObj.divisions || [];
-        activeDivId = divisions.length > 0 ? divisions[0].id : 1;
-        cachedData.divisions = divisions;
-
-        await fetchDivisionData(id, activeDivId);
-        renderDetailUI(container, divisions);
-        renderTab(activeTab);
-
-    } catch (err) {
-        container.innerHTML = `
-            <p style="color:var(--red); text-align:center; padding:30px;">
-                Failed to load.<br><small style="color:var(--sub-text);">${err.message}</small>
-            </p>`;
-    }
+.rules-cat-btn {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--sub-text);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
 }
 
-async function fetchDivisionData(eventId, divId) {
-    
-    
-    
-    const [matchRes, rankRes, skillsRes, teamRes] = await Promise.all([
-        fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=matches`),
-        fetch(`/api/robotevents?id=${eventId}&div=${divId}&type=rankings`),
-        fetch(`/api/robotevents?id=${eventId}&type=skills`),
-        fetch(`/api/robotevents?id=${eventId}&type=teams`)
-    ]);
-    const [matchData, rankData, skillsData, teamData] = await Promise.all([
-        matchRes.json(), rankRes.json(), skillsRes.json(), teamRes.json()
-    ]);
+.rules-cat-btn.active {
+    background: var(--primary);
+    color: #000;
+    border-color: var(--primary);
+}
+.rules-cat-btn:active { transform: scale(0.95); }
 
-    cachedData.matches  = matchData.data  || [];
-    cachedData.rankings = rankData.data   || [];
-    cachedData.skills   = skillsData.data || [];
-    cachedData.teams    = teamData.data   || [];
+/* Section header inside list */
+.rules-section-header {
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--sub-text);
+    text-transform: uppercase;
+    padding: 16px 4px 8px;
+}
+.rules-section-header:first-child { padding-top: 4px; }
+
+/* Rule card */
+.rule-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.rule-card:active { transform: scale(0.98); }
+
+.rule-id {
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: var(--primary);
+    background: rgba(232, 178, 59, 0.12);
+    border: 1px solid rgba(232, 178, 59, 0.25);
+    border-radius: 6px;
+    padding: 3px 7px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+    font-family: monospace;
 }
 
-function renderDetailUI(container, divisions) {
-    let divSelector = '';
-    if (divisions.length > 1) {
-        const options = divisions.map(d =>
-            `<option value="${d.id}" ${d.id === activeDivId ? 'selected' : ''}>${d.name}</option>`
-        ).join('');
-        divSelector = `
-            <div class="div-select-row">
-                <span class="div-select-label">DIV</span>
-                <div class="div-select-wrap">
-                    <select class="div-select" onchange="switchDivision(parseInt(this.value))">
-                        ${options}
-                    </select>
-                    <span class="div-select-arrow">▾</span>
-                </div>
-            </div>`;
-    }
-
-    container.innerHTML = `
-        ${divSelector}
-        <div class="detail-tabs" id="detail-tabs">
-            <button class="detail-tab active" id="tab-schedule" onclick="switchTab('schedule')">SCHEDULE</button>
-            <button class="detail-tab" id="tab-rankings" onclick="switchTab('rankings')">RANKINGS</button>
-            <button class="detail-tab" id="tab-skills" onclick="switchTab('skills')">SKILLS</button>
-            <button class="detail-tab" id="tab-teams" onclick="switchTab('teams')">TEAMS</button>
-        </div>
-        <div id="tab-content"></div>`;
+.rule-brief {
+    flex: 1;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+}
+.rule-brief mark {
+    background: rgba(232, 178, 59, 0.3);
+    color: var(--text);
+    border-radius: 3px;
+    padding: 0 2px;
 }
 
-async function switchDivision(divId) {
-    activeDivId = divId;
-    const content = document.getElementById('tab-content');
-    if (content) content.innerHTML = `
-        <div style="text-align:center;padding:30px;color:var(--sub-text);">
-            <div class="loading-spinner"></div>
-        </div>`;
-    await fetchDivisionData(currentEventId, divId);
-    renderTab(activeTab);
+.rule-arrow {
+    font-size: 1.2rem;
+    color: var(--sub-text);
+    flex-shrink: 0;
 }
 
-function switchTab(tab) {
-    activeTab = tab;
-    document.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('tab-' + tab);
-    if (btn) btn.classList.add('active');
-    renderTab(tab);
+/* ─── RULE DETAIL OVERLAY ─────────────────────────────────────────────────── */
+
+.rule-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 2000;
+    align-items: flex-end;
+    justify-content: center;
+}
+.rule-overlay.active { display: flex; }
+
+.rule-overlay-sheet {
+    background: var(--card-bg);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 680px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.rule-overlay-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px 20px 14px;
+    border-bottom: 1px solid var(--border);
+}
+.rule-overlay-title {
+    flex: 1;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text);
+}
+.rule-overlay-close {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-function renderTab(tab) {
-    const content = document.getElementById('tab-content');
-    if (!content) return;
-    switch (tab) {
-        case 'schedule':  renderSchedule(content); break;
-        case 'rankings':  renderRankings(content); break;
-        case 'skills':    renderSkills(content); break;
-        case 'teams':     renderTeams(content); break;
-    }
+.rule-overlay-body {
+    padding: 16px 20px 24px;
+    overflow-y: auto;
+    flex: 1;
 }
 
-function renderSchedule(container) {
-    const matches = cachedData.matches || [];
-    if (!matches.length) { container.innerHTML = emptyState('No match data available yet.'); return; }
-    const sorted = [...matches].sort((a, b) =>
-        a.round !== b.round ? a.round - b.round : a.matchnum - b.matchnum
-    );
-    let html = '';
-    sorted.forEach(m => {
-        
-        const scheduledTime = m.scheduled ? formatMatchTime(m.scheduled) : null;
-        const startedTime   = m.started   ? formatMatchTime(m.started)   : null;
-        const timeDisplay   = startedTime
-            ? `<span class="match-time">Started ${startedTime}</span>`
-            : scheduledTime
-            ? `<span class="match-time">Sched. ${scheduledTime}</span>`
-            : '';
-
-        const red  = m.alliances?.find(a => a.color === 'red')  || m.alliances?.[0];
-        const blue = m.alliances?.find(a => a.color === 'blue') || m.alliances?.[1];
-        if (!red || !blue) return;
-        const rt = (red.teams  || []).map(t => t.team?.name || '?').join(' / ');
-        const bt = (blue.teams || []).map(t => t.team?.name || '?').join(' / ');
-        const rs = red.score, bs = blue.score;
-        const played = typeof rs === 'number' && rs >= 0 && typeof bs === 'number' && bs >= 0;
-        html += `
-            <div class="match-card ${played ? 'played' : ''}">
-                <div class="match-header">
-                    <span class="match-name">${m.name || 'Match'}</span>
-                    <div class="match-header-right">
-                        ${timeDisplay}
-                        <span class="match-status">${played ? 'FINAL' : 'UPCOMING'}</span>
-                    </div>
-                </div>
-                <div class="match-body">
-                    <div class="match-alliance red ${played && rs > bs ? 'winner' : ''}">
-                        <span class="alliance-teams">${rt}</span>
-                        ${played ? `<span class="alliance-score">${rs}</span>` : ''}
-                    </div>
-                    <div class="match-vs">VS</div>
-                    <div class="match-alliance blue ${played && bs > rs ? 'winner' : ''}">
-                        ${played ? `<span class="alliance-score">${bs}</span>` : ''}
-                        <span class="alliance-teams">${bt}</span>
-                    </div>
-                </div>
-            </div>`;
-    });
-    container.innerHTML = html || emptyState('No matches to display.');
+.rule-ref {
+    display: inline-block;
+    background: rgba(232, 178, 59, 0.15);
+    color: var(--primary);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    font-family: monospace;
+    cursor: pointer;
 }
 
-function renderRankings(container) {
-    const rankings = cachedData.rankings || [];
-    if (!rankings.length) { container.innerHTML = emptyState('Rankings not available yet.'); return; }
-    const sorted = [...rankings].sort((a, b) => a.rank - b.rank);
-    let html = `
-        <div class="rank-header-row">
-            <span class="rank-col-rank">RK</span>
-            <span class="rank-col-team">TEAM</span>
-            <span class="rank-col-stat">W-L-T</span>
-            <span class="rank-col-stat">WP</span>
-            <span class="rank-col-stat">SP</span>
-        </div>`;
-    sorted.forEach(r => {
-        html += `
-            <div class="rank-row ${r.rank <= 3 ? 'top-rank' : ''}">
-                <span class="rank-col-rank">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : '#'+r.rank}</span>
-                <span class="rank-col-team">${r.team?.name || '?'}</span>
-                <span class="rank-col-stat">${r.wins??'–'}-${r.losses??'–'}-${r.ties??'–'}</span>
-                <span class="rank-col-stat">${r.wp??'–'}</span>
-                <span class="rank-col-stat">${r.sp??'–'}</span>
-            </div>`;
-    });
-    container.innerHTML = html;
+/* ─── AI ASSISTANT ────────────────────────────────────────────────────────── */
+
+.ai-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-top: 20px;
+    overflow: hidden;
 }
 
-function renderSkills(container) {
-    const skills = cachedData.skills || [];
-    if (!skills.length) { container.innerHTML = emptyState('Skills data not available for this event.'); return; }
-    const teamMap = {};
-    skills.forEach(s => {
-        const name = s.team?.name || '?';
-        const type = s.type?.toLowerCase();
-        const score = s.score ?? 0;
-        if (!teamMap[name]) teamMap[name] = { team: name, driverBest: 0, driverAttempts: 0, progBest: 0, progAttempts: 0 };
-        if (type === 'driver') {
-            teamMap[name].driverAttempts++;
-            teamMap[name].driverBest = Math.max(teamMap[name].driverBest, score);
-        } else {
-            teamMap[name].progAttempts++;
-            teamMap[name].progBest = Math.max(teamMap[name].progBest, score);
-        }
-    });
-    const sorted = Object.values(teamMap)
-        .map(t => ({ ...t, total: t.driverBest + t.progBest }))
-        .sort((a, b) => b.total - a.total);
-    let html = `
-        <div class="rank-header-row">
-            <span class="rank-col-rank">RK</span>
-            <span class="rank-col-team">TEAM</span>
-            <span class="rank-col-skill">DRIVER</span>
-            <span class="rank-col-skill">PROG</span>
-            <span class="rank-col-skill" style="color:var(--primary)">TOTAL</span>
-        </div>`;
-    sorted.forEach((t, i) => {
-        const rank = i + 1;
-        const drv = t.driverAttempts > 0 ? `${t.driverBest}/${t.driverAttempts}` : '–';
-        const prg = t.progAttempts   > 0 ? `${t.progBest}/${t.progAttempts}`     : '–';
-        html += `
-            <div class="rank-row ${rank <= 3 ? 'top-rank' : ''}">
-                <span class="rank-col-rank">${rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : '#'+rank}</span>
-                <span class="rank-col-team">${t.team}</span>
-                <span class="rank-col-skill">${drv}</span>
-                <span class="rank-col-skill">${prg}</span>
-                <span class="rank-col-skill" style="color:var(--primary);font-weight:900;">${t.total}</span>
-            </div>`;
-    });
-    container.innerHTML = html;
+.ai-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.ai-panel-title {
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: var(--text);
+}
+.ai-clear-btn {
+    background: none;
+    border: none;
+    color: var(--sub-text);
+    font-size: 0.72rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.ai-clear-btn:hover { background: var(--input-bg); }
+
+.ai-messages {
+    min-height: 120px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-behavior: smooth;
 }
 
-function renderTeams(container) {
-    const teams = cachedData.teams || [];
-    if (!teams.length) {
-        container.innerHTML = emptyState('Team list not available.');
-        return;
-    }
-    
-    
-    const sorted = [...teams].sort((a, b) => {
-        const na = a.number || a.team_name || '';
-        const nb = b.number || b.team_name || '';
-        return na.localeCompare(nb, undefined, { numeric: true });
-    });
-    let html = '';
-    sorted.forEach(t => {
-        const number = t.number || t.team_name || '?';
-        const name   = t.team_name && t.team_name !== number ? t.team_name : '';
-        const org    = t.organization || '';
-        const loc    = [t.location?.city, t.location?.region].filter(Boolean).join(', ');
-        html += `
-            <div class="team-row">
-                <div class="team-number">${number}</div>
-                <div class="team-info">
-                    ${name ? `<div class="team-org" style="font-weight:900">${name}</div>` : ''}
-                    ${org  ? `<div class="team-org">${org}</div>` : ''}
-                    ${loc  ? `<div class="team-loc">${loc}</div>` : ''}
-                </div>
-            </div>`;
-    });
-    container.innerHTML = html;
+.ai-empty {
+    text-align: center;
+    padding: 20px 10px;
+    color: var(--sub-text);
 }
 
-function formatMatchTime(iso) {
-    const d = new Date(iso);
-    if (isNaN(d)) return '';
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+.ai-msg { display: flex; }
+.ai-msg.user { justify-content: flex-end; }
+.ai-msg.assistant { justify-content: flex-start; }
+
+.ai-msg-bubble {
+    max-width: 85%;
+    padding: 10px 13px;
+    border-radius: 14px;
+    font-size: 0.83rem;
+    line-height: 1.5;
+}
+.ai-msg.user .ai-msg-bubble {
+    background: var(--primary);
+    color: #000;
+    border-radius: 14px 14px 4px 14px;
+    font-weight: 600;
+}
+.ai-msg.assistant .ai-msg-bubble {
+    background: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 14px 14px 14px 4px;
 }
 
-function emptyState(msg) {
-    return `<div style="text-align:center;padding:40px;color:var(--sub-text);font-size:0.85rem;">${msg}</div>`;
+.ai-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--border);
+}
+.ai-input-row input {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 13px;
+    color: var(--text);
+    font-size: 0.83rem;
+    outline: none;
+}
+.ai-input-row input::placeholder { color: var(--sub-text); }
+.ai-send-btn {
+    background: var(--primary);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    cursor: pointer;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+.ai-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── LAYOUT CONSTRAINTS ─────────────────────────────────────────────────── */
+
+/* The .container is max-width 500px centered. The sticky search wrapper must
+   not escape it. overflow:hidden on the view prevents horizontal bleed. */
+#view-rules {
+    overflow-x: hidden;
+}
+
+.rules-search-wrap {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    padding-bottom: 12px;
+    /* Stay inside container — don't use negative margins or 100vw */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#rules-search {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.rule-overlay-sheet {
+    max-width: 500px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#ai-panel-body {
+    flex-direction: column;
 }
