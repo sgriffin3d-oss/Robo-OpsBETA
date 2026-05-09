@@ -220,6 +220,15 @@ function updateAccountUI() {
             avatarEl.textContent = '👤';
         }
     }
+
+    // Install App card — visible only when not installed as PWA
+    const installCard = document.getElementById('settings-install-card');
+    if (installCard) {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                          || window.navigator.standalone === true;
+        const isMarkedInstalled = localStorage.getItem('paragon_installed_v1') === '1';
+        installCard.style.display = (isStandalone || isMarkedInstalled) ? 'none' : '';
+    }
 }
 
 // ── DATA SYNC ─────────────────────────────────────────────────────────────────

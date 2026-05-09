@@ -38,19 +38,25 @@ window.addEventListener('appinstalled', () => {
 function maybeShowInstall(onDone) {
     _onWelcomeDone = onDone || null;
 
-    const isInstalled = localStorage.getItem(INSTALL_KEY) === '1';
+    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                       || window.navigator.standalone === true;
-    const isSignedIn = !!localStorage.getItem('sb-bccymltkymuokpjbrzfb-auth-token')
-                    || localStorage.getItem('paragon_guest_mode') === 'true';
+    const isSignedIn   = !!localStorage.getItem('sb-bccymltkymuokpjbrzfb-auth-token');
+    const isGuest      = localStorage.getItem('paragon_guest_mode') === 'true';
 
-    // Skip welcome if: already installed as PWA, OR user is signed in/was guest
-    if (isInstalled || isStandalone || isSignedIn) {
+    // Already installed as PWA → never show, just launch
+    if (isInstalled || isStandalone) {
         _onWelcomeDone && _onWelcomeDone();
         return;
     }
 
-    // First-time or returned-but-not-installed-and-not-signed-in: show welcome
+    // Signed-in (real account) → skip welcome, just launch
+    if (isSignedIn && !isGuest) {
+        _onWelcomeDone && _onWelcomeDone();
+        return;
+    }
+
+    // Guest or brand-new user → show the install/welcome prompt
     _buildAndShowOverlay();
 }
 
@@ -171,8 +177,18 @@ async function _triggerNativeInstall() {
 }
 
 // ── Proceed to app (close welcome, launch auth) ───────────────
+// Skipping does NOT mark as installed — so guests see it again next time
 function _proceedToApp() {
     _closeInstallOverlay(false);
+}
+
+// ── Show install prompt from Settings (on-demand) ─────────────
+function showInstallPrompt() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                      || window.navigator.standalone === true;
+    if (isStandalone) return; // already installed, button shouldn't be visible but guard anyway
+    _onWelcomeDone = null;    // no callback needed when triggered from settings
+    _buildAndShowOverlay();
 }
 
 // ── Close overlay then fire the onDone callback ───────────────
