@@ -6,6 +6,7 @@ const ASSETS = [
   './assets/css/events.css',
   './assets/css/onboarding.css',
   './assets/css/rules.css',
+  './src/registry.js',
   './src/app.js',
   './src/auth.js',
   './src/events.js',

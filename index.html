@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="assets/css/events.css">
     <link rel="stylesheet" href="assets/css/rules.css">
     <link rel="stylesheet" href="assets/css/install.css">
+    <!-- ↓ Plugin stylesheets — add one line per plugin ↓ -->
+    <link rel="stylesheet" href="assets/css/example-plugin.css">
     <style>
         /* --- MAP FRAME & ZOOM --- */
         .map-frame { 
@@ -156,7 +158,13 @@
             </span>
             <b>New Match Report</b>
         </div>
+
+        <!-- Plugin cards render here automatically via registry.js -->
+        <div id="hub-plugin-cards"></div>
     </section>
+
+    <!-- Plugin views are injected here by registry.js -->
+    <div id="view-plugins"></div>
 
     <section id="view-events" class="view">
         <div class="welcome-header"><h1>Events</h1><p>Competition Tracker</p></div>
@@ -392,6 +400,7 @@
     <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
 </div>
 
+<script src="src/registry.js"></script>
 <script src="src/events.js"></script>
 <script src="src/app.js"></script>
 <script src="src/calc.js"></script>
@@ -413,5 +422,7 @@
     <script src="src/rules.js"></script>
     <script src="src/rules_ui.js"></script>
     <script src="src/install.js"></script>
+    <!-- ↓ Plugin scripts — add one line per plugin ↓ -->
+    <script src="src/example-plugin.js"></script>
 </body>
 </html>
