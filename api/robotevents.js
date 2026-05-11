@@ -3,64 +3,63 @@ export default async function handler(req, res) {
     const token = process.env.ROBOT_EVENTS_TOKEN;
 
     if (!token) {
-        return res.status(500).json({ error: "API token missing from environment variables. Set ROBOT_EVENTS_TOKEN in Vercel." });
+        return res.status(500).json({ error: 'ROBOT_EVENTS_TOKEN env var is missing from Vercel.' });
     }
 
-    let baseUrl;
+    const BASE = 'https://www.vexdb.io/api/v1'; // fallback — swap to correct URL once confirmed
+    const RE   = 'https://www.robotevents.com/api/v2';
+    const headers = { Authorization: `Bearer ${token}`, Accept: 'application/json' };
 
-    if (id && div && type) {
-        baseUrl = `https://events.vex.com/v2/events/${id}/divisions/${div}/${type}`;
-    } else if (id && type) {
-        baseUrl = `https://events.vex.com/v2/events/${id}/${type}`;
-    } else if (id) {
-        const response = await fetch(`https://events.vex.com/v2/events/${id}`, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-        });
-        if (!response.ok) {
-            const err = await response.text();
-            return res.status(response.status).json({ error: `RobotEvents returned ${response.status}`, details: err });
+    async function reGet(url) {
+        const r = await fetch(url, { headers });
+        if (!r.ok) {
+            const msg = await r.text();
+            throw { status: r.status, msg };
         }
-        return res.status(200).json(await response.json());
-    } else {
-        let url = `https://api.robotevents.com/v2/events?per_page=50&program[]=4`;
-        if (start) url += `&start=${start}`;
-        if (search && search.trim() !== "") url += `&name[]=${encodeURIComponent(search)}`;
-        const response = await fetch(url, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-        });
-        if (!response.ok) {
-            const err = await response.text();
-            return res.status(response.status).json({ error: `RobotEvents returned ${response.status}`, details: err });
-        }
-        return res.status(200).json(await response.json());
+        return r.json();
     }
 
     try {
-        let allData = [];
-        let page = 1;
-        let lastPage = 1;
+        // ── Single event detail ──────────────────────────────────────────────
+        if (id && !type && !div) {
+            const data = await reGet(`${RE}/events/${id}`);
+            return res.status(200).json(data);
+        }
 
-        do {
-            const url = `${baseUrl}?per_page=250&page=${page}`;
-            const response = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-            });
+        // ── Division-scoped data (matches / rankings) ─────────────────────
+        if (id && div && type) {
+            let all = [], page = 1, lastPage = 1;
+            do {
+                const data = await reGet(`${RE}/events/${id}/divisions/${div}/${type}?per_page=250&page=${page}`);
+                all = all.concat(data.data || []);
+                lastPage = data.meta?.last_page ?? 1;
+                page++;
+            } while (page <= lastPage);
+            return res.status(200).json({ data: all });
+        }
 
-            if (!response.ok) {
-                const err = await response.text();
-                return res.status(response.status).json({ error: `RobotEvents returned ${response.status}`, details: err });
-            }
+        // ── Event-scoped data (skills / teams) ───────────────────────────
+        if (id && type) {
+            let all = [], page = 1, lastPage = 1;
+            do {
+                const data = await reGet(`${RE}/events/${id}/${type}?per_page=250&page=${page}`);
+                all = all.concat(data.data || []);
+                lastPage = data.meta?.last_page ?? 1;
+                page++;
+            } while (page <= lastPage);
+            return res.status(200).json({ data: all });
+        }
 
-            const data = await response.json();
-            allData = allData.concat(data.data || []);
-            lastPage = data.meta?.last_page ?? 1;
-            page++;
+        // ── Event list ───────────────────────────────────────────────────
+        let url = `${RE}/events?per_page=50&program[]=4`;
+        if (start)                url += `&start=${start}`;
+        if (search?.trim())       url += `&name[]=${encodeURIComponent(search.trim())}`;
+        const data = await reGet(url);
+        return res.status(200).json(data);
 
-        } while (page <= lastPage);
-
-        res.status(200).json({ data: allData });
-
-    } catch (error) {
-        res.status(500).json({ error: "Server error", message: error.message });
+    } catch (err) {
+        const status  = err.status  || 500;
+        const message = err.msg     || err.message || 'Unknown server error';
+        return res.status(status).json({ error: `RobotEvents returned ${status}`, details: message });
     }
 }
