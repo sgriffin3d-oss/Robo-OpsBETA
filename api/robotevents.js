@@ -6,8 +6,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'ROBOT_EVENTS_TOKEN env var is missing from Vercel.' });
     }
 
-    const BASE = 'https://www.vexdb.io/api/v1'; // fallback — swap to correct URL once confirmed
-    const RE   = 'https://www.robotevents.com/api/v2';
+    const BASE = 'https://events.vex.com/api/v2'; // fallback — swap to correct URL once confirmed
+    const RE   = 'https://events.vex.com/api/v2';
     const headers = { Authorization: `Bearer ${token}`, Accept: 'application/json' };
 
     async function reGet(url) {
