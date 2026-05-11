@@ -9,11 +9,11 @@ export default async function handler(req, res) {
     let baseUrl;
 
     if (id && div && type) {
-        baseUrl = `https://api.robotevents.com/v2/events/${id}/divisions/${div}/${type}`;
+        baseUrl = `https://events.vex.com/v2/events/${id}/divisions/${div}/${type}`;
     } else if (id && type) {
-        baseUrl = `https://api.robotevents.com/v2/events/${id}/${type}`;
+        baseUrl = `https://events.vex.com/v2/events/${id}/${type}`;
     } else if (id) {
-        const response = await fetch(`https://api.robotevents.com/v2/events/${id}`, {
+        const response = await fetch(`https://events.vex.com/v2/events/${id}`, {
             headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         });
         if (!response.ok) {
