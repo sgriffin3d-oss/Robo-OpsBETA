@@ -63,7 +63,6 @@ function nav(v) {
     document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
     const target = document.getElementById('view-' + v);
     if (target) target.classList.add('active');
-    if (typeof _registryOnNav === 'function') _registryOnNav('view-' + v);
     if (v === 'home') drawNotes();
     if (v === 'rules' && typeof initRules === 'function') initRules();
     if (v === 'settings') {
@@ -131,7 +130,7 @@ function drawSketches() {
     if(!list) return;
     list.innerHTML = '';
     [...sketches].reverse().forEach(s => {
-        const fieldPath = s.field === 'skills' ? 'assets/images/skills.png' : 'assets/images/field.png';
+        const fieldPath = s.field === 'skills' ? 'images/skills.png' : 'images/field.png';
         list.innerHTML += `
             <div class="sketch-item">
                 <img src="${s.img}" class="sketch-preview" onclick="loadSketch('${s.id}')"
