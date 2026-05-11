@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Robo Ops</title>
-    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
-    <link rel="icon" type="image/png" href="images/icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="icon" type="image/png" href="assets/images/icon.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#050505">
 
@@ -13,15 +13,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Robo Ops">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 
     <!-- Edge / general -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Robo Ops">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="events.css">
-    <link rel="stylesheet" href="rules.css">
-    <link rel="stylesheet" href="install.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/events.css">
+    <link rel="stylesheet" href="assets/css/rules.css">
+    <link rel="stylesheet" href="assets/css/install.css">
     <style>
         /* --- MAP FRAME & ZOOM --- */
         .map-frame { 
@@ -180,7 +180,7 @@
         </div>
         <div id="standard-view">
             <div class="map-frame" id="std-frame" onclick="toggleZoom('std-frame')">
-                <img id="map-img" src="images/field.png" alt="Field Map">
+                <img id="map-img" src="assets/images/field.png" alt="Field Map">
             </div>
         </div>
         <div id="draw-view" style="display:none;">
@@ -392,11 +392,11 @@
     <button class="dock-btn" id="fabBtn" onclick="toggleMenu()">^</button>
 </div>
 
-<script src="events.js"></script>
-<script src="app.js"></script>
-<script src="calc.js"></script>
-<script src="view.js"></script>
-<script src="details.js"></script> 
+<script src="src/events.js"></script>
+<script src="src/app.js"></script>
+<script src="src/calc.js"></script>
+<script src="src/view.js"></script>
+<script src="src/details.js"></script> 
 <!-- RULE DETAIL OVERLAY -->
 <div class="rule-overlay" id="rule-overlay" onclick="closeRule()">
     <div class="rule-overlay-sheet" onclick="event.stopPropagation()">
@@ -409,9 +409,9 @@
 </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="auth.js"></script>
-    <script src="rules.js"></script>
-    <script src="rules_ui.js"></script>
-    <script src="install.js"></script>
+    <script src="src/auth.js"></script>
+    <script src="src/rules.js"></script>
+    <script src="src/rules_ui.js"></script>
+    <script src="src/install.js"></script>
 </body>
 </html>
