@@ -63,6 +63,7 @@ function nav(v) {
     document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
     const target = document.getElementById('view-' + v);
     if (target) target.classList.add('active');
+    if (typeof _registryOnNav === 'function') _registryOnNav('view-' + v);
     if (v === 'home') drawNotes();
     if (v === 'rules' && typeof initRules === 'function') initRules();
     if (v === 'settings') {
