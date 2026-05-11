@@ -1,271 +1,279 @@
-/* ============================================================
-   PARAGON CORE X — WELCOME + INSTALL
+/* ─── EVENTS HUB ─────────────────────────────────────────────────────────── */
 
-   Flow:
-     Not installed as PWA:
-       → WELCOME SCREEN shown every open for guests.
-       → For real signed-in accounts: shown until they click
-         "Get Started" (sets WELCOME_SEEN_KEY) or install.
-
-     Already installed (standalone mode or INSTALL_KEY set):
-       → Skip welcome → straight to auth/app
-
-   Settings panel:
-     → Install card shown whenever not installed as PWA
-     → Hides itself after successful install
-
-   Call resetInstall() in console to re-test.
-   ============================================================ */
-
-const INSTALL_KEY      = 'paragon_installed_v1';
-const WELCOME_SEEN_KEY = 'paragon_welcome_seen_v1';
-const INSTALL_RESET_KEY = 'paragon_install_reset_v2'; // bump this key to force another reset
-
-// ── One-time forced reset ─────────────────────────────────────
-// Clears stale install/welcome flags from old app versions so
-// the welcome screen shows correctly for everyone on first load
-// after this update. Only runs once per browser.
-(function _forceResetOnce() {
-    if (!localStorage.getItem(INSTALL_RESET_KEY)) {
-        localStorage.removeItem(INSTALL_KEY);
-        localStorage.removeItem(WELCOME_SEEN_KEY);
-        localStorage.removeItem('paragon_installed_v1'); // belt & suspenders
-        localStorage.setItem(INSTALL_RESET_KEY, '1');
-    }
-})();
-
-let _installDeferredPrompt = null;
-let _installOverlayEl      = null;
-let _onWelcomeDone         = null;
-
-// Capture install prompt as early as possible
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    _installDeferredPrompt = e;
-    _refreshInstallBtn();
-    updateInstallCardVisibility();
-});
-
-window.addEventListener('appinstalled', () => {
-    localStorage.setItem(INSTALL_KEY, '1');
-    _closeInstallOverlay(true);
-    updateInstallCardVisibility();
-});
-
-// ── Entry point ───────────────────────────────────────────────
-function maybeShowInstall(onDone) {
-    _onWelcomeDone = onDone || null;
-
-    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                      || window.navigator.standalone === true;
-
-    if (isInstalled || isStandalone) {
-        _onWelcomeDone && _onWelcomeDone();
-        return;
-    }
-
-    const isGuest     = localStorage.getItem('paragon_guest_mode') === 'true';
-    const welcomeSeen = localStorage.getItem(WELCOME_SEEN_KEY) === '1';
-    const isSignedIn  = !!localStorage.getItem('sb-bccymltkymuokpjbrzfb-auth-token');
-
-    // Guest → always show welcome (no persistent seen flag)
-    if (isGuest) {
-        _buildAndShowOverlay(false);
-        return;
-    }
-
-    // Real account that has already dismissed → skip
-    if (isSignedIn && welcomeSeen) {
-        _onWelcomeDone && _onWelcomeDone();
-        return;
-    }
-
-    // First visit or new account
-    _buildAndShowOverlay(true);
+.search-container {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding-bottom: 12px;
+    z-index: 10;
 }
 
-// ── Build the welcome overlay ─────────────────────────────────
-function _buildAndShowOverlay(persistSeen) {
-    if (document.getElementById('install-overlay')) return;
+.evt-filter-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px
+}
+.evt-filter-bar::-webkit-scrollbar { display: none; }
 
-    const el = document.createElement('div');
-    el.id = 'install-overlay';
-    el.innerHTML = `
-        <div id="install-sheet">
+.evt-filter-btn {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--sub-text);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.evt-filter-btn.active {
+    background: var(--primary);
+    color: var(--primary-fg);
+    border-color: var(--primary);
+}
+.evt-filter-btn:active { transform: scale(0.95); }
 
-            <div class="inst-logo-wrap">
-                <img class="inst-logo" src="images/icon-192.png" onerror="this.src='images/icon.png'" alt="Paragon Core X">
-            </div>
+/* ─── EVENT CARDS ─────────────────────────────────────────────────────────── */
 
-            <h1 class="inst-h1">Welcome to<br><span class="inst-accent">Paragon&nbsp;Core&nbsp;X</span></h1>
-            <p class="inst-sub">Your VEX tournament command center.<br>Install for the best offline experience.</p>
-
-            <!-- Native install button (Chrome/Edge when prompt available) -->
-            <button class="inst-btn inst-btn-primary" id="inst-native-btn" onclick="_triggerNativeInstall()" style="display:none;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><polyline points="8 12 12 16 16 12"/><path d="M3 21h18"/></svg>
-                Install App
-            </button>
-
-            <!-- iOS instructions -->
-            <div class="inst-ios-steps" id="inst-ios-steps" style="display:none;">
-                <div class="inst-step">
-                    <span class="inst-step-num">1</span>
-                    <span>Tap <strong>Share</strong>
-                        <svg class="inst-inline-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                        at the bottom of Safari</span>
-                </div>
-                <div class="inst-step">
-                    <span class="inst-step-num">2</span>
-                    <span>Scroll and tap <strong>"Add to Home Screen"</strong></span>
-                </div>
-                <div class="inst-step">
-                    <span class="inst-step-num">3</span>
-                    <span>Tap <strong>Add</strong> — you're in!</span>
-                </div>
-            </div>
-
-            <!-- Desktop manual instructions (no native prompt yet) -->
-            <div class="inst-desktop-steps" id="inst-desktop-steps" style="display:none;">
-                <div class="inst-step">
-                    <span class="inst-step-num">1</span>
-                    <span>In Chrome/Edge, click the <strong>install icon</strong>
-                        <svg class="inst-inline-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><polyline points="8 12 12 16 16 12"/><path d="M3 21h18"/></svg>
-                        in the address bar</span>
-                </div>
-                <div class="inst-step">
-                    <span class="inst-step-num">2</span>
-                    <span>Click <strong>Install</strong> in the popup</span>
-                </div>
-            </div>
-
-            <!-- Get Started — always visible -->
-            <button class="inst-btn inst-btn-secondary" id="inst-getstarted-btn" onclick="_proceedToApp()">
-                Get Started
-            </button>
-
-            <button class="inst-skip" onclick="_proceedToApp()">Skip for now</button>
-        </div>
-    `;
-
-    document.body.appendChild(el);
-    _installOverlayEl = el;
-    _installOverlayEl._persistSeen = persistSeen;
-
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => el.classList.add('inst-visible'));
-    });
-
-    _refreshInstallBtn();
+.event-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 15px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.event-item:active { transform: scale(0.98); }
+.event-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.event-item-meta {
+    font-size: 0.72rem;
+    color: var(--sub-text);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+.event-item-name {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.3;
 }
 
-// ── Decide which install UI to show ──────────────────────────
-function _refreshInstallBtn() {
-    if (!_installOverlayEl) return;
+/* ─── STATUS PILLS ────────────────────────────────────────────────────────── */
 
-    const nativeBtn     = document.getElementById('inst-native-btn');
-    const iosSteps      = document.getElementById('inst-ios-steps');
-    const desktopSteps  = document.getElementById('inst-desktop-steps');
-    const getStartedBtn = document.getElementById('inst-getstarted-btn');
-    const isIOS         = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+.status-pill.status-live {
+    background: var(--red);
+    color: #fff;
+    animation: pulse 1.8s infinite;
+}
+.status-pill.status-live::before { content: '●'; font-size: 0.5rem; }
+.status-pill.status-upcoming {
+    background: var(--card-bg);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+.status-pill.status-completed {
+    background: var(--input-bg);
+    color: var(--sub-text);
+    border: 1px solid var(--border);
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.65} }
 
-    if (_installDeferredPrompt) {
-        if (nativeBtn)     nativeBtn.style.display    = '';
-        if (iosSteps)      iosSteps.style.display     = 'none';
-        if (desktopSteps)  desktopSteps.style.display = 'none';
-        if (getStartedBtn) getStartedBtn.classList.add('inst-btn-secondary-small');
-    } else if (isIOS) {
-        if (nativeBtn)     nativeBtn.style.display    = 'none';
-        if (iosSteps)      iosSteps.style.display     = '';
-        if (desktopSteps)  desktopSteps.style.display = 'none';
-        if (getStartedBtn) getStartedBtn.classList.remove('inst-btn-secondary-small');
-    } else {
-        if (nativeBtn)     nativeBtn.style.display    = 'none';
-        if (iosSteps)      iosSteps.style.display     = 'none';
-        if (desktopSteps)  desktopSteps.style.display = '';
-        if (getStartedBtn) getStartedBtn.classList.remove('inst-btn-secondary-small');
-    }
+/* ─── DETAIL TABS ─────────────────────────────────────────────────────────── */
+
+.detail-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    background: var(--input-bg);
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.detail-tabs::-webkit-scrollbar { display: none; }
+.detail-tab {
+    flex: 1;
+    flex-shrink: 0;
+    padding: 10px 8px;
+    border: none;
+    background: none;
+    color: var(--sub-text);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    border-radius: calc(var(--radius-sm) - 2px);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+.detail-tab.active {
+    background: var(--card-bg);
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-// ── Trigger native browser install ───────────────────────────
-async function _triggerNativeInstall() {
-    if (!_installDeferredPrompt) return;
-    try {
-        _installDeferredPrompt.prompt();
-        const { outcome } = await _installDeferredPrompt.userChoice;
-        _installDeferredPrompt = null;
-        if (outcome === 'accepted') {
-            localStorage.setItem(INSTALL_KEY, '1');
-            _closeInstallOverlay(true);
-        } else {
-            _proceedToApp();
-        }
-    } catch(e) {
-        _proceedToApp();
-    }
+/* ─── DIVISION SELECTOR ───────────────────────────────────────────────────── */
+
+.div-select-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.div-select-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--sub-text);
+    flex-shrink: 0;
+    line-height: 1;
+}
+.div-select {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 7px 30px 7px 10px;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    margin-bottom: 0;
+}
+.div-select-arrow {
+    font-size: 0.75rem;
+    color: var(--sub-text);
+    margin-left: -26px;
+    pointer-events: none;
+    flex-shrink: 0;
 }
 
-// ── Proceed to app ────────────────────────────────────────────
-function _proceedToApp() {
-    if (_installOverlayEl && _installOverlayEl._persistSeen) {
-        localStorage.setItem(WELCOME_SEEN_KEY, '1');
-    }
-    _closeInstallOverlay(false);
+/* ─── MATCH CARDS ─────────────────────────────────────────────────────────── */
+
+.match-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 10px;
 }
-
-// ── Show install prompt from Settings ─────────────────────────
-function showInstallPrompt() {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                      || window.navigator.standalone === true;
-    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
-    if (isInstalled || isStandalone) return;
-
-    _onWelcomeDone = null;
-    const existing = document.getElementById('install-overlay');
-    if (existing) existing.remove();
-    _installOverlayEl = null;
-
-    _buildAndShowOverlay(false);
+.match-card.played { border-left: 3px solid var(--primary); }
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
-
-// ── Update settings install card visibility ───────────────────
-function updateInstallCardVisibility() {
-    const card = document.getElementById('settings-install-card');
-    if (!card) return;
-
-    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                      || window.navigator.standalone === true;
-
-    card.style.display = (isInstalled || isStandalone) ? 'none' : '';
+.match-name {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--sub-text);
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
-
-// ── Close overlay ─────────────────────────────────────────────
-function _closeInstallOverlay(markInstalled) {
-    if (markInstalled) {
-        localStorage.setItem(INSTALL_KEY, '1');
-        updateInstallCardVisibility();
-    }
-
-    const el = _installOverlayEl || document.getElementById('install-overlay');
-    if (el) {
-        el.classList.remove('inst-visible');
-        el.classList.add('inst-exit');
-        setTimeout(() => {
-            el.remove();
-            _installOverlayEl = null;
-            _onWelcomeDone && _onWelcomeDone();
-            _onWelcomeDone = null;
-        }, 400);
-    } else {
-        _onWelcomeDone && _onWelcomeDone();
-        _onWelcomeDone = null;
-    }
+.match-header-right { display: flex; align-items: center; gap: 8px; }
+.match-time { font-size: 0.65rem; color: var(--sub-text); font-weight: 600; }
+.match-status { font-size: 0.65rem; font-weight: 700; color: var(--sub-text); }
+.match-card.played .match-status { color: var(--primary); }
+.match-body { display: flex; align-items: center; gap: 8px; }
+.match-alliance {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
 }
+.match-alliance.red  { flex-direction: row; }
+.match-alliance.blue { flex-direction: row-reverse; }
+.match-alliance.red.winner  { border-color: var(--red);  background: rgba(255,77,77,0.08); }
+.match-alliance.blue.winner { border-color: var(--blue); background: rgba(77,148,255,0.08); }
+.alliance-teams { flex: 1; font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
+.match-alliance.red  .alliance-teams { color: var(--red);  text-align: left; }
+.match-alliance.blue .alliance-teams { color: var(--blue); text-align: right; }
+.alliance-score { font-size: 1.3rem; font-weight: 900; min-width: 32px; text-align: center; }
+.match-alliance.red  .alliance-score { color: var(--red); }
+.match-alliance.blue .alliance-score { color: var(--blue); }
+.match-vs { font-size: 0.65rem; font-weight: 900; color: var(--sub-text); flex-shrink: 0; }
 
-// ── Dev helper ────────────────────────────────────────────────
-function resetInstall() {
-    localStorage.removeItem(INSTALL_KEY);
-    localStorage.removeItem(WELCOME_SEEN_KEY);
-    location.reload();
+/* ─── RANKINGS / SKILLS TABLE ─────────────────────────────────────────────── */
+
+.rank-header-row, .rank-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 4px;
+    font-size: 0.8rem;
 }
+.rank-header-row {
+    color: var(--sub-text);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+    border-radius: 0;
+}
+.rank-row {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    font-weight: 600;
+}
+.rank-row.top-rank {
+    border-color: rgba(var(--neon-rgb, 232,178,59), 0.3);
+    background: rgba(var(--neon-rgb, 232,178,59), 0.04);
+}
+.rank-col-rank  { width: 36px; flex-shrink: 0; font-weight: 900; }
+.rank-col-team  { flex: 1; font-weight: 700; }
+.rank-col-stat  { width: 44px; flex-shrink: 0; text-align: center; color: var(--sub-text); font-size: 0.78rem; }
+.rank-col-skill { width: 68px; flex-shrink: 0; text-align: center; color: var(--sub-text); font-size: 0.75rem; }
+
+/* ─── TEAMS LIST ──────────────────────────────────────────────────────────── */
+
+.team-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+}
+.team-number { font-size: 1rem; font-weight: 900; color: var(--primary); min-width: 52px; flex-shrink: 0; }
+.team-info { flex: 1; min-width: 0; }
+.team-org { font-size: 0.85rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team-loc { font-size: 0.75rem; color: var(--sub-text); margin-top: 2px; }
