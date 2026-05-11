@@ -130,7 +130,7 @@ function drawSketches() {
     if(!list) return;
     list.innerHTML = '';
     [...sketches].reverse().forEach(s => {
-        const fieldPath = s.field === 'skills' ? 'images/skills.png' : 'images/field.png';
+        const fieldPath = s.field === 'skills' ? 'assets/images/skills.png' : 'assets/images/field.png';
         list.innerHTML += `
             <div class="sketch-item">
                 <img src="${s.img}" class="sketch-preview" onclick="loadSketch('${s.id}')"
