@@ -9,11 +9,11 @@ export default async function handler(req, res) {
     let baseUrl;
 
     if (id && div && type) {
-        baseUrl = `https://www.robotevents.com/api/v2/events/${id}/divisions/${div}/${type}`;
+        baseUrl = `https://api.robotevents.com/v2/events/${id}/divisions/${div}/${type}`;
     } else if (id && type) {
-        baseUrl = `https://www.robotevents.com/api/v2/events/${id}/${type}`;
+        baseUrl = `https://api.robotevents.com/v2/events/${id}/${type}`;
     } else if (id) {
-        const response = await fetch(`https://www.robotevents.com/api/v2/events/${id}`, {
+        const response = await fetch(`https://api.robotevents.com/v2/events/${id}`, {
             headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         });
         if (!response.ok) {
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         }
         return res.status(200).json(await response.json());
     } else {
-        let url = `https://www.robotevents.com/api/v2/events?per_page=50&program[]=4`;
+        let url = `https://api.robotevents.com/v2/events?per_page=50&program[]=4`;
         if (start) url += `&start=${start}`;
         if (search && search.trim() !== "") url += `&name[]=${encodeURIComponent(search)}`;
         const response = await fetch(url, {
