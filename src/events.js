@@ -1,20 +1,19 @@
-let allEvents = [];
+let allEvents    = [];
 let activeFilter = 'all';
-let searchTimer = null;
-let lastEventId = null;
+let searchTimer  = null;
+let lastEventId  = null;
 let lastEventName = null;
 
 function restoreLastEvent() {
     if (lastEventId !== null) {
         _openEventDetailView(lastEventId, lastEventName);
     } else {
-        
-        if (allEvents.length === 0) loadEvents();
+        if (!allEvents.length) loadEvents();
     }
 }
 
 function clearEventState() {
-    lastEventId = null;
+    lastEventId   = null;
     lastEventName = null;
 }
 
@@ -34,22 +33,18 @@ async function loadEvents(query = '') {
         </div>`;
 
     const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-    const dateString = twoWeeksAgo.toISOString().split('T')[0] + 'T00:00:00Z';
+    const dateStr     = twoWeeksAgo.toISOString().split('T')[0] + 'T00:00:00Z';
+    const trimmed     = query.trim();
+    const searchStart = trimmed
+        ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T00:00:00Z'
+        : dateStr;
 
     try {
-        const trimmed = query.trim();
-        
-        
-        
-        const searchStart = trimmed
-            ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T00:00:00Z'
-            : dateString;
-        let url = `/api/robotevents?search=${encodeURIComponent(trimmed)}&start=${searchStart}`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const result = await response.json();
+        const res  = await fetch(`/api/robotevents?search=${encodeURIComponent(trimmed)}&start=${searchStart}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const result = await res.json();
 
-        if (!result.data || result.data.length === 0) {
+        if (!result.data?.length) {
             list.innerHTML = `
                 <div style="text-align:center; padding:40px; color:var(--sub-text);">
                     <p>No events found${query ? ` for "${query}"` : ''}.</p>
@@ -59,15 +54,17 @@ async function loadEvents(query = '') {
         }
 
         allEvents = result.data.map(e => ({
-            name: e.name,
-            city: e.location?.city || '',
+            id:     e.id,
+            name:   e.name,
+            city:   e.location?.city   || '',
             region: e.location?.region || '',
-            start: e.start, end: e.end,
+            start:  e.start,
+            end:    e.end,
             status: getEventStatus(e.start, e.end),
-            id: e.id
         }));
 
-        renderFilteredEvents();
+        // Reset filter to 'all' on a fresh load so the active state is always correct
+        setEventFilter('all');
 
     } catch (err) {
         list.innerHTML = `
@@ -88,14 +85,14 @@ function clearEventSearch() {
 function setEventFilter(filter) {
     activeFilter = filter;
     document.querySelectorAll('.evt-filter-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('filter-' + filter);
-    if (btn) btn.classList.add('active');
+    document.getElementById('filter-' + filter)?.classList.add('active');
     renderFilteredEvents();
 }
 
 function renderFilteredEvents() {
     const list = document.getElementById('event-list');
     if (!list) return;
+
     const filtered = activeFilter === 'all'
         ? allEvents
         : allEvents.filter(e => e.status.toLowerCase() === activeFilter);
@@ -105,12 +102,11 @@ function renderFilteredEvents() {
         return;
     }
 
-    list.innerHTML = '';
-    filtered.forEach(e => {
-        const loc = [e.city, e.region].filter(Boolean).join(', ');
-        const dateStr = formatEventDate(e.start, e.end);
+    list.innerHTML = filtered.map(e => {
+        const loc      = [e.city, e.region].filter(Boolean).join(', ');
+        const dateStr  = formatEventDate(e.start, e.end);
         const safeName = e.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-        list.innerHTML += `
+        return `
             <div class="event-item" onclick="openEventDetail(${e.id}, '${safeName}')">
                 <div class="event-item-top">
                     <div class="event-item-meta">${dateStr}${loc ? ` · ${loc}` : ''}</div>
@@ -118,7 +114,7 @@ function renderFilteredEvents() {
                 </div>
                 <div class="event-item-name">${e.name}</div>
             </div>`;
-    });
+    }).join('');
 }
 
 function formatEventDate(start, end) {
@@ -137,17 +133,16 @@ function getEventStatus(start, end) {
 }
 
 function openEventDetail(id, name) {
-    lastEventId = id;
+    lastEventId   = id;
     lastEventName = name;
-    detailOrigin = 'events'; 
+    detailOrigin  = 'events';
     _openEventDetailView(id, name);
 }
 
 function _openEventDetailView(id, name) {
     document.getElementById('detName').innerText = name;
-    document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-    const target = document.getElementById('view-detail');
-    if (target) target.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-detail')?.classList.add('active');
     window.scrollTo(0, 0);
     if (typeof loadEventDeepData === 'function') loadEventDeepData(id);
 }
