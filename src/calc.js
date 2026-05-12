@@ -1,28 +1,51 @@
-let calc = { red: [0,0,0], blue: [0,0,0], auton: null };
+// ─── Score Calculator ────────────────────────────────────────────────────────
+// Tracks ring/stake/zone counts for red and blue alliances and calculates
+// live scores. Point values: rings = 2pts, stakes = 3pts, zones = 5pts.
+// Autonomous winner gets 6pts, tie gives both alliances 3pts.
 
-function add(s, i, n) { 
-    calc[s][i] = Math.max(0, calc[s][i] + n); 
-    document.getElementById(s[0] + i).innerText = calc[s][i]; 
-    runCalc(); 
+const POINTS = { rings: 2, stakes: 3, zones: 5, autonWin: 6, autonTie: 3 };
+
+let calcState = {
+  red:   { rings: 0, stakes: 0, zones: 0 },
+  blue:  { rings: 0, stakes: 0, zones: 0 },
+  auton: null, // 'red' | 'blue' | 'tie' | null
+};
+
+function adjustScore(alliance, field, delta) {
+  calcState[alliance][field] = Math.max(0, calcState[alliance][field] + delta);
+  document.getElementById(alliance[0] + '-' + field).innerText = calcState[alliance][field];
+  updateCalcDisplay();
 }
 
-function setAt(w) { 
-    calc.auton = w; 
-    document.querySelectorAll('.auton-btn').forEach(b => b.className = 'auton-btn'); 
-    if(w !== 'none') document.getElementById('at-' + w).classList.add('active-' + w); 
-    runCalc(); 
+function setAutonWinner(winner) {
+  calcState.auton = winner;
+  document.querySelectorAll('.auton-btn').forEach(btn => btn.className = 'auton-btn');
+  if (winner !== 'none') {
+    document.getElementById('at-' + winner)?.classList.add('active-' + winner);
+  }
+  updateCalcDisplay();
 }
 
-function runCalc() {
-    let r = (calc.red[0]*2) + (calc.red[1]*3) + (calc.red[2]*5) + (calc.auton === 'red' ? 6 : calc.auton === 'tie' ? 3 : 0);
-    let b = (calc.blue[0]*2) + (calc.blue[1]*3) + (calc.blue[2]*5) + (calc.auton === 'blue' ? 6 : calc.auton === 'tie' ? 3 : 0);
-    document.getElementById('tot-red').innerText = r; 
-    document.getElementById('tot-blue').innerText = b;
+function updateCalcDisplay() {
+  document.getElementById('tot-red').innerText  = calcAllianceScore('red');
+  document.getElementById('tot-blue').innerText = calcAllianceScore('blue');
 }
 
-function resetC() { 
-    calc = { red: [0,0,0], blue: [0,0,0], auton: null }; 
-    document.querySelectorAll('.val-display').forEach(s => s.innerText = '0'); 
-    setAt('none'); 
-    runCalc(); 
+function calcAllianceScore(alliance) {
+  const s = calcState[alliance];
+  let score = (s.rings * POINTS.rings) + (s.stakes * POINTS.stakes) + (s.zones * POINTS.zones);
+  if (calcState.auton === alliance) score += POINTS.autonWin;
+  if (calcState.auton === 'tie')    score += POINTS.autonTie;
+  return score;
+}
+
+function resetCalc() {
+  calcState = {
+    red:   { rings: 0, stakes: 0, zones: 0 },
+    blue:  { rings: 0, stakes: 0, zones: 0 },
+    auton: null,
+  };
+  document.querySelectorAll('.val-display').forEach(el => el.innerText = '0');
+  setAutonWinner('none');
+  updateCalcDisplay();
 }

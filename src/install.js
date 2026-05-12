@@ -1,13 +1,10 @@
-const INSTALL_KEY      = 'paragon_installed_v1';
-const WELCOME_SEEN_KEY = 'paragon_welcome_seen_v1';
-const INSTALL_RESET_KEY = 'paragon_install_reset_v2'; 
 
 (function _forceResetOnce() {
-    if (!localStorage.getItem(INSTALL_RESET_KEY)) {
-        localStorage.removeItem(INSTALL_KEY);
+    if (!localStorage.getItem(STORAGE_KEYS.installReset)) {
+        localStorage.removeItem(STORAGE_KEYS.installed);
         localStorage.removeItem(WELCOME_SEEN_KEY);
-        localStorage.removeItem('paragon_installed_v1'); 
-        localStorage.setItem(INSTALL_RESET_KEY, '1');
+        localStorage.removeItem(STORAGE_KEYS.installed); 
+        localStorage.setItem(STORAGE_KEYS.installReset, '1');
     }
 })();
 
@@ -23,7 +20,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 window.addEventListener('appinstalled', () => {
-    localStorage.setItem(INSTALL_KEY, '1');
+    localStorage.setItem(STORAGE_KEYS.installed, '1');
     _closeInstallOverlay(true);
     updateInstallCardVisibility();
 });
@@ -31,7 +28,7 @@ window.addEventListener('appinstalled', () => {
 function maybeShowInstall(onDone) {
     _onWelcomeDone = onDone || null;
 
-    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
+    const isInstalled  = localStorage.getItem(STORAGE_KEYS.installed) === '1';
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                       || window.navigator.standalone === true;
 
@@ -40,8 +37,8 @@ function maybeShowInstall(onDone) {
         return;
     }
 
-    const isGuest     = localStorage.getItem('paragon_guest_mode') === 'true';
-    const welcomeSeen = localStorage.getItem(WELCOME_SEEN_KEY) === '1';
+    const isGuest     = localStorage.getItem(STORAGE_KEYS.guestMode) === 'true';
+    const welcomeSeen = localStorage.getItem(STORAGE_KEYS.welcomeSeen) === '1';
     const isSignedIn  = !!localStorage.getItem('sb-bccymltkymuokpjbrzfb-auth-token');
 
     
@@ -167,7 +164,7 @@ async function _triggerNativeInstall() {
         const { outcome } = await _installDeferredPrompt.userChoice;
         _installDeferredPrompt = null;
         if (outcome === 'accepted') {
-            localStorage.setItem(INSTALL_KEY, '1');
+            localStorage.setItem(STORAGE_KEYS.installed, '1');
             _closeInstallOverlay(true);
         } else {
             _proceedToApp();
@@ -179,7 +176,7 @@ async function _triggerNativeInstall() {
 
 function _proceedToApp() {
     if (_installOverlayEl && _installOverlayEl._persistSeen) {
-        localStorage.setItem(WELCOME_SEEN_KEY, '1');
+        localStorage.setItem(STORAGE_KEYS.welcomeSeen, '1');
     }
     _closeInstallOverlay(false);
 }
@@ -187,7 +184,7 @@ function _proceedToApp() {
 function showInstallPrompt() {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                       || window.navigator.standalone === true;
-    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
+    const isInstalled  = localStorage.getItem(STORAGE_KEYS.installed) === '1';
     if (isInstalled || isStandalone) return;
 
     _onWelcomeDone = null;
@@ -202,7 +199,7 @@ function updateInstallCardVisibility() {
     const card = document.getElementById('settings-install-card');
     if (!card) return;
 
-    const isInstalled  = localStorage.getItem(INSTALL_KEY) === '1';
+    const isInstalled  = localStorage.getItem(STORAGE_KEYS.installed) === '1';
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                       || window.navigator.standalone === true;
 
@@ -211,7 +208,7 @@ function updateInstallCardVisibility() {
 
 function _closeInstallOverlay(markInstalled) {
     if (markInstalled) {
-        localStorage.setItem(INSTALL_KEY, '1');
+        localStorage.setItem(STORAGE_KEYS.installed, '1');
         updateInstallCardVisibility();
     }
 
@@ -232,7 +229,7 @@ function _closeInstallOverlay(markInstalled) {
 }
 
 function resetInstall() {
-    localStorage.removeItem(INSTALL_KEY);
+    localStorage.removeItem(STORAGE_KEYS.installed);
     localStorage.removeItem(WELCOME_SEEN_KEY);
     location.reload();
 }

@@ -28,8 +28,8 @@ async function initAuth() {
             isGuest = false;
             updateAccountUI();
             await syncFromCloud();
-            drawNotes();
-        } else if (localStorage.getItem('paragon_guest_mode') === 'true') {
+            displayNotes();
+        } else if (localStorage.getItem(STORAGE_KEYS.guestMode) === 'true') {
             
             isGuest = true;
             loadLocalData();
@@ -51,11 +51,11 @@ async function initAuth() {
         if (event === 'SIGNED_IN' && session?.user) {
             currentUser = session.user;
             isGuest = false;
-            localStorage.removeItem('paragon_guest_mode');
+            localStorage.removeItem(STORAGE_KEYS.guestMode);
             updateAccountUI();
             await syncFromCloud();
-            drawNotes();
-            nav('hub');
+            displayNotes();
+            switchPage('hub');
         } else if (event === 'SIGNED_OUT') {
             
             if (_signingOut) return;
@@ -131,10 +131,10 @@ function continueAsGuest(save = true) {
     currentUser = null;
     isGuest = true;
 
-    if (save) localStorage.setItem('paragon_guest_mode', 'true');
+    if (save) localStorage.setItem(STORAGE_KEYS.guestMode, 'true');
     loadLocalData();
     updateAccountUI();
-    drawNotes();
+    displayNotes();
 
     
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -153,7 +153,7 @@ async function signOut() {
     sketches = [];
     currentUser = null;
     isGuest = false;
-    localStorage.removeItem('paragon_guest_mode');
+    localStorage.removeItem(STORAGE_KEYS.guestMode);
 
     
     if (_supabase) {
@@ -219,7 +219,7 @@ function updateAccountUI() {
     if (installCard) {
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                           || window.navigator.standalone === true;
-        const isMarkedInstalled = localStorage.getItem('paragon_installed_v1') === '1';
+        const isMarkedInstalled = localStorage.getItem(STORAGE_KEYS.installed) === '1';
         installCard.style.display = (isStandalone || isMarkedInstalled) ? 'none' : '';
     }
 }
@@ -246,7 +246,7 @@ async function syncFromCloud() {
             }));
         }
         if (settingsRes.data) {
-            localStorage.setItem('paragon_settings_v3', JSON.stringify({
+            localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({
                 theme: settingsRes.data.theme,
                 style: settingsRes.data.style,
                 mode:  settingsRes.data.mode
@@ -260,20 +260,20 @@ async function syncFromCloud() {
 }
 
 function loadLocalData() {
-    db       = JSON.parse(localStorage.getItem('paragon_db'))       || [];
-    sketches = JSON.parse(localStorage.getItem('paragon_sketches')) || [];
+    db       = JSON.parse(localStorage.getItem(STORAGE_KEYS.db))       || [];
+    sketches = JSON.parse(localStorage.getItem(STORAGE_KEYS.sketches)) || [];
 }
 
 async function cloudSaveReport(report) {
     if (isGuest || !currentUser || !_supabase) {
-        localStorage.setItem('paragon_db', JSON.stringify(db)); return;
+        localStorage.setItem(STORAGE_KEYS.db, JSON.stringify(db)); return;
     }
     await _supabase.from('scout_reports').upsert({ ...report, user_id: currentUser.id });
 }
 
 async function cloudDeleteReport(id) {
     if (isGuest || !currentUser || !_supabase) {
-        localStorage.setItem('paragon_db', JSON.stringify(db)); return;
+        localStorage.setItem(STORAGE_KEYS.db, JSON.stringify(db)); return;
     }
     await _supabase.from('scout_reports').delete().eq('id', id).eq('user_id', currentUser.id);
 }
@@ -281,14 +281,14 @@ async function cloudDeleteReport(id) {
 async function cloudSaveSketch(sketch) {
     if (!sketch) return;
     if (isGuest || !currentUser || !_supabase) {
-        localStorage.setItem('paragon_sketches', JSON.stringify(sketches)); return;
+        localStorage.setItem(STORAGE_KEYS.sketches, JSON.stringify(sketches)); return;
     }
     await _supabase.from('sketches').upsert({ ...sketch, user_id: currentUser.id });
 }
 
 async function cloudDeleteSketch(id) {
     if (isGuest || !currentUser || !_supabase) {
-        localStorage.setItem('paragon_sketches', JSON.stringify(sketches)); return;
+        localStorage.setItem(STORAGE_KEYS.sketches, JSON.stringify(sketches)); return;
     }
     await _supabase.from('sketches').delete().eq('id', id).eq('user_id', currentUser.id);
 }

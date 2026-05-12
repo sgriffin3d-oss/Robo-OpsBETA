@@ -1,4 +1,4 @@
-const ONBOARDING_KEY = 'paragon_onboarded_v1';
+// Key is defined in constants.js as STORAGE_KEYS.onboarded
 
 const OB_THEMES = [
     { id: 'theme-gold',    name: 'Gold',    tag: 'Dark',        accent: '#e8b23b', bg: '#060501',  mode: 'mode-dark'  },
@@ -28,7 +28,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 function maybeShowOnboarding() {
-    const done = localStorage.getItem(ONBOARDING_KEY);
+    const done = localStorage.getItem(STORAGE_KEYS.onboarded);
     if (done) return false; 
     _showOnboarding();
     return true;
@@ -112,8 +112,8 @@ function _applyPreview() {
 
 function obConfirmTheme() {
     
-    if (typeof _saveSettings === 'function') {
-        _saveSettings({ theme: _obTheme, style: _obStyle, mode: _obMode });
+    if (typeof saveSettings === 'function') {
+        saveSettings({ theme: _obTheme, style: _obStyle, mode: _obMode });
     }
     _renderStep2();
 }
@@ -217,7 +217,7 @@ async function obTriggerNativeInstall() {
 }
 
 function _finishOnboarding() {
-    localStorage.setItem(ONBOARDING_KEY, '1');
+    localStorage.setItem(STORAGE_KEYS.onboarded, '1');
     const overlay = document.getElementById('ob-overlay');
     if (overlay) {
         overlay.classList.add('ob-exit');
