@@ -800,3 +800,131 @@ label {
     animation: spin 0.75s linear infinite; margin: 0 auto;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Utility: State containers (loading / empty / error) ──────────────────
+   Replaces all the one-off inline styles like:
+   style="text-align:center; padding:40px; color:var(--sub-text);"  */
+
+.state-center {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--sub-text);
+}
+
+.state-label {
+  margin-top: 15px;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.state-empty {
+  font-size: 0.85rem;
+}
+
+.state-error {
+  color: var(--red);
+}
+
+.state-error-title {
+  font-weight: 800;
+}
+
+.state-retry {
+  margin-top: 15px;
+}
+
+/* ─── Sketch card internals ─────────────────────────────────────────────────
+   Replaces inline styles in displayDrawing() */
+
+.sketch-preview--field {
+  background-size: cover;
+  cursor: pointer;
+}
+
+.sketch-info {
+  flex: 1;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sketch-name-label {
+  font-size: 0.9rem;
+}
+
+.sketch-meta {
+  color: var(--sub-text);
+}
+
+/* ─── Note card internals ───────────────────────────────────────────────────
+   Replaces inline styles in displayNotes() / showDetailView() */
+
+.note-card-arrow {
+  color: var(--primary);
+}
+
+.note-card--expanded {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.note-card-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.note-card-body {
+  font-size: 0.8rem;
+  color: var(--sub-text);
+  margin: 0;
+}
+
+.note-card-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ─── Shared button variants ────────────────────────────────────────────────
+   Replaces scattered inline button styles */
+
+.btn-secondary {
+  flex: 1;
+  padding: 8px;
+  background: var(--border);
+  border: none;
+  color: var(--text);
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-delete {
+  flex: 1;
+  padding: 8px;
+  background: #400;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* ─── Skills table: total column highlight ──────────────────────────────────
+   Replaces style="color:var(--primary);font-weight:900;" in renderSkills() */
+
+.rank-col-skill--total {
+  color: var(--primary);
+  font-weight: 900;
+}
+
+/* ─── Team card: bold org/name ──────────────────────────────────────────────
+   Replaces style="font-weight:900" in renderTeams() */
+
+.team-org--bold {
+  font-weight: 900;
+}
