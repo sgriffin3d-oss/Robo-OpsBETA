@@ -8,15 +8,11 @@ function toggleMap(type) {
     const path = type === 'match' ? 'assets/images/field.png' : 'assets/images/skills.png';
 
     if(img) img.src = path;
-    // Also update the draw tab's background image
+    // Sync the draw tab's field image (canvas is transparent on top of it)
     const drawImg = document.getElementById('draw-map-img');
     if(drawImg) drawImg.src = path;
-    if(canvas) {
-        canvas.style.backgroundImage = `url('${path}')`;
-        canvas.style.backgroundSize = 'contain';
-        canvas.style.backgroundRepeat = 'no-repeat';
-        canvas.style.backgroundPosition = 'center';
-    }
+    // Clear leftover background-image from canvas if previously set
+    if(canvas) canvas.style.backgroundImage = 'none';
 
     if (type === 'match') {
         if(matchBtn) matchBtn.classList.add('active');
@@ -49,18 +45,16 @@ function setFieldMode(mode) {
         document.getElementById('sub-draw').classList.add('active');
         if(subtitle) subtitle.innerText = "Draw Strategy";
         
-        // Refresh background image
+        // Refresh the field image for current match/skills selection
         toggleMap(currentField);
-        
-        // Sync canvas internal resolution to its rendered size
-        // so touch/mouse coordinates align with what you see
-        const c = document.getElementById('sketch-canvas');
-        if (c) {
-            const rect = c.getBoundingClientRect();
-            if (rect.width > 0) {
-                c.width  = rect.width;
-                c.height = rect.height;
-            }
+
+        // Sync canvas internal resolution to the field image's rendered size.
+        // Use the image as the reference - it has real dimensions at this point.
+        const c   = document.getElementById('sketch-canvas');
+        const ref = document.getElementById('draw-map-img');
+        if (c && ref && ref.offsetWidth > 0) {
+            c.width  = ref.offsetWidth;
+            c.height = ref.offsetHeight;
         }
     } else if (mode === 'saved') {
         if(saved) saved.style.display = 'block';

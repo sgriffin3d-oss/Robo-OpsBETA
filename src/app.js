@@ -66,8 +66,17 @@ function initCanvas() {
   canvas = document.getElementById('sketch-canvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
-  canvas.width = 800;
-  canvas.height = 500;
+  // Size the canvas internal resolution to match the field image's rendered size.
+  // If we hardcode 800x500 here the canvas shape won't match the image underneath.
+  const fieldImg = document.getElementById('draw-map-img');
+  if (fieldImg && fieldImg.offsetWidth > 0) {
+    canvas.width  = fieldImg.offsetWidth;
+    canvas.height = fieldImg.offsetHeight;
+  } else {
+    // Fallback until the image has loaded - will be corrected in setFieldMode
+    canvas.width  = 400;
+    canvas.height = 400;
+  }
 
   const getXY = e => {
     const rect   = canvas.getBoundingClientRect();
