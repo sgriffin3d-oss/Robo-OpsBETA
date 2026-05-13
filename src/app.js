@@ -70,10 +70,11 @@ function initCanvas() {
   // If we hardcode 800x500 here the canvas shape won't match the image underneath.
   const fieldImg = document.getElementById('draw-map-img');
   if (fieldImg && fieldImg.offsetWidth > 0) {
-    canvas.width  = fieldImg.offsetWidth;
-    canvas.height = fieldImg.offsetHeight;
+    const rect    = fieldImg.getBoundingClientRect();
+    canvas.width  = rect.width;
+    canvas.height = rect.height;
   } else {
-    // Fallback until the image has loaded - will be corrected in setFieldMode
+    // Fallback - corrected when setFieldMode('draw') is first called
     canvas.width  = 400;
     canvas.height = 400;
   }

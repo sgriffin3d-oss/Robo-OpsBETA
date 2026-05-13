@@ -53,13 +53,16 @@ function setFieldMode(mode) {
         const c   = document.getElementById('sketch-canvas');
         const ref = document.getElementById('draw-map-img');
         if (c && ref && ref.offsetWidth > 0) {
-            c.width  = ref.offsetWidth;
-            c.height = ref.offsetHeight;
+            // Use getBoundingClientRect so we get the exact rendered pixel size
+            // of the image itself, not the frame (which includes borders/padding)
+            const rect = ref.getBoundingClientRect();
+            c.width  = rect.width;
+            c.height = rect.height;
         }
     } else if (mode === 'saved') {
         if(saved) saved.style.display = 'block';
         document.getElementById('sub-saved').classList.add('active');
         if(subtitle) subtitle.innerText = "Saved Strategies";
-        drawSketches();
+        displayDrawing();
     }
 }
