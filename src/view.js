@@ -8,6 +8,9 @@ function toggleMap(type) {
     const path = type === 'match' ? 'assets/images/field.png' : 'assets/images/skills.png';
 
     if(img) img.src = path;
+    // Also update the draw tab's background image
+    const drawImg = document.getElementById('draw-map-img');
+    if(drawImg) drawImg.src = path;
     if(canvas) {
         canvas.style.backgroundImage = `url('${path}')`;
         canvas.style.backgroundSize = 'contain';
