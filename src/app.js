@@ -1,4 +1,4 @@
-// ─── App State ───────────────────────────────────────────────────────────────
+// ─── App State ────────────────────────────────────────────────────────────────
 
 let db       = JSON.parse(localStorage.getItem(STORAGE_KEYS.db))       || [];
 let sketches = JSON.parse(localStorage.getItem(STORAGE_KEYS.sketches)) || [];
@@ -25,7 +25,7 @@ function startAuth() {
   if (typeof updateInstallCardVisibility === 'function') updateInstallCardVisibility();
 }
 
-// ─── Navigation ──────────────────────────────────────────────────────────────
+// ─── Navigation ───────────────────────────────────────────────────────────────
 
 function switchPage(view) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
@@ -60,21 +60,21 @@ function navBack() {
 function toggleMenu() { document.getElementById('fabMenu').classList.toggle('show'); }
 function closeMenu()  { document.getElementById('fabMenu').classList.remove('show'); }
 
-// ─── Canvas ───────────────────────────────────────────────────────────────────
+// ─── Canvas ────────────────────────────────────────────────────────────────────
 
 function initCanvas() {
   canvas = document.getElementById('sketch-canvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
-  // Size the canvas internal resolution to match the field image's rendered size.
-  // If we hardcode 800x500 here the canvas shape won't match the image underneath.
+
+  // Size canvas to match the field image's rendered dimensions.
+  // Falls back to 400×400 and corrects itself when setFieldMode('draw') is called.
   const fieldImg = document.getElementById('draw-map-img');
   if (fieldImg && fieldImg.offsetWidth > 0) {
     const rect    = fieldImg.getBoundingClientRect();
     canvas.width  = rect.width;
     canvas.height = rect.height;
   } else {
-    // Fallback - corrected when setFieldMode('draw') is first called
     canvas.width  = 400;
     canvas.height = 400;
   }
@@ -115,7 +115,7 @@ function initCanvas() {
 function setPenColor(color) { penColor = color; }
 function clearCanvas()      { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-// ─── Sketches ─────────────────────────────────────────────────────────────────
+// ─── Sketches ──────────────────────────────────────────────────────────────────
 
 function saveSketch() {
   const name    = document.getElementById('sketch-name').value || 'Unnamed Strategy';
@@ -183,7 +183,7 @@ function deleteSketch(id) {
   displayDrawing();
 }
 
-// ─── Scout Notes ──────────────────────────────────────────────────────────────
+// ─── Scout Notes ───────────────────────────────────────────────────────────────
 
 function setSortFilter(sort) {
   currentSort = sort;
@@ -238,7 +238,7 @@ function showDetailView(value) {
   switchPage('detail');
 }
 
-// ─── Scout Report CRUD ────────────────────────────────────────────────────────
+// ─── Scout Report CRUD ─────────────────────────────────────────────────────────
 
 function saveReport() {
   const id = document.getElementById('editIdx').value || Date.now().toString();
@@ -275,9 +275,18 @@ function editScoutReport(id) {
   const report = db.find(x => x.id === id);
   if (!report) return;
 
-  const fieldMap = { editIdx: 'id', 'f-team': 'team', 'f-event': 'event', 'f-res': 'res',
-    'f-autores': 'autores', 'f-partner': 'partner', 'f-opp': 'opp',
-    'f-score': 'score', 'f-oppscore': 'oppscore', 'f-notes': 'notes' };
+  const fieldMap = {
+    editIdx:      'id',
+    'f-team':     'team',
+    'f-event':    'event',
+    'f-res':      'res',
+    'f-autores':  'autores',
+    'f-partner':  'partner',
+    'f-opp':      'opp',
+    'f-score':    'score',
+    'f-oppscore': 'oppscore',
+    'f-notes':    'notes',
+  };
 
   Object.entries(fieldMap).forEach(([fieldId, key]) => {
     const el = document.getElementById(fieldId);
@@ -294,7 +303,7 @@ function deleteScoutReport(id, value) {
   showDetailView(value);
 }
 
-// ─── Import / Export ──────────────────────────────────────────────────────────
+// ─── Import / Export ───────────────────────────────────────────────────────────
 
 function exportData() {
   const blob = new Blob([JSON.stringify({ db, sketches })], { type: 'text/plain' });
@@ -325,11 +334,7 @@ function importData(event) {
   reader.readAsText(file);
 }
 
-// ─── Settings ─────────────────────────────────────────────────────────────────
-
-// Themes that are locked to a specific mode
-const LOCKED_DARK  = ['theme-gold'];
-const LOCKED_LIGHT = ['theme-arctic'];
+// ─── Settings ──────────────────────────────────────────────────────────────────
 
 function setTheme(theme) {
   const s = getSettings();
@@ -343,7 +348,7 @@ function setTheme(theme) {
 
 function setMode(mode) {
   const s = getSettings();
-  // Locked themes can't switch modes
+  // Locked themes ignore mode changes
   if (LOCKED_DARK.includes(s.theme) || LOCKED_LIGHT.includes(s.theme)) return;
   s.mode = mode;
   saveSettings(s);
@@ -377,14 +382,14 @@ function applySettings(s) {
 
 function loadSettings() {
   const s = getSettings();
-  // Enforce locked modes before applying
+  // Enforce locked modes before applying — in case saved data has the wrong mode
   if (LOCKED_DARK.includes(s.theme))  s.mode = 'mode-dark';
   if (LOCKED_LIGHT.includes(s.theme)) s.mode = 'mode-light';
   applySettings(s);
   renderSettingsUI();
 }
 
-// Alias kept for any legacy calls
+// Legacy alias
 function updateSettings() { loadSettings(); }
 
 function renderSettingsUI() {
@@ -396,37 +401,20 @@ function renderSettingsUI() {
   const lockNote     = LOCKED_DARK.includes(currentTheme)  ? 'Gold is always dark'
                      : LOCKED_LIGHT.includes(currentTheme) ? 'Arctic is always light' : '';
 
-  // Mode toggle
   const toggle = document.getElementById('mode-toggle');
   const noteEl = document.getElementById('mode-locked-note');
   toggle?.classList.toggle('locked', isLocked);
   if (noteEl) {
-    noteEl.textContent  = lockNote;
+    noteEl.textContent   = lockNote;
     noteEl.style.display = lockNote ? 'block' : 'none';
   }
   document.getElementById('mode-btn-dark')?.classList.toggle( 'active', currentMode === 'mode-dark');
   document.getElementById('mode-btn-light')?.classList.toggle('active', currentMode === 'mode-light');
 
-  const themes = [
-    { id: 'theme-gold',    name: 'Gold',    tag: 'Dark only',    accent: '#e8b23b', bg: '#060501' },
-    { id: 'theme-arctic',  name: 'Arctic',  tag: 'Light only',   accent: '#006edb', bg: '#eef4fb' },
-    { id: 'theme-red',     name: 'Red',     tag: 'Dark & Light', accent: '#cc2200', bg: '#080808' },
-    { id: 'theme-blue',    name: 'Blue',    tag: 'Dark & Light', accent: '#1a6ccc', bg: '#080808' },
-    { id: 'theme-stealth', name: 'Stealth', tag: 'Dark & Light', accent: '#e0e0e0', bg: '#000000' },
-  ];
-
-  const styles = [
-    { id: 'style-classic',  name: 'Classic',  desc: 'Original feel',   icon: '◼' },
-    { id: 'style-minimal',  name: 'Minimal',  desc: 'Lines only',      icon: '▱' },
-    { id: 'style-glass',    name: 'Glass',    desc: 'Frosted blur',     icon: '◈' },
-    { id: 'style-tactical', name: 'Tactical', desc: 'Sharp HUD',        icon: '◧' },
-    { id: 'style-neon',     name: 'Neon',     desc: 'Glow effects',     icon: '✦' },
-    { id: 'style-retro',    name: 'Retro',    desc: 'Warm & textured',  icon: '❧' },
-  ];
-
+  // THEMES and STYLES come from constants.js — single source of truth
   const themeGrid = document.getElementById('theme-grid');
   if (themeGrid) {
-    themeGrid.innerHTML = themes.map(t => `
+    themeGrid.innerHTML = THEMES.map(t => `
       <div class="theme-swatch ${t.id === currentTheme ? 'active' : ''}"
            onclick="setTheme('${t.id}')"
            style="background:${t.bg}; border-color:${t.id === currentTheme ? t.accent : 'transparent'};">
@@ -441,7 +429,7 @@ function renderSettingsUI() {
 
   const styleGrid = document.getElementById('style-grid');
   if (styleGrid) {
-    styleGrid.innerHTML = styles.map(st => `
+    styleGrid.innerHTML = STYLES.map(st => `
       <div class="style-card ${st.id === currentStyle ? 'active' : ''}" onclick="setStyle('${st.id}')">
         <div class="style-preview">${st.icon}</div>
         <div class="style-name">${st.name}</div>

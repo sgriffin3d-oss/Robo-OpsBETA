@@ -2,7 +2,7 @@
 (function _forceResetOnce() {
     if (!localStorage.getItem(STORAGE_KEYS.installReset)) {
         localStorage.removeItem(STORAGE_KEYS.installed);
-        localStorage.removeItem(WELCOME_SEEN_KEY);
+        localStorage.removeItem(STORAGE_KEYS.welcomeSeen);
         localStorage.removeItem(STORAGE_KEYS.installed); 
         localStorage.setItem(STORAGE_KEYS.installReset, '1');
     }
@@ -230,6 +230,6 @@ function _closeInstallOverlay(markInstalled) {
 
 function resetInstall() {
     localStorage.removeItem(STORAGE_KEYS.installed);
-    localStorage.removeItem(WELCOME_SEEN_KEY);
+    localStorage.removeItem(STORAGE_KEYS.welcomeSeen);
     location.reload();
 }

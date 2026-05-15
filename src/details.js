@@ -173,7 +173,7 @@ function renderSkills(container) {
   const skills = cachedData.skills || [];
   if (!skills.length) { container.innerHTML = emptyState('Skills data not available for this event.'); return; }
 
-  // Group runs by team, keeping best score per type
+  // Group runs by team, keeping the best score per type
   const teamMap = {};
   skills.forEach(run => {
     const name  = run.team?.name || '?';
@@ -252,13 +252,8 @@ function formatMatchTime(iso) {
   return isNaN(d) ? '' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function loadingHTML(message = '') {
-  return `
-    <div class="state-center">
-      <div class="loading-spinner"></div>
-      ${message ? `<p class="state-label">${message}</p>` : ''}
-    </div>`;
-}
+// loadingHTML is defined in events.js and available globally.
+// Redeclaring it here caused whichever file loaded second to silently win.
 
 function errorHTML(message) {
   return `

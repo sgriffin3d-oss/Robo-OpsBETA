@@ -30,12 +30,12 @@ async function loadEvents(query = '') {
 
   list.innerHTML = loadingHTML('LOADING EVENTS...');
 
-  // Default: events from 2 weeks ago onwards. When searching, go back a year.
-  const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-  const oneYearAgo  = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
-  const trimmed     = query.trim();
-  const startDate   = trimmed ? oneYearAgo : twoWeeksAgo;
-  const startStr    = startDate.toISOString().split('T')[0] + 'T00:00:00Z';
+  // Default: events from 2 weeks ago onward. Searching goes back a full year.
+  const trimmed   = query.trim();
+  const startDate = trimmed
+    ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
+    : new Date(Date.now() -  14 * 24 * 60 * 60 * 1000);
+  const startStr  = startDate.toISOString().split('T')[0] + 'T00:00:00Z';
 
   try {
     const res    = await fetch(`/api/robotevents?search=${encodeURIComponent(trimmed)}&start=${startStr}`);
@@ -57,7 +57,7 @@ async function loadEvents(query = '') {
       status: getEventStatus(e.start, e.end),
     }));
 
-    // Reset filter so the active state is always correct after a fresh load
+    // Reset filter so active state is always correct after a fresh load
     setEventFilter('all');
 
   } catch (err) {
@@ -97,11 +97,10 @@ function renderFilteredEvents() {
   }
 
   list.innerHTML = filtered.map(e => {
-    const loc      = [e.city, e.region].filter(Boolean).join(', ');
-    const dateStr  = formatEventDate(e.start, e.end);
-    const safeName = e.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const loc     = [e.city, e.region].filter(Boolean).join(', ');
+    const dateStr = formatEventDate(e.start, e.end);
     return `
-      <div class="event-item" onclick="openEventDetail(${e.id}, '${safeName}')">
+      <div class="event-item" data-event-id="${e.id}" data-event-name="${encodeURIComponent(e.name)}">
         <div class="event-item-top">
           <div class="event-item-meta">${dateStr}${loc ? ` · ${loc}` : ''}</div>
           <span class="status-pill status-${e.status.toLowerCase()}">${e.status.toUpperCase()}</span>
@@ -109,6 +108,15 @@ function renderFilteredEvents() {
         <div class="event-item-name">${e.name}</div>
       </div>`;
   }).join('');
+
+  // Attach click handlers via JS — avoids inline onclick quoting/injection issues
+  list.querySelectorAll('.event-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const id   = parseInt(el.dataset.eventId, 10);
+      const name = decodeURIComponent(el.dataset.eventName);
+      openEventDetail(id, name);
+    });
+  });
 }
 
 function noResultsHTML(query) {
@@ -154,7 +162,7 @@ function openEventDetailView(id, name) {
   if (typeof loadEventDeepData === 'function') loadEventDeepData(id);
 }
 
-// ─── Shared loading helper (also used in details.js) ─────────────────────────
+// ─── Loading helper (shared with details.js via this declaration) ─────────────
 
 function loadingHTML(message = '') {
   return `
