@@ -34,7 +34,7 @@ function switchPage(view) {
   if (view === 'rules'    && typeof initRules       === 'function') initRules();
   if (view === 'settings' && typeof updateAccountUI === 'function') {
     updateAccountUI();
-    switchSettingsTab('account');
+    renderSettingsUI();
   }
   window.scrollTo(0, 0);
   closeMenu();
@@ -438,12 +438,10 @@ function renderSettingsUI() {
   }
 }
 
-function switchSettingsTab(tab) {
-  const accountTab    = document.getElementById('settings-tab-account');
-  const appearanceTab = document.getElementById('settings-tab-appearance');
-  if (accountTab)    accountTab.style.display    = tab === 'account'    ? 'block' : 'none';
-  if (appearanceTab) appearanceTab.style.display = tab === 'appearance' ? 'block' : 'none';
-  if (tab === 'appearance') renderSettingsUI();
+function switchSettingsTab(_tab) {
+  // Settings is now always-visible cards — no tab switching needed.
+  // This function is kept for any legacy call sites.
+  renderSettingsUI();
   window.scrollTo(0, 0);
 }
 
