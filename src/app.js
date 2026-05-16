@@ -20,7 +20,8 @@ window.onload = function () {
 };
 
 function startAuth() {
-  switchPage('hub');
+  // Don't pre-navigate to hub — initAuth decides the landing view based on
+  // session state. New users hit the login screen; returning users go to hub.
   if (typeof initAuth === 'function') initAuth();
   if (typeof updateInstallCardVisibility === 'function') updateInstallCardVisibility();
 }
@@ -35,6 +36,12 @@ function switchPage(view) {
   if (view === 'settings' && typeof updateAccountUI === 'function') {
     updateAccountUI();
     renderSettingsUI();
+    // Sync chevron state with whichever cards are currently open
+    document.querySelectorAll('.settings-card-body').forEach(body => {
+      const header = body.previousElementSibling;
+      const isOpen = !body.classList.contains('settings-card-body--collapsed');
+      header?.classList.toggle('settings-card-header--open', isOpen);
+    });
   }
   window.scrollTo(0, 0);
   closeMenu();
@@ -445,10 +452,31 @@ function switchSettingsTab(_tab) {
   window.scrollTo(0, 0);
 }
 
+
+// ─── Settings collapse ─────────────────────────────────────────────────────────
+
+function toggleSettingsCard(id) {
+  const body    = document.getElementById(id);
+  const header  = body?.previousElementSibling;
+  if (!body) return;
+
+  const isOpen = !body.classList.contains('settings-card-body--collapsed');
+  body.classList.toggle('settings-card-body--collapsed', isOpen);
+  header?.classList.toggle('settings-card-header--open', !isOpen);
+}
+
+// Open a card by ID — used when navigating to settings from a specific context
+function openSettingsCard(id) {
+  const body   = document.getElementById(id);
+  const header = body?.previousElementSibling;
+  if (!body) return;
+  body.classList.remove('settings-card-body--collapsed');
+  header?.classList.add('settings-card-header--open');
+}
+
 function handleSignOutCard() {
-  if (typeof isGuest !== 'undefined' && isGuest) {
-    if (typeof showLoginScreen === 'function') showLoginScreen();
-  } else {
-    if (typeof signOut === 'function') signOut();
-  }
+  // Both guests and signed-in users go through signOut().
+  // For guests it clears guest mode and navigates to login.
+  // For signed-in users it revokes the Supabase session and navigates to login.
+  if (typeof signOut === 'function') signOut();
 }
