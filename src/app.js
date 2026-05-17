@@ -28,9 +28,22 @@ function startAuth() {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
+// Maps view names to their sidebar nav button IDs
+const _snavMap = {
+  hub: 'snav-hub', events: 'snav-events', home: 'snav-home',
+  calc: 'snav-calc', rules: 'snav-rules', field: 'snav-field',
+  form: 'snav-form', settings: 'snav-settings',
+  detail: 'snav-events',   // detail is part of the events flow
+};
+
 function switchPage(view) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + view)?.classList.add('active');
+
+  // Sidebar active state
+  document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = _snavMap[view];
+  if (activeBtn) document.getElementById(activeBtn)?.classList.add('active');
   if (view === 'home')     displayNotes();
   if (view === 'rules'    && typeof initRules       === 'function') initRules();
   if (view === 'settings' && typeof updateAccountUI === 'function') {
