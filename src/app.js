@@ -36,12 +36,7 @@ function switchPage(view) {
   if (view === 'settings' && typeof updateAccountUI === 'function') {
     updateAccountUI();
     renderSettingsUI();
-    // Sync chevron state with whichever cards are currently open
-    document.querySelectorAll('.settings-card-body').forEach(body => {
-      const header = body.previousElementSibling;
-      const isOpen = !body.classList.contains('settings-card-body--collapsed');
-      header?.classList.toggle('settings-card-header--open', isOpen);
-    });
+
   }
   window.scrollTo(0, 0);
   closeMenu();
@@ -445,33 +440,27 @@ function renderSettingsUI() {
   }
 }
 
-function switchSettingsTab(_tab) {
-  // Settings is now always-visible cards — no tab switching needed.
-  // This function is kept for any legacy call sites.
-  renderSettingsUI();
-  window.scrollTo(0, 0);
-}
+// switchSettingsTab removed — settings uses sc-wrap collapsible cards now.
 
 
 // ─── Settings collapse ─────────────────────────────────────────────────────────
 
-function toggleSettingsCard(id) {
-  const body    = document.getElementById(id);
-  const header  = body?.previousElementSibling;
-  if (!body) return;
+function toggleSettingsCard(name) {
+  const wrap = document.getElementById('sc-wrap-' + name);
+  const body = document.getElementById('sc-body-' + name);
+  if (!wrap || !body) return;
 
-  const isOpen = !body.classList.contains('settings-card-body--collapsed');
-  body.classList.toggle('settings-card-body--collapsed', isOpen);
-  header?.classList.toggle('settings-card-header--open', !isOpen);
+  const isOpen = wrap.classList.contains('sc-wrap--open');
+  wrap.classList.toggle('sc-wrap--open', !isOpen);
+  body.classList.toggle('sc-body--closed', isOpen);
 }
 
-// Open a card by ID — used when navigating to settings from a specific context
-function openSettingsCard(id) {
-  const body   = document.getElementById(id);
-  const header = body?.previousElementSibling;
-  if (!body) return;
-  body.classList.remove('settings-card-body--collapsed');
-  header?.classList.add('settings-card-header--open');
+function openSettingsCard(name) {
+  const wrap = document.getElementById('sc-wrap-' + name);
+  const body = document.getElementById('sc-body-' + name);
+  if (!wrap || !body) return;
+  wrap.classList.add('sc-wrap--open');
+  body.classList.remove('sc-body--closed');
 }
 
 function handleSignOutCard() {
