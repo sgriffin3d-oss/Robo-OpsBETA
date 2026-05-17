@@ -1209,3 +1209,245 @@ label {
 .team-org--bold {
   font-weight: 900;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESPONSIVE LAYOUT — Desktop sidebar shell
+   Breakpoint: 768px+  →  sidebar + content panel
+                <768px  →  mobile (dock bar, unchanged)
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Shell wrapper ─────────────────────────────────────────────────── */
+.app-shell {
+    display: contents; /* transparent on mobile — no layout effect */
+}
+
+/* ── Sidebar (hidden on mobile) ─────────────────────────────────────── */
+.sidebar {
+    display: none;
+}
+
+/* ── Desktop styles ─────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+
+    /* Kill mobile chrome */
+    .dock-bar,
+    .fab-menu { display: none !important; }
+
+    /* Root body stops being a mobile scroll surface */
+    body {
+        overflow: hidden;
+        height: 100vh;
+    }
+
+    /* Shell becomes the full-screen flex container */
+    .app-shell {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        width: 220px;
+        min-width: 220px;
+        height: 100vh;
+        background: var(--card-bg);
+        border-right: 1px solid var(--border);
+        overflow: hidden;
+        flex-shrink: 0;
+        z-index: 10;
+    }
+
+    .sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 24px 20px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo-img {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+    .sidebar-logo-text {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+    }
+    .sidebar-app-name {
+        font-size: 0.92rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text);
+        white-space: nowrap;
+    }
+    .sidebar-app-sub {
+        font-size: 0.58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--primary);
+        white-space: nowrap;
+    }
+
+    /* Nav list */
+    .sidebar-nav {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 14px 10px;
+        overflow-y: auto;
+    }
+
+    .sidebar-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 11px 12px;
+        border: none;
+        border-radius: var(--radius-sm);
+        background: none;
+        color: var(--sub-text);
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: left;
+    }
+    .sidebar-btn svg {
+        width: 17px;
+        height: 17px;
+        flex-shrink: 0;
+        stroke-width: 2px;
+    }
+    .sidebar-btn:hover {
+        background: var(--input-bg);
+        color: var(--text);
+    }
+    .sidebar-btn.active {
+        background: var(--input-bg);
+        color: var(--primary);
+        border: 1px solid var(--border);
+    }
+    .sidebar-btn.active svg {
+        stroke: var(--primary);
+    }
+
+    /* Footer pinned at bottom of sidebar */
+    .sidebar-footer {
+        padding: 10px;
+        border-top: 1px solid var(--border);
+    }
+    .sidebar-btn--settings {
+        color: var(--sub-text);
+    }
+
+    /* ── Content area ── */
+    .container {
+        flex: 1;
+        height: 100vh;
+        overflow-y: auto;
+        max-width: none;        /* remove the 500px mobile cap */
+        padding: 32px 40px 60px;
+        box-sizing: border-box;
+    }
+
+    /* Cap content width so text doesn't stretch unreadably wide */
+    .view {
+        max-width: 740px;
+    }
+
+    /* Hub cards → 2-column grid on desktop */
+    #view-hub .hub-card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    #view-hub .hub-card {
+        margin-bottom: 0;
+    }
+
+    /* Welcome header sizing */
+    .welcome-header h1 {
+        font-size: 2.6rem;
+    }
+
+    /* Login view fills the content column, not the full viewport */
+    #view-login.active {
+        min-height: calc(100vh - 32px) !important;
+    }
+
+    /* Settings cards can be a touch wider */
+    .sc-wrap {
+        max-width: 560px;
+    }
+
+    /* Calculator two columns get a bit more room */
+    .calc-alliances {
+        gap: 0;
+    }
+
+    /* Event list — two columns on wide screens */
+    #event-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        align-items: start;
+    }
+    /* But state messages (loading, empty) span both */
+    #event-list .state-center {
+        grid-column: span 2;
+    }
+
+    /* Rankings and match cards stay single column — data-dense */
+    #tab-content .rank-row,
+    #tab-content .match-card {
+        max-width: 100%;
+    }
+}
+
+/* ── Very wide (1200px+) — give sidebar a touch more room ─────────── */
+@media (min-width: 1200px) {
+    .sidebar {
+        width: 240px;
+        min-width: 240px;
+    }
+    .container {
+        padding: 36px 52px 60px;
+    }
+    .view {
+        max-width: 860px;
+    }
+}
+
+/* ── Login view layout ──────────────────────────────────────────────── */
+.view-login-centered {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 30px 24px;
+    box-sizing: border-box;
+}
+.view-login-centered.active {
+    display: flex !important;
+}
+
+@media (min-width: 768px) {
+    .view-login-centered {
+        min-height: 100%;        /* fill content panel, not viewport */
+        padding: 40px 24px;
+    }
+}
