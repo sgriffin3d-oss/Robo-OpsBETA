@@ -703,64 +703,169 @@ label {
     border-radius: var(--radius-sm); border: 1px solid var(--border);
 }
 
+
+
+
+
+
+
 /* ══════════════════════════════════════════════════════
-   SETTINGS — Three-card layout
+   SETTINGS — Separate collapsible cards (sc-*)
+   Each card is an independent hub-card-style unit.
    ══════════════════════════════════════════════════════ */
 
-.settings-card {
+/* Outer wrapper — same feel as a hub-card when collapsed */
+.sc-wrap {
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     overflow: hidden;
     box-shadow: var(--card-shadow);
+    transition: var(--transition);
 }
-.settings-card-header {
+
+/* Header row — always visible, tappable */
+.sc-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px 18px;
-    border-bottom: 1px solid var(--border);
-    background: var(--input-bg);
+    gap: 14px;
+    padding: 20px 22px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: var(--transition);
 }
-.settings-card-icon {
+.sc-header:active { opacity: 0.7; }
+
+.sc-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     color: var(--primary);
     flex-shrink: 0;
 }
-.settings-card-icon svg { width: 100%; height: 100%; stroke-width: 2px; }
-.settings-card-title {
-    font-size: 0.78rem;
+.sc-icon svg { width: 100%; height: 100%; }
+
+.sc-title {
+    flex: 1;
+    font-size: 0.82rem;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     color: var(--text);
 }
-.settings-card-body {
-    padding: 22px 20px;
+
+.sc-chevron {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--sub-text);
+    transition: transform 0.25s ease;
+}
+.sc-wrap--open .sc-chevron { transform: rotate(180deg); }
+
+/* Body — hidden by default, revealed on open */
+.sc-body {
+    overflow: hidden;
+    max-height: 1200px;
+    padding: 0 22px 22px;
+    transition: max-height 0.32s ease, padding 0.32s ease, opacity 0.25s ease;
+    opacity: 1;
+    border-top: 1px solid var(--border);
+}
+.sc-body--closed {
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    opacity: 0;
+    border-top: none;
 }
 
-/* Account row */
-.account-row {
+/* Divider inside a body */
+.sc-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+}
+
+/* Field section label (Appearance: Mode, Theme, Style) */
+.sc-field-label {
+    font-size: 0.63rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--sub-text);
+    margin-top: 22px;
+    margin-bottom: 12px;
+}
+.sc-field-label:first-child { margin-top: 18px; }
+
+/* Tappable row inside a body */
+.sc-row {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 4px;
+    padding: 14px 0;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.sc-row:active { opacity: 0.7; }
+
+.sc-row-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: var(--icon-color, var(--sub-text));
+    flex-shrink: 0;
+}
+.sc-row-icon svg { width: 100%; height: 100%; stroke-width: 2px; }
+.sc-row-icon--danger { color: var(--red) !important; }
+
+.sc-row-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+}
+.sc-row-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+}
+.sc-row-label--danger { color: var(--red); }
+.sc-row-desc {
+    font-size: 0.7rem;
+    color: var(--sub-text);
+}
+.sc-row-arrow {
+    font-size: 1.1rem;
+    color: var(--sub-text);
+    line-height: 1;
+}
+
+/* Account section inside body */
+.account-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 0 4px;
 }
 .account-avatar {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     background: var(--input-bg);
     border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     flex-shrink: 0;
     background-size: cover;
     background-position: center;
@@ -780,99 +885,6 @@ label {
     font-size: 0.72rem;
     color: var(--sub-text);
     margin-top: 3px;
-}
-
-/* Divider inside a card */
-.settings-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 20px 0;
-}
-
-/* Row (tappable action inside a card) */
-.settings-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 0;
-    cursor: pointer;
-    border-radius: var(--radius-sm);
-    transition: var(--transition);
-}
-.settings-row:active { opacity: 0.7; }
-.settings-row-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    color: var(--icon-color);
-    flex-shrink: 0;
-}
-.settings-row-icon svg { width: 100%; height: 100%; stroke-width: 2px; }
-.settings-row-icon--danger { color: var(--red); }
-.settings-row-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1;
-}
-.settings-row-label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text);
-    flex: 1;
-}
-.settings-row-label--danger { color: var(--red); }
-.settings-row-desc {
-    font-size: 0.7rem;
-    color: var(--sub-text);
-}
-.settings-row-arrow {
-    font-size: 1.1rem;
-    color: var(--sub-text);
-    line-height: 1;
-}
-
-/* Field label inside appearance card */
-.settings-field-label {
-    font-size: 0.65rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--sub-text);
-    margin-top: 22px;
-    margin-bottom: 12px;
-}
-
-/* Settings card collapse */
-.settings-card-header {
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-}
-.settings-card-chevron {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    margin-left: auto;
-    color: var(--sub-text);
-    transition: transform 0.25s ease;
-}
-.settings-card-header--open .settings-card-chevron {
-    transform: rotate(180deg);
-}
-.settings-card-body {
-    overflow: hidden;
-    transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.25s ease;
-    max-height: 800px;
-    opacity: 1;
-}
-.settings-card-body--collapsed {
-    max-height: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    opacity: 0;
 }
 
 .mode-toggle {
