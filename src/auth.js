@@ -32,9 +32,11 @@ async function initAuth() {
       updateAccountUI();
       await syncFromCloud();
       displayNotes();
+      switchPage('hub');
     } else if (localStorage.getItem(STORAGE_KEYS.guestMode) === 'true') {
       isGuest = true;
       loadLocalData();
+      switchPage('hub');
     } else {
       // No session and not in guest mode — show the login screen.
       // Set _authReady first so showLoginScreen's guard doesn't block it.
@@ -46,6 +48,7 @@ async function initAuth() {
     console.error('Auth init error:', err);
     isGuest = true;
     loadLocalData();
+    switchPage('hub');
   }
 
   _authReady = true;
