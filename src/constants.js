@@ -21,6 +21,7 @@ const POINTS = {
   midfieldRobot: 8,
   // Autonomous period bonus
   autonBonus:    12,
+  autonTie:      6,
 };
 
 // Themes — shared by onboarding.js and app.js settings renderer
