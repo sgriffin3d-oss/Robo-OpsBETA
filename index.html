@@ -221,111 +221,98 @@
     <section id="view-calc" class="view">
         <div class="welcome-header"><h1>Calculator</h1><p>High Stakes Match Scoring</p></div>
 
-        <!-- Autonomous Bonus — winner takes 12 pts -->
-        <div class="calc-section-label">Autonomous Bonus <span class="calc-pts-badge">12 pts</span></div>
-        <div class="auton-group">
-            <button class="auton-btn auton-btn--red" id="at-red" onclick="Calc.setAuton('red')">
-                <span class="auton-btn-dot auton-btn-dot--red"></span>
-                RED
-            </button>
-            <button class="auton-btn auton-btn--blue" id="at-blue" onclick="Calc.setAuton('blue')">
-                <span class="auton-btn-dot auton-btn-dot--blue"></span>
-                BLUE
-            </button>
+        <!-- Score totals banner -->
+        <div class="calc-totals-banner">
+            <div class="calc-banner-side calc-banner-side--red">
+                <span class="calc-banner-score" id="tot-red">0</span>
+                <span class="calc-banner-label">RED</span>
+            </div>
+            <div class="calc-banner-divider">VS</div>
+            <div class="calc-banner-side calc-banner-side--blue">
+                <span class="calc-banner-score" id="tot-blue">0</span>
+                <span class="calc-banner-label">BLUE</span>
+            </div>
         </div>
 
-        <!-- Bilateral scoring rows -->
-        <div class="calc-section-label" style="margin-top:16px;">Scoring</div>
-        <div class="calc-bilateral">
+        <!-- Autonomous Bonus -->
+        <div class="calc-block">
+            <div class="calc-block-header">
+                <span class="calc-block-title">Autonomous Bonus</span>
+                <span class="calc-block-pts">WIN 12 · TIE 6</span>
+            </div>
+            <div class="auton-group">
+                <button class="auton-btn" id="at-red"  onclick="Calc.setAuton('red')">RED</button>
+                <button class="auton-btn" id="at-tie"  onclick="Calc.setAuton('tie')">TIE</button>
+                <button class="auton-btn" id="at-blue" onclick="Calc.setAuton('blue')">BLUE</button>
+            </div>
+        </div>
 
-            <!-- Header row -->
-            <div class="calc-row calc-row--header">
-                <div class="calc-side calc-side--red-label">RED</div>
-                <div class="calc-center-label"></div>
-                <div class="calc-side calc-side--blue-label">BLUE</div>
+        <!-- Scoring rows -->
+        <div class="calc-block">
+            <div class="calc-block-header">
+                <span class="calc-block-title">Scoring</span>
             </div>
 
-            <!-- Alliance Pins — 5 pts each -->
-            <div class="calc-row">
-                <div class="calc-side">
-                    <button class="btn-math btn-math--red" onclick="Calc.adjust('red','alliancePin',1)">+</button>
-                    <span class="calc-val" id="r-alliancePin">0</span>
-                    <button class="btn-math btn-math--red" onclick="Calc.adjust('red','alliancePin',-1)">−</button>
-                </div>
-                <div class="calc-center">
-                    <span class="calc-center-icon">
-                        <!-- placeholder: pin icon -->
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    </span>
-                    <span class="calc-center-name">Alliance Pins</span>
-                    <span class="calc-pts-badge">5 pts</span>
-                </div>
-                <div class="calc-side">
-                    <button class="btn-math btn-math--blue" onclick="Calc.adjust('blue','alliancePin',1)">+</button>
-                    <span class="calc-val" id="b-alliancePin">0</span>
-                    <button class="btn-math btn-math--blue" onclick="Calc.adjust('blue','alliancePin',-1)">−</button>
-                </div>
+            <!-- Column headers -->
+            <div class="calc-grid calc-grid--header">
+                <span class="calc-alliance-label calc-alliance-label--red">RED</span>
+                <span></span>
+                <span class="calc-alliance-label calc-alliance-label--blue">BLUE</span>
             </div>
 
-            <!-- Yellow Pins — 10 pts each -->
-            <div class="calc-row">
-                <div class="calc-side">
-                    <button class="btn-math btn-math--red" onclick="Calc.adjust('red','yellowPin',1)">+</button>
-                    <span class="calc-val" id="r-yellowPin">0</span>
-                    <button class="btn-math btn-math--red" onclick="Calc.adjust('red','yellowPin',-1)">−</button>
+            <!-- Alliance Pins -->
+            <div class="calc-grid">
+                <div class="calc-controls calc-controls--red">
+                    <button class="calc-btn calc-btn--red" onclick="Calc.adjust('red','alliancePin',-1)">−</button>
+                    <span class="calc-num" id="r-alliancePin">0</span>
+                    <button class="calc-btn calc-btn--red" onclick="Calc.adjust('red','alliancePin',1)">+</button>
                 </div>
-                <div class="calc-center">
-                    <span class="calc-center-icon">
-                        <!-- placeholder: star/circle icon -->
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
-                    </span>
-                    <span class="calc-center-name">Yellow Pins</span>
-                    <span class="calc-pts-badge">10 pts</span>
+                <div class="calc-label-cell">
+                    <span class="calc-label-name">Alliance Pins</span>
+                    <span class="calc-label-pts">5 pts</span>
                 </div>
-                <div class="calc-side">
-                    <button class="btn-math btn-math--blue" onclick="Calc.adjust('blue','yellowPin',1)">+</button>
-                    <span class="calc-val" id="b-yellowPin">0</span>
-                    <button class="btn-math btn-math--blue" onclick="Calc.adjust('blue','yellowPin',-1)">−</button>
+                <div class="calc-controls calc-controls--blue">
+                    <button class="calc-btn calc-btn--blue" onclick="Calc.adjust('blue','alliancePin',-1)">−</button>
+                    <span class="calc-num" id="b-alliancePin">0</span>
+                    <button class="calc-btn calc-btn--blue" onclick="Calc.adjust('blue','alliancePin',1)">+</button>
                 </div>
             </div>
 
-            <!-- Midfield Robots — 8 pts each -->
-            <div class="calc-row">
-                <div class="calc-side">
-                    <button class="btn-math btn-math--red" onclick="Calc.adjust('red','midfieldRobot',1)">+</button>
-                    <span class="calc-val" id="r-midfieldRobot">0</span>
-                    <button class="btn-math btn-math--red" onclick="Calc.adjust('red','midfieldRobot',-1)">−</button>
+            <!-- Yellow Pins -->
+            <div class="calc-grid">
+                <div class="calc-controls calc-controls--red">
+                    <button class="calc-btn calc-btn--red" onclick="Calc.adjust('red','yellowPin',-1)">−</button>
+                    <span class="calc-num" id="r-yellowPin">0</span>
+                    <button class="calc-btn calc-btn--red" onclick="Calc.adjust('red','yellowPin',1)">+</button>
                 </div>
-                <div class="calc-center">
-                    <span class="calc-center-icon">
-                        <!-- placeholder: robot/cpu icon -->
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/></svg>
-                    </span>
-                    <span class="calc-center-name">Midfield Robots</span>
-                    <span class="calc-pts-badge">8 pts</span>
+                <div class="calc-label-cell">
+                    <span class="calc-label-name">Yellow Pins</span>
+                    <span class="calc-label-pts">10 pts</span>
                 </div>
-                <div class="calc-side">
-                    <button class="btn-math btn-math--blue" onclick="Calc.adjust('blue','midfieldRobot',1)">+</button>
-                    <span class="calc-val" id="b-midfieldRobot">0</span>
-                    <button class="btn-math btn-math--blue" onclick="Calc.adjust('blue','midfieldRobot',-1)">−</button>
+                <div class="calc-controls calc-controls--blue">
+                    <button class="calc-btn calc-btn--blue" onclick="Calc.adjust('blue','yellowPin',-1)">−</button>
+                    <span class="calc-num" id="b-yellowPin">0</span>
+                    <button class="calc-btn calc-btn--blue" onclick="Calc.adjust('blue','yellowPin',1)">+</button>
                 </div>
             </div>
 
-            <!-- Totals row -->
-            <div class="calc-row calc-row--totals">
-                <div class="calc-total calc-total--red">
-                    <span class="calc-total-score" id="tot-red">0</span>
-                    <span class="calc-total-label">RED</span>
+            <!-- Midfield Robots (max 2) -->
+            <div class="calc-grid">
+                <div class="calc-controls calc-controls--red">
+                    <button class="calc-btn calc-btn--red" onclick="Calc.adjust('red','midfieldRobot',-1)">−</button>
+                    <span class="calc-num" id="r-midfieldRobot">0</span>
+                    <button class="calc-btn calc-btn--red" onclick="Calc.adjust('red','midfieldRobot',1)">+</button>
                 </div>
-                <div class="calc-center calc-center--total">
-                    <span class="calc-vs">VS</span>
+                <div class="calc-label-cell">
+                    <span class="calc-label-name">Midfield Robots</span>
+                    <span class="calc-label-pts">8 pts · max 2</span>
                 </div>
-                <div class="calc-total calc-total--blue">
-                    <span class="calc-total-score" id="tot-blue">0</span>
-                    <span class="calc-total-label">BLUE</span>
+                <div class="calc-controls calc-controls--blue">
+                    <button class="calc-btn calc-btn--blue" onclick="Calc.adjust('blue','midfieldRobot',-1)">−</button>
+                    <span class="calc-num" id="b-midfieldRobot">0</span>
+                    <button class="calc-btn calc-btn--blue" onclick="Calc.adjust('blue','midfieldRobot',1)">+</button>
                 </div>
             </div>
-
         </div>
 
         <button class="btn-reset" onclick="Calc.reset()">↺  RESET</button>
