@@ -1,8 +1,5 @@
-// constants.js
-// Single source of truth for every magic string and fixed number in the app.
-// Load order: this file must load first.
+// constants.js — Single source of truth. Load order: first.
 
-// localStorage keys — change a key here and nowhere else needs updating
 const STORAGE_KEYS = {
   db:           'paragon_db',
   sketches:     'paragon_sketches',
@@ -14,34 +11,36 @@ const STORAGE_KEYS = {
   onboarded:    'paragon_onboarded_v1',
 };
 
-// VEX Override scoring — update here when the season changes
+// VEX Override 2026-2027 scoring values
 const POINTS = {
-  rings:    2,
-  stakes:   3,
-  zones:    5,
-  autonWin: 6,
-  autonTie: 3,
+  // Rings scored on stakes (per ring, per stake ownership tier — see calc.js)
+  ringOnStake:     1,
+  // Stake ownership bonus (scored by the alliance who owns the most rings on it)
+  stakeOwnership:  2,
+  // Corner zone control bonus
+  zoneControl:     5,
+  // Autonomous bonus
+  autonWin:        6,
+  autonTie:        3,
 };
 
-// Theme and style definitions shared by onboarding.js and app.js settings.
-// Keeping them here prevents the two modules from drifting apart.
+// Themes — shared by onboarding.js and app.js settings renderer
 const THEMES = [
-  { id: 'theme-gold',    name: 'Gold',    tag: 'Dark only',    accent: '#e8b23b', bg: '#060501', mode: 'mode-dark'  },
-  { id: 'theme-arctic',  name: 'Arctic',  tag: 'Light only',   accent: '#006edb', bg: '#eef4fb', mode: 'mode-light' },
+  { id: 'theme-gold',    name: 'Gold',    tag: 'Dark & Light', accent: '#e8b23b', bg: '#060501', mode: 'mode-dark'  },
   { id: 'theme-red',     name: 'Red',     tag: 'Dark & Light', accent: '#cc2200', bg: '#080808', mode: 'mode-dark'  },
   { id: 'theme-blue',    name: 'Blue',    tag: 'Dark & Light', accent: '#1a6ccc', bg: '#080808', mode: 'mode-dark'  },
   { id: 'theme-stealth', name: 'Stealth', tag: 'Dark & Light', accent: '#e0e0e0', bg: '#000000', mode: 'mode-dark'  },
 ];
 
 const STYLES = [
-  { id: 'style-classic',  name: 'Classic',  desc: 'Original feel',  icon: '◼' },
-  { id: 'style-minimal',  name: 'Minimal',  desc: 'Lines only',     icon: '▱' },
-  { id: 'style-glass',    name: 'Glass',    desc: 'Frosted blur',   icon: '◈' },
-  { id: 'style-tactical', name: 'Tactical', desc: 'Sharp HUD',      icon: '◧' },
-  { id: 'style-neon',     name: 'Neon',     desc: 'Glow effects',   icon: '✦' },
-  { id: 'style-retro',    name: 'Retro',    desc: 'Warm & textured',icon: '❧' },
+  { id: 'style-classic',  name: 'Classic',  desc: 'Original feel',   icon: '◼' },
+  { id: 'style-minimal',  name: 'Minimal',  desc: 'Lines only',      icon: '▱' },
+  { id: 'style-glass',    name: 'Glass',    desc: 'Frosted blur',    icon: '◈' },
+  { id: 'style-tactical', name: 'Tactical', desc: 'Sharp HUD',       icon: '◧' },
+  { id: 'style-neon',     name: 'Neon',     desc: 'Glow effects',    icon: '✦' },
+  { id: 'style-retro',    name: 'Retro',    desc: 'Warm & textured', icon: '❧' },
 ];
 
-// Themes where the mode is fixed and can't be toggled by the user
-const LOCKED_DARK  = ['theme-gold'];
-const LOCKED_LIGHT = ['theme-arctic'];
+// No locked themes — gold and all others support both modes
+const LOCKED_DARK  = [];
+const LOCKED_LIGHT = [];

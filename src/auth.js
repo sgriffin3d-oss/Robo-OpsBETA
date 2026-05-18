@@ -32,10 +32,14 @@ async function initAuth() {
       updateAccountUI();
       await syncFromCloud();
       displayNotes();
+      switchPage('hub');
     } else if (localStorage.getItem(STORAGE_KEYS.guestMode) === 'true') {
       isGuest = true;
       loadLocalData();
+      switchPage('hub');
     } else {
+      // No session and not in guest mode — show the login screen.
+      // Set _authReady first so showLoginScreen's guard doesn't block it.
       _authReady = true;
       showLoginScreen();
       return;
@@ -44,6 +48,7 @@ async function initAuth() {
     console.error('Auth init error:', err);
     isGuest = true;
     loadLocalData();
+    switchPage('hub');
   }
 
   _authReady = true;
@@ -150,7 +155,11 @@ async function signOut() {
     try { await _supabase.auth.signOut(); } catch (e) { /* ignore */ }
   }
 
-  showLoginScreen();
+  // Bypass the _authReady guard — at this point auth is definitely ready
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-login')?.classList.add('active');
+  window.scrollTo(0, 0);
+
   setTimeout(() => { _signingOut = false; }, 800);
 }
 
