@@ -11,17 +11,16 @@ const STORAGE_KEYS = {
   onboarded:    'paragon_onboarded_v1',
 };
 
-// VEX Override 2026-2027 scoring values
+// VEX High Stakes 2026-2027 scoring values
 const POINTS = {
-  // Rings scored on stakes (per ring, per stake ownership tier — see calc.js)
-  ringOnStake:     1,
-  // Stake ownership bonus (scored by the alliance who owns the most rings on it)
-  stakeOwnership:  2,
-  // Corner zone control bonus
-  zoneControl:     5,
-  // Autonomous bonus
-  autonWin:        6,
-  autonTie:        3,
+  // Alliance-colored pins placed on the field
+  alliancePin:   5,
+  // Yellow (neutral) pins owned by the alliance
+  yellowPin:     10,
+  // Robots parked in the midfield zone at end of match
+  midfieldRobot: 8,
+  // Autonomous period bonus
+  autonBonus:    12,
 };
 
 // Themes — shared by onboarding.js and app.js settings renderer

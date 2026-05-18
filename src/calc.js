@@ -1,31 +1,25 @@
-// calc.js — Override 2026-2027 score calculator
+// calc.js — High Stakes 2026-2027 score calculator
 //
-// Scoring model (from the game manual):
-//   Rings on stakes:   1 pt each
-//   Stake ownership:   2 pt bonus to the alliance with the most rings on a given stake
-//   Zone control:      5 pt bonus per corner zone held at end of match
-//   Autonomous bonus:  6 pt (win) / 3 pt each (tie)
-//
-// The counter values the user enters are:
-//   rings  — total rings your alliance scored across all stakes
-//   stakes — number of stakes your alliance owns (majority rings)
-//   zones  — number of corner zones your alliance controls
+// Scoring model:
+//   Alliance Pins   — 5 pts each  (alliance-colored pins placed)
+//   Yellow Pins     — 10 pts each (yellow/neutral pins owned)
+//   Midfield Robots — 8 pts each  (robots in midfield zone at end)
+//   Autonomous Bonus — 12 pts (winner only; no tie split)
 
 const Calc = (() => {
   const state = {
-    red:   { rings: 0, stakes: 0, zones: 0 },
-    blue:  { rings: 0, stakes: 0, zones: 0 },
-    auton: null,   // 'red' | 'blue' | 'tie' | null
+    red:   { alliancePin: 0, yellowPin: 0, midfieldRobot: 0 },
+    blue:  { alliancePin: 0, yellowPin: 0, midfieldRobot: 0 },
+    auton: null,   // 'red' | 'blue' | null
   };
 
   function score(alliance) {
     const s = state[alliance];
     let total = 0;
-    total += s.rings  * POINTS.ringOnStake;
-    total += s.stakes * POINTS.stakeOwnership;
-    total += s.zones  * POINTS.zoneControl;
-    if (state.auton === alliance)    total += POINTS.autonWin;
-    if (state.auton === 'tie')       total += POINTS.autonTie;
+    total += s.alliancePin   * POINTS.alliancePin;
+    total += s.yellowPin     * POINTS.yellowPin;
+    total += s.midfieldRobot * POINTS.midfieldRobot;
+    if (state.auton === alliance) total += POINTS.autonBonus;
     return total;
   }
 
@@ -35,33 +29,28 @@ const Calc = (() => {
     const r = score('red');
     const b = score('blue');
 
-    // Individual counter values
+    const fields = ['alliancePin', 'yellowPin', 'midfieldRobot'];
     for (const [alliance, short] of [['red', 'r'], ['blue', 'b']]) {
-      document.getElementById(`${short}-rings`)?.innerText  !== undefined &&
-        (document.getElementById(`${short}-rings`).innerText  = state[alliance].rings);
-      document.getElementById(`${short}-stakes`)?.innerText !== undefined &&
-        (document.getElementById(`${short}-stakes`).innerText = state[alliance].stakes);
-      document.getElementById(`${short}-zones`)?.innerText  !== undefined &&
-        (document.getElementById(`${short}-zones`).innerText  = state[alliance].zones);
+      for (const field of fields) {
+        const el = document.getElementById(`${short}-${field}`);
+        if (el) el.innerText = state[alliance][field];
+      }
     }
 
-    // Totals
     const rEl = document.getElementById('tot-red');
     const bEl = document.getElementById('tot-blue');
     if (rEl) rEl.innerText = r;
     if (bEl) bEl.innerText = b;
 
-    // Highlight the winning alliance subtotal
-    document.getElementById('tot-red')?.closest('.alliance-subtotal')
-      ?.classList.toggle('alliance-subtotal--winning', r > b);
-    document.getElementById('tot-blue')?.closest('.alliance-subtotal')
-      ?.classList.toggle('alliance-subtotal--winning', b > r);
+    document.getElementById('tot-red')?.closest('.calc-total')
+      ?.classList.toggle('calc-total--winning', r > b);
+    document.getElementById('tot-blue')?.closest('.calc-total')
+      ?.classList.toggle('calc-total--winning', b > r);
 
-    // Auton button states
-    ['red', 'tie', 'blue'].forEach(v => {
+    ['red', 'blue'].forEach(v => {
       const btn = document.getElementById('at-' + v);
       if (!btn) return;
-      btn.classList.remove('active-red', 'active-blue', 'active-tie');
+      btn.classList.remove('active-red', 'active-blue');
       if (state.auton === v) btn.classList.add('active-' + v);
     });
   }
@@ -73,14 +62,13 @@ const Calc = (() => {
     },
 
     setAuton(winner) {
-      // Tap same button again to deselect
       state.auton = state.auton === winner ? null : winner;
       updateDisplay();
     },
 
     reset() {
-      state.red   = { rings: 0, stakes: 0, zones: 0 };
-      state.blue  = { rings: 0, stakes: 0, zones: 0 };
+      state.red   = { alliancePin: 0, yellowPin: 0, midfieldRobot: 0 };
+      state.blue  = { alliancePin: 0, yellowPin: 0, midfieldRobot: 0 };
       state.auton = null;
       updateDisplay();
     },
