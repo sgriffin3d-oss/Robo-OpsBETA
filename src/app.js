@@ -20,36 +20,21 @@ window.onload = function () {
 };
 
 function startAuth() {
-  // Don't pre-navigate to hub — initAuth decides the landing view based on
-  // session state. New users hit the login screen; returning users go to hub.
+  switchPage('hub');
   if (typeof initAuth === 'function') initAuth();
   if (typeof updateInstallCardVisibility === 'function') updateInstallCardVisibility();
 }
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
-// Maps view names to their sidebar nav button IDs
-const _snavMap = {
-  hub: 'snav-hub', events: 'snav-events', home: 'snav-home',
-  calc: 'snav-calc', rules: 'snav-rules', field: 'snav-field',
-  form: 'snav-form', settings: 'snav-settings',
-  detail: 'snav-events',   // detail is part of the events flow
-};
-
 function switchPage(view) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + view)?.classList.add('active');
-
-  // Sidebar active state
-  document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
-  const activeBtn = _snavMap[view];
-  if (activeBtn) document.getElementById(activeBtn)?.classList.add('active');
   if (view === 'home')     displayNotes();
   if (view === 'rules'    && typeof initRules       === 'function') initRules();
   if (view === 'settings' && typeof updateAccountUI === 'function') {
     updateAccountUI();
-    renderSettingsUI();
-
+    switchSettingsTab('account');
   }
   window.scrollTo(0, 0);
   closeMenu();
@@ -453,32 +438,19 @@ function renderSettingsUI() {
   }
 }
 
-// switchSettingsTab removed — settings uses sc-wrap collapsible cards now.
-
-
-// ─── Settings collapse ─────────────────────────────────────────────────────────
-
-function toggleSettingsCard(name) {
-  const wrap = document.getElementById('sc-wrap-' + name);
-  const body = document.getElementById('sc-body-' + name);
-  if (!wrap || !body) return;
-
-  const isOpen = wrap.classList.contains('sc-wrap--open');
-  wrap.classList.toggle('sc-wrap--open', !isOpen);
-  body.classList.toggle('sc-body--closed', isOpen);
-}
-
-function openSettingsCard(name) {
-  const wrap = document.getElementById('sc-wrap-' + name);
-  const body = document.getElementById('sc-body-' + name);
-  if (!wrap || !body) return;
-  wrap.classList.add('sc-wrap--open');
-  body.classList.remove('sc-body--closed');
+function switchSettingsTab(tab) {
+  const accountTab    = document.getElementById('settings-tab-account');
+  const appearanceTab = document.getElementById('settings-tab-appearance');
+  if (accountTab)    accountTab.style.display    = tab === 'account'    ? 'block' : 'none';
+  if (appearanceTab) appearanceTab.style.display = tab === 'appearance' ? 'block' : 'none';
+  if (tab === 'appearance') renderSettingsUI();
+  window.scrollTo(0, 0);
 }
 
 function handleSignOutCard() {
-  // Both guests and signed-in users go through signOut().
-  // For guests it clears guest mode and navigates to login.
-  // For signed-in users it revokes the Supabase session and navigates to login.
-  if (typeof signOut === 'function') signOut();
+  if (typeof isGuest !== 'undefined' && isGuest) {
+    if (typeof showLoginScreen === 'function') showLoginScreen();
+  } else {
+    if (typeof signOut === 'function') signOut();
+  }
 }
