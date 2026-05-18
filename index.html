@@ -70,13 +70,68 @@
 
         .sketch-item { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
         .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: #000; object-fit: contain; border: 1px solid var(--border); }
-        #view-login.active { display: flex !important; flex-direction: column; align-items: center; justify-content: center; }
+        /* view-login layout handled in style.css */
     </style>
 </head>
-<body class="theme-dark style-classic">
+<body class="theme-gold style-classic">
 
-<!-- LOGIN SCREEN -->
-<section id="view-login" class="view" style="min-height:100vh; display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px 24px;">
+<div class="app-shell">
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-logo">
+            <img src="assets/images/icon.png" alt="" class="sidebar-logo-img">
+            <div class="sidebar-logo-text">
+                <span class="sidebar-app-name">Robo Ops</span>
+                <span class="sidebar-app-sub">VEX Command Center</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="sidebar-btn" id="snav-hub"     onclick="switchPage('hub')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Hub</span>
+            </button>
+            <button class="sidebar-btn" id="snav-events"  onclick="openEventsHub()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Events</span>
+            </button>
+            <button class="sidebar-btn" id="snav-home"    onclick="switchPage('home')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Scout Notes</span>
+            </button>
+            <button class="sidebar-btn" id="snav-calc"    onclick="switchPage('calc')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+                <span>Calculator</span>
+            </button>
+            <button class="sidebar-btn" id="snav-rules"   onclick="switchPage('rules')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><polyline points="9 11 11 13 15 9"/></svg>
+                <span>Game Rules</span>
+            </button>
+            <button class="sidebar-btn" id="snav-field"   onclick="switchPage('field')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                <span>Field</span>
+            </button>
+            <button class="sidebar-btn" id="snav-form"    onclick="openNewNote()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>New Report</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="sidebar-btn" id="snav-settings" onclick="switchPage('settings')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Settings</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <div class="container">
+
+
+    <!-- LOGIN SCREEN -->
+<section id="view-login" class="view view-login-centered">
     <div style="width:100%; max-width:340px;">
 
         <!-- Logo -->
@@ -100,7 +155,7 @@
         <!-- Divider -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
             <div style="flex:1; height:1px; background:var(--border);"></div>
-            <span style="font-size:0.68rem; color:var(--sub-text); font-weight:700; letter-spacing:1px; text-transform:uppercase;">Email</span>
+            <span style="font-size:0.68rem; color:var(--sub-text); font-weight:700; letter-spacing:1px; text-transform:uppercase;">or</span>
             <div style="flex:1; height:1px; background:var(--border);"></div>
         </div>
 
@@ -116,11 +171,86 @@
 
     </div>
 </section>
+ang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Robo Ops</title>
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="icon" type="image/png" href="assets/images/icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
 
-<div class="container">
+    <!-- iOS / Safari PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Robo Ops">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+
+    <!-- Edge / general -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Robo Ops">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/events.css">
+    <link rel="stylesheet" href="assets/css/rules.css">
+    <link rel="stylesheet" href="assets/css/install.css">
+    <style>
+        /* --- MAP FRAME & ZOOM --- */
+        /* Map frame: no padding - let the image set the height naturally */
+        .map-frame {
+            width: 100%; border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border); background: #000;
+            position: relative; margin: 15px 0;
+            transition: background 0.3s ease; cursor: pointer;
+        }
+        .theme-light .map-frame { background: #ffffff; }
+
+        /* Both field images fill their frame and set its natural height */
+        #map-img, #draw-map-img {
+            width: 100%; display: block;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Canvas is transparent and sits flush on top of #draw-map-img */
+        #sketch-canvas {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            touch-action: none;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .map-frame.zoomed #map-img,
+        .map-frame.zoomed #draw-map-img,
+        .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
+
+        /* --- DRAWING UI FIXES --- */
+        .draw-tools { 
+            display: flex; gap: 12px; margin: 15px 0; 
+            padding: 10px; background: var(--input-bg); 
+            border-radius: 16px; border: 1px solid var(--border);
+            justify-content: center; align-items: center;
+        }
+        .color-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
+        
+        .draw-actions { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        .draw-actions input { margin-bottom: 0 !important; flex: 2; }
+        .draw-actions .save-btn { flex: 1; padding: 14px; font-size: 0.8rem; margin: 0; }
+
+        .sub-nav { display: flex; gap: 5px; margin-top: 15px; background: var(--input-bg); padding: 5px; border-radius: 12px; }
+        .sub-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--sub-text); font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 0.85rem; }
+        .sub-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        .sketch-item { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .sketch-preview { width: 70px; height: 45px; border-radius: 4px; background: #000; object-fit: contain; border: 1px solid var(--border); }
+        /* view-login layout handled in style.css */
+    </style>
+</head>
+<body class="theme-dark style-classic">
+
     <section id="view-hub" class="view">
         <div class="welcome-header"><h1>Robo Ops</h1><p>Strategic Command</p></div>
         
+        <div class="hub-card-grid">
         <div class="hub-card" onclick="openEventsHub()">
             <span class="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
@@ -161,6 +291,7 @@
             </span>
             <b>New Match Report</b>
         </div>
+        </div><!-- /.hub-card-grid -->
     </section>
 
     <section id="view-events" class="view">
@@ -219,29 +350,119 @@
     </section>
 
     <section id="view-calc" class="view">
-        <div class="welcome-header"><h1>Calculator</h1><p>Match Scoring</p></div>
+        <div class="welcome-header"><h1>Calculator</h1><p>Override Match Scoring</p></div>
+
+        <!-- Autonomous Winner -->
+        <div class="calc-section-label">Autonomous Bonus</div>
         <div class="auton-group">
-            <button class="auton-btn" id="at-red" onclick="Calc.setAuton('red')">RED</button>
-            <button class="auton-btn" id="at-tie" onclick="Calc.setAuton('tie')">TIE</button>
-            <button class="auton-btn" id="at-blue" onclick="Calc.setAuton('blue')">BLUE</button>
+            <button class="auton-btn" id="at-red"  onclick="Calc.setAuton('red')">
+                <span class="auton-btn-icon">🟥</span> RED
+            </button>
+            <button class="auton-btn" id="at-tie"  onclick="Calc.setAuton('tie')">
+                <span class="auton-btn-icon">⚖️</span> TIE
+            </button>
+            <button class="auton-btn" id="at-blue" onclick="Calc.setAuton('blue')">
+                <span class="auton-btn-icon">🟦</span> BLUE
+            </button>
         </div>
-        <div class="side-container">
-            <div class="alliance-box red">
-                <div class="counter"><label>E1</label><div class="ctrls"><button class="btn-math" onclick="Calc.adjust('red','rings',1)">+</button><span class="val-display" id="r-rings">0</span><button class="btn-math" onclick="Calc.adjust('red','rings',-1)">-</button></div></div>
-                <div class="counter"><label>E2</label><div class="ctrls"><button class="btn-math" onclick="Calc.adjust('red','stakes',1)">+</button><span class="val-display" id="r-stakes">0</span><button class="btn-math" onclick="Calc.adjust('red','stakes',-1)">-</button></div></div>
-                <div class="counter"><label>E3</label><div class="ctrls"><button class="btn-math" onclick="Calc.adjust('red','zones',1)">+</button><span class="val-display" id="r-zones">0</span><button class="btn-math" onclick="Calc.adjust('red','zones',-1)">-</button></div></div>
+
+        <!-- Per-alliance scoring -->
+        <div class="calc-alliances">
+
+            <div class="alliance-col">
+                <div class="alliance-col-header alliance-col-header--red">RED</div>
+
+                <div class="counter">
+                    <div class="counter-label">
+                        <span class="counter-icon">💍</span>
+                        <span>Rings Scored</span>
+                    </div>
+                    <div class="ctrls">
+                        <button class="btn-math" onclick="Calc.adjust('red','rings',1)">+</button>
+                        <span class="val-display" id="r-rings">0</span>
+                        <button class="btn-math" onclick="Calc.adjust('red','rings',-1)">−</button>
+                    </div>
+                </div>
+
+                <div class="counter">
+                    <div class="counter-label">
+                        <span class="counter-icon">🏆</span>
+                        <span>Stakes Owned</span>
+                    </div>
+                    <div class="ctrls">
+                        <button class="btn-math" onclick="Calc.adjust('red','stakes',1)">+</button>
+                        <span class="val-display" id="r-stakes">0</span>
+                        <button class="btn-math" onclick="Calc.adjust('red','stakes',-1)">−</button>
+                    </div>
+                </div>
+
+                <div class="counter">
+                    <div class="counter-label">
+                        <span class="counter-icon">📍</span>
+                        <span>Zones Held</span>
+                    </div>
+                    <div class="ctrls">
+                        <button class="btn-math" onclick="Calc.adjust('red','zones',1)">+</button>
+                        <span class="val-display" id="r-zones">0</span>
+                        <button class="btn-math" onclick="Calc.adjust('red','zones',-1)">−</button>
+                    </div>
+                </div>
+
+                <div class="alliance-subtotal alliance-subtotal--red">
+                    <span class="subtotal-label">RED</span>
+                    <span class="subtotal-score" id="tot-red">0</span>
+                </div>
             </div>
-            <div class="alliance-box blue">
-                <div class="counter"><label>E1</label><div class="ctrls"><button class="btn-math" onclick="Calc.adjust('blue','rings',1)">+</button><span class="val-display" id="b-rings">0</span><button class="btn-math" onclick="Calc.adjust('blue','rings',-1)">-</button></div></div>
-                <div class="counter"><label>E2</label><div class="ctrls"><button class="btn-math" onclick="Calc.adjust('blue','stakes',1)">+</button><span class="val-display" id="b-stakes">0</span><button class="btn-math" onclick="Calc.adjust('blue','stakes',-1)">-</button></div></div>
-                <div class="counter"><label>E3</label><div class="ctrls"><button class="btn-math" onclick="Calc.adjust('blue','zones',1)">+</button><span class="val-display" id="b-zones">0</span><button class="btn-math" onclick="Calc.adjust('blue','zones',-1)">-</button></div></div>
-            </div>
-            <div class="score-footer">
-                <div>RED: <span id="tot-red">0</span></div>
-                <div>BLUE: <span id="tot-blue">0</span></div>
+
+            <div class="calc-divider"></div>
+
+            <div class="alliance-col">
+                <div class="alliance-col-header alliance-col-header--blue">BLUE</div>
+
+                <div class="counter">
+                    <div class="counter-label">
+                        <span class="counter-icon">💍</span>
+                        <span>Rings Scored</span>
+                    </div>
+                    <div class="ctrls">
+                        <button class="btn-math" onclick="Calc.adjust('blue','rings',1)">+</button>
+                        <span class="val-display" id="b-rings">0</span>
+                        <button class="btn-math" onclick="Calc.adjust('blue','rings',-1)">−</button>
+                    </div>
+                </div>
+
+                <div class="counter">
+                    <div class="counter-label">
+                        <span class="counter-icon">🏆</span>
+                        <span>Stakes Owned</span>
+                    </div>
+                    <div class="ctrls">
+                        <button class="btn-math" onclick="Calc.adjust('blue','stakes',1)">+</button>
+                        <span class="val-display" id="b-stakes">0</span>
+                        <button class="btn-math" onclick="Calc.adjust('blue','stakes',-1)">−</button>
+                    </div>
+                </div>
+
+                <div class="counter">
+                    <div class="counter-label">
+                        <span class="counter-icon">📍</span>
+                        <span>Zones Held</span>
+                    </div>
+                    <div class="ctrls">
+                        <button class="btn-math" onclick="Calc.adjust('blue','zones',1)">+</button>
+                        <span class="val-display" id="b-zones">0</span>
+                        <button class="btn-math" onclick="Calc.adjust('blue','zones',-1)">−</button>
+                    </div>
+                </div>
+
+                <div class="alliance-subtotal alliance-subtotal--blue">
+                    <span class="subtotal-label">BLUE</span>
+                    <span class="subtotal-score" id="tot-blue">0</span>
+                </div>
             </div>
         </div>
-        <button class="btn-secondary" onclick="Calc.reset()">RESET SCORES</button>
+
+        <button class="btn-reset" onclick="Calc.reset()">↺  RESET</button>
     </section>
 
     <section id="view-home" class="view">
@@ -257,110 +478,114 @@
     <section id="view-settings" class="view">
         <div class="welcome-header"><h1>Settings</h1><p>Configuration</p></div>
 
-        <!-- Account tab -->
-        <div id="settings-tab-account">
-
-            <!-- Account card -->
-            <div class="hub-card" style="flex-direction:column; align-items:flex-start; cursor:default; gap:0;">
-                <div style="display:flex; align-items:center; gap:14px; width:100%;">
-                    <div id="account-avatar" style="width:44px; height:44px; border-radius:50%; background:var(--input-bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; background-size:cover; background-position:center;">👤</div>
-                    <div style="flex:1; min-width:0;">
-                        <div id="account-name" style="font-weight:900; font-size:0.95rem; color:var(--text); text-transform:uppercase; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Account</div>
-                        <div id="account-subtitle" style="font-size:0.72rem; color:var(--sub-text); margin-top:3px; font-weight:500;">Synced across devices</div>
+        <!-- ── Account ── -->
+        <div class="sc-wrap" id="sc-wrap-account">
+            <div class="sc-header" onclick="toggleSettingsCard('account')">
+                <span class="sc-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <span class="sc-title">Account</span>
+                <svg class="sc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="sc-body" id="sc-body-account">
+                <div class="account-row">
+                    <div id="account-avatar" class="account-avatar">👤</div>
+                    <div class="account-info">
+                        <div id="account-name" class="account-name">Account</div>
+                        <div id="account-subtitle" class="account-subtitle">Synced across devices</div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Appearance card -->
-            <div class="hub-card" onclick="switchSettingsTab('appearance')">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                </span>
-                <b>Appearance</b>
-            </div>
-
-            <!-- Divider label -->
-            <div style="font-size:0.65rem; font-weight:800; letter-spacing:2px; color:var(--sub-text); text-transform:uppercase; padding:8px 2px 4px;">Data</div>
-
-            <!-- Export card -->
-            <div class="hub-card" onclick="exportData()">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </span>
-                <b>Export Backup</b>
-            </div>
-
-            <!-- Import card -->
-            <div class="hub-card" onclick="document.getElementById('importFile').click()">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                </span>
-                <b>Import Backup</b>
-            </div>
-            <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
-
-            <!-- Divider label -->
-            <div style="font-size:0.65rem; font-weight:800; letter-spacing:2px; color:var(--sub-text); text-transform:uppercase; padding:8px 2px 4px;">Account</div>
-
-            <!-- Install App card — shown only when not installed as PWA -->
-            <div class="hub-card" id="settings-install-card" onclick="showInstallPrompt()" style="display:none;">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><polyline points="8 12 12 16 16 12"/><path d="M3 21h18"/></svg>
-                </span>
-                <b>Install App</b>
-            </div>
-
-            <!-- Sign out card -->
-            <div class="hub-card" id="account-signout-card" onclick="handleSignOutCard()">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                </span>
-                <b id="account-signout-label">Sign Out</b>
+                <div class="sc-divider"></div>
+                <div class="sc-row" id="settings-install-card" onclick="showInstallPrompt()" style="display:none;">
+                    <span class="sc-row-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><polyline points="8 12 12 16 16 12"/><path d="M3 21h18"/></svg>
+                    </span>
+                    <span class="sc-row-label">Install App</span>
+                    <span class="sc-row-arrow">›</span>
+                </div>
+                <div class="sc-row" id="account-signout-card" onclick="handleSignOutCard()">
+                    <span class="sc-row-icon sc-row-icon--danger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </span>
+                    <span class="sc-row-label sc-row-label--danger" id="account-signout-label">Sign Out</span>
+                    <span class="sc-row-arrow">›</span>
+                </div>
             </div>
         </div>
 
-        <!-- Appearance tab -->
-        <div id="settings-tab-appearance" style="display:none;">
-            <!-- Back card -->
-            <div class="hub-card" onclick="switchSettingsTab('account')" style="margin-bottom:24px;">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <!-- ── Appearance ── -->
+        <div class="sc-wrap" id="sc-wrap-appearance">
+            <div class="sc-header" onclick="toggleSettingsCard('appearance')">
+                <span class="sc-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                 </span>
-                <b>Back</b>
+                <span class="sc-title">Appearance</span>
+                <svg class="sc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
-
-            <div class="settings-section">
-                <div class="settings-label">Mode</div>
+            <div class="sc-body sc-body--closed" id="sc-body-appearance">
+                <div class="sc-field-label">Mode</div>
                 <div class="mode-toggle" id="mode-toggle">
                     <button class="mode-btn active" id="mode-btn-dark"  onclick="setMode('mode-dark')">🌑 Dark</button>
                     <button class="mode-btn"        id="mode-btn-light" onclick="setMode('mode-light')">☀️ Light</button>
                 </div>
-                <div class="mode-locked-note" id="mode-locked-note" style="display:none;"></div>
-            </div>
-
-            <div class="settings-section">
-                <div class="settings-label">Color Theme</div>
+                <div class="sc-field-label">Color Theme</div>
                 <div class="theme-grid" id="theme-grid"></div>
-            </div>
-
-            <div class="settings-section" style="margin-bottom:40px;">
-                <div class="settings-label">Interface Style</div>
+                <div class="sc-field-label">Interface Style</div>
                 <div class="style-grid" id="style-grid"></div>
             </div>
         </div>
+
+        <!-- ── Data Backup ── -->
+        <div class="sc-wrap" id="sc-wrap-backup">
+            <div class="sc-header" onclick="toggleSettingsCard('backup')">
+                <span class="sc-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                </span>
+                <span class="sc-title">Data Backup</span>
+                <svg class="sc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="sc-body sc-body--closed" id="sc-body-backup">
+                <div class="sc-row" onclick="exportData()">
+                    <span class="sc-row-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </span>
+                    <div class="sc-row-content">
+                        <span class="sc-row-label">Export Backup</span>
+                        <span class="sc-row-desc">Save a .paragon file to your device</span>
+                    </div>
+                    <span class="sc-row-arrow">›</span>
+                </div>
+                <div class="sc-divider"></div>
+                <div class="sc-row" onclick="document.getElementById('importFile').click()">
+                    <span class="sc-row-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </span>
+                    <div class="sc-row-content">
+                        <span class="sc-row-label">Import Backup</span>
+                        <span class="sc-row-desc">Restore from a .paragon file</span>
+                    </div>
+                    <span class="sc-row-arrow">›</span>
+                </div>
+                <input type="file" id="importFile" accept=".paragon" style="display:none" onchange="importData(event)">
+            </div>
+        </div>
+
     </section>
 
-    <section id="view-form" class="view">
-        <h2>New Report</h2>
+        <section id="view-form" class="view">
+        <div class="welcome-header"><h1>New Report</h1><p>Match Scout Entry</p></div>
         <input type="hidden" id="editIdx">
-        <input type="text" id="f-event" placeholder="Event Name">
-        <input type="text" id="f-team" placeholder="Team Number">
-        <div style="display:flex; gap:10px;">
+        <div class="form-row">
+            <input type="text" id="f-event" placeholder="Event Name">
+            <input type="text" id="f-team"  placeholder="Team Number">
+        </div>
+        <div class="form-row">
             <select id="f-res"><option>Win</option><option>Loss</option><option>Tie</option></select>
             <select id="f-autores"><option>Auto Win</option><option>Auto Loss</option></select>
         </div>
-        <input type="text" id="f-partner" placeholder="Partner Team">
-        <input type="text" id="f-opp" placeholder="Opponent Teams">
+        <div class="form-row">
+            <input type="text" id="f-partner" placeholder="Partner Team">
+            <input type="text" id="f-opp" placeholder="Opponent Teams">
         <div style="display:flex; gap:10px;">
             <input type="number" id="f-score" placeholder="Our Score">
             <input type="number" id="f-oppscore" placeholder="Opp Score">
@@ -387,6 +612,16 @@
 
         <div id="rules-list"></div>
     </section>
+
+
+    </div><!-- /.container -->
+
+</div><!-- /.app-shell -->
+
+
+    </div>
+
+</div>
 
 
 <div class="fab-menu" id="fabMenu">
@@ -421,5 +656,7 @@
     <script src="src/rules.js"></script>
     <script src="src/rules_ui.js"></script>
     <script src="src/install.js"></script>
+
+
 </body>
 </html>
