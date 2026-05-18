@@ -944,90 +944,173 @@ label {
     letter-spacing: 1.5px;
     color: var(--sub-text);
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Alliance columns sit side-by-side with a divider */
-.calc-alliances {
-    display: flex;
-    gap: 0;
-    margin-top: 16px;
-}
-.alliance-col {
-    flex: 1;
+/* ── Bilateral layout ────────────────────────────────── */
+.calc-bilateral {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-.calc-divider {
-    width: 1px;
-    background: var(--border);
-    margin: 0 12px;
-    flex-shrink: 0;
+    gap: 6px;
 }
 
-.alliance-col-header {
-    font-size: 0.7rem;
+.calc-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Header row */
+.calc-row--header {
+    margin-bottom: 2px;
+}
+.calc-side--red-label,
+.calc-side--blue-label {
+    font-size: 0.65rem;
     font-weight: 900;
     letter-spacing: 2px;
     text-transform: uppercase;
-    padding: 6px 0 4px;
     text-align: center;
 }
-.alliance-col-header--red  { color: var(--red); }
-.alliance-col-header--blue { color: var(--blue); }
+.calc-side--red-label  { color: var(--red); }
+.calc-side--blue-label { color: var(--blue); }
 
-/* Counter rows — vertical stack */
-.counter {
+/* Side cells — controls + value */
+.calc-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* Center cell — icon + name + pts badge */
+.calc-center {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    align-items: center;
+    gap: 3px;
+    min-width: 96px;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 10px;
+    padding: 10px 8px;
     box-shadow: var(--card-shadow);
 }
-.counter-label {
+.calc-center-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--sub-text);
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 0.65rem;
+    justify-content: center;
+}
+.calc-center-icon svg {
+    width: 100%;
+    height: 100%;
+}
+.calc-center-name {
+    font-size: 0.6rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--sub-text);
-}
-.counter-icon {
-    font-size: 0.85rem;
-    line-height: 1;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.2;
 }
 
-/* Alliance subtotal bar */
-.alliance-subtotal {
+/* Points badge */
+.calc-pts-badge {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--primary);
+    background: transparent;
+    border: 1px solid var(--primary);
+    border-radius: 99px;
+    padding: 1px 6px;
+    line-height: 1.4;
+}
+
+/* Counter value */
+.calc-val {
+    font-size: 1.35rem;
+    font-weight: 900;
+    min-width: 28px;
+    text-align: center;
+    color: var(--text);
+}
+
+/* +/− buttons — red / blue tinted */
+.btn-math {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--transition);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
+    justify-content: center;
+}
+.btn-math:active { opacity: 0.65; }
+.btn-math--red  { border-color: color-mix(in srgb, var(--red)  40%, var(--border)); }
+.btn-math--blue { border-color: color-mix(in srgb, var(--blue) 40%, var(--border)); }
+
+/* Totals row */
+.calc-row--totals {
+    margin-top: 6px;
+}
+.calc-total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 12px 8px;
     border-radius: var(--radius-sm);
     background: var(--input-bg);
     border: 1px solid var(--border);
-    margin-top: 4px;
     transition: var(--transition);
 }
-.subtotal-label {
+.calc-total--red  { border-top: 3px solid var(--border); }
+.calc-total--blue { border-top: 3px solid var(--border); }
+.calc-total--red.calc-total--winning  { border-top-color: var(--red);  border-color: var(--red); }
+.calc-total--blue.calc-total--winning { border-top-color: var(--blue); border-color: var(--blue); }
+.calc-total--winning .calc-total-score { color: var(--primary); }
+
+.calc-total-score {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+}
+.calc-total-label {
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sub-text);
+}
+.calc-center--total {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+.calc-vs {
     font-size: 0.65rem;
     font-weight: 900;
     letter-spacing: 2px;
     color: var(--sub-text);
 }
-.subtotal-score {
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: var(--text);
-}
-.alliance-subtotal--red.alliance-subtotal--winning  { border-color: var(--red);  }
-.alliance-subtotal--blue.alliance-subtotal--winning { border-color: var(--blue); }
-.alliance-subtotal--winning .subtotal-score { color: var(--primary); }
 
 /* Reset button */
 .btn-reset {
@@ -1055,10 +1138,10 @@ label {
 .auton-btn {
     flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 10px 8px;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 8px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: var(--input-bg);
@@ -1069,10 +1152,18 @@ label {
     cursor: pointer;
     transition: var(--transition);
 }
-.auton-btn-icon { font-size: 1rem; line-height: 1; }
-.auton-btn.active-red  { background: var(--red);     color: #fff;              border-color: var(--red); }
-.auton-btn.active-blue { background: var(--blue);    color: #fff;              border-color: var(--blue); }
-.auton-btn.active-tie  { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+.auton-btn-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.auton-btn-dot--red  { background: var(--red);  opacity: 0.5; }
+.auton-btn-dot--blue { background: var(--blue); opacity: 0.5; }
+.auton-btn.active-red  { background: var(--red);  color: #fff; border-color: var(--red);  }
+.auton-btn.active-blue { background: var(--blue); color: #fff; border-color: var(--blue); }
+.auton-btn.active-red  .auton-btn-dot--red,
+.auton-btn.active-blue .auton-btn-dot--blue { opacity: 1; background: #fff; }
 
 /* Spinner */
 .loading-spinner {
