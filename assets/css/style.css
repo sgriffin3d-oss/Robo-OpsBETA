@@ -642,16 +642,6 @@ label {
     display: flex; justify-content: space-around; font-weight: 900; margin-top: 10px;
 }
 
-/* Auton buttons */
-.auton-group { display: flex; gap: 8px; margin-bottom: 15px; }
-.auton-btn {
-    flex: 1; padding: 12px; border-radius: var(--radius-sm);
-    border: 1px solid var(--border); background: var(--input-bg);
-    color: var(--text); font-weight: 700; cursor: pointer; transition: var(--transition);
-}
-.auton-btn.active-red  { background: var(--red);     color: #fff;              border: none; }
-.auton-btn.active-blue { background: var(--blue);    color: #fff;              border: none; }
-.auton-btn.active-tie  { background: var(--primary); color: var(--primary-fg); border: none; }
 
 /* Dock bar */
 .dock-bar {
@@ -937,119 +927,147 @@ label {
    CALCULATOR — Override layout
    ══════════════════════════════════════════════════════ */
 
-.calc-section-label {
-    font-size: 0.65rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--sub-text);
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+/* ── Calculator ───────────────────────────────────────── */
 
-/* ── Bilateral layout ────────────────────────────────── */
-.calc-bilateral {
+/* Score banner at top */
+.calc-totals-banner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    margin-bottom: 10px;
+}
+.calc-banner-side {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    align-items: center;
+    gap: 3px;
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    transition: var(--transition);
+}
+.calc-banner-side--red  { align-items: flex-start; }
+.calc-banner-side--blue { align-items: flex-end; }
+.calc-banner-side--winning .calc-banner-score { color: var(--primary); }
+.calc-banner-score {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--text);
+    transition: var(--transition);
+}
+.calc-banner-label {
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--sub-text);
+}
+.calc-banner-side--red   .calc-banner-label { color: var(--red); }
+.calc-banner-side--blue  .calc-banner-label { color: var(--blue); }
+.calc-banner-divider {
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--sub-text);
+    padding: 0 8px;
+    text-transform: uppercase;
 }
 
-.calc-row {
-    display: grid;
-    grid-template-columns: 1fr 110px 1fr;
+/* Calc blocks — card containers */
+.calc-block {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 14px 10px;
+    margin-bottom: 10px;
+}
+.calc-block-header {
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.calc-block-title {
+    font-size: 0.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--sub-text);
+}
+.calc-block-pts {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 99px;
+    padding: 2px 7px;
+    opacity: 0.8;
+}
+
+/* Auton buttons */
+.auton-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 6px;
 }
-
-/* Header row */
-.calc-row--header {
-    margin-bottom: 0;
+.auton-btn {
+    padding: 10px 4px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--sub-text);
+    font-weight: 900;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
 }
-.calc-side--red-label,
-.calc-side--blue-label {
-    font-size: 0.6rem;
+.auton-btn.active-red  { background: var(--red);     color: #fff; border-color: var(--red);  }
+.auton-btn.active-blue { background: var(--blue);    color: #fff; border-color: var(--blue); }
+.auton-btn.active-tie  { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+
+/* Scoring grid */
+.calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    gap: 0;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+}
+.calc-grid:last-child { border-bottom: none; }
+.calc-grid--header { padding: 0 0 6px; }
+
+.calc-alliance-label {
+    font-size: 0.58rem;
     font-weight: 900;
     letter-spacing: 2px;
     text-transform: uppercase;
     text-align: center;
 }
-.calc-side--red-label  { color: var(--red); }
-.calc-side--blue-label { color: var(--blue); }
+.calc-alliance-label--red  { color: var(--red);  text-align: left; }
+.calc-alliance-label--blue { color: var(--blue); text-align: right; }
 
-/* Side cells — controls + value */
-.calc-side {
+/* Side controls — number flanked by buttons */
+.calc-controls {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 5px;
+    gap: 6px;
 }
+.calc-controls--red  { justify-content: flex-start; }
+.calc-controls--blue { justify-content: flex-end; flex-direction: row-reverse; }
 
-/* Center cell — icon + name + pts badge */
-.calc-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    width: 110px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 8px 6px;
-    box-shadow: var(--card-shadow);
-}
-.calc-center-icon {
-    width: 16px;
-    height: 16px;
-    color: var(--sub-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1px;
-}
-.calc-center-icon svg {
-    width: 100%;
-    height: 100%;
-}
-.calc-center-name {
-    font-size: 0.55rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text);
-    text-align: center;
-    line-height: 1.2;
-}
-
-/* Points badge */
-.calc-pts-badge {
-    font-size: 0.5rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    color: var(--primary);
-    background: transparent;
-    border: 1px solid var(--primary);
-    border-radius: 99px;
-    padding: 1px 5px;
-    line-height: 1.4;
-}
-
-/* Counter value */
-.calc-val {
-    font-size: 1.1rem;
-    font-weight: 900;
-    min-width: 22px;
-    text-align: center;
-    color: var(--text);
-}
-
-/* +/− buttons — override the earlier generic .btn-math for calc context */
-.calc-bilateral .btn-math {
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-sm);
+.calc-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--input-bg);
     color: var(--text);
@@ -1063,110 +1081,60 @@ label {
     justify-content: center;
     flex-shrink: 0;
 }
-.calc-bilateral .btn-math:active { opacity: 0.65; }
-.calc-bilateral .btn-math--red  { border-color: color-mix(in srgb, var(--red)  50%, var(--border)); }
-.calc-bilateral .btn-math--blue { border-color: color-mix(in srgb, var(--blue) 50%, var(--border)); }
+.calc-btn:active { opacity: 0.5; transform: scale(0.93); }
+.calc-btn--red  { border-color: color-mix(in srgb, var(--red)  45%, var(--border)); color: var(--red); }
+.calc-btn--blue { border-color: color-mix(in srgb, var(--blue) 45%, var(--border)); color: var(--blue); }
 
-/* Totals row */
-.calc-row--totals {
-    margin-top: 8px;
+.calc-num {
+    font-size: 1.3rem;
+    font-weight: 900;
+    min-width: 24px;
+    text-align: center;
+    color: var(--text);
+    line-height: 1;
 }
-.calc-total {
+
+/* Center label cell */
+.calc-label-cell {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    padding: 10px 6px;
-    border-radius: var(--radius-sm);
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    transition: var(--transition);
+    padding: 0 4px;
 }
-.calc-total--red  { border-top: 2px solid var(--border); }
-.calc-total--blue { border-top: 2px solid var(--border); }
-.calc-total--red.calc-total--winning  { border-top-color: var(--red);  border-color: var(--red); }
-.calc-total--blue.calc-total--winning { border-top-color: var(--blue); border-color: var(--blue); }
-.calc-total--winning .calc-total-score { color: var(--primary); }
-
-.calc-total-score {
-    font-size: 1.6rem;
-    font-weight: 900;
-    color: var(--text);
-    line-height: 1;
-}
-.calc-total-label {
-    font-size: 0.55rem;
-    font-weight: 900;
-    letter-spacing: 2px;
+.calc-label-name {
+    font-size: 0.58rem;
+    font-weight: 800;
     text-transform: uppercase;
-    color: var(--sub-text);
+    letter-spacing: 0.5px;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.2;
 }
-.calc-center--total {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    width: 110px;
-}
-.calc-vs {
-    font-size: 0.6rem;
-    font-weight: 900;
-    letter-spacing: 2px;
+.calc-label-pts {
+    font-size: 0.5rem;
+    font-weight: 700;
     color: var(--sub-text);
+    letter-spacing: 0.3px;
 }
 
-/* Reset button */
+/* Reset */
 .btn-reset {
     width: 100%;
-    margin-top: 16px;
-    padding: 14px;
-    background: var(--input-bg);
+    margin-top: 4px;
+    padding: 13px;
+    background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius);
     color: var(--sub-text);
     font-weight: 800;
-    font-size: 0.78rem;
-    letter-spacing: 1px;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: var(--transition);
 }
-.btn-reset:active { opacity: 0.7; }
-
-/* Auton group */
-.auton-group {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-.auton-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 11px 8px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--input-bg);
-    color: var(--sub-text);
-    font-weight: 800;
-    font-size: 0.7rem;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.auton-btn-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-.auton-btn-dot--red  { background: var(--red);  opacity: 0.5; }
-.auton-btn-dot--blue { background: var(--blue); opacity: 0.5; }
-.auton-btn.active-red  { background: var(--red);  color: #fff; border-color: var(--red);  }
-.auton-btn.active-blue { background: var(--blue); color: #fff; border-color: var(--blue); }
-.auton-btn.active-red  .auton-btn-dot--red,
-.auton-btn.active-blue .auton-btn-dot--blue { opacity: 1; background: #fff; }
+.btn-reset:active { opacity: 0.6; }
 
 /* Spinner */
 .loading-spinner {
