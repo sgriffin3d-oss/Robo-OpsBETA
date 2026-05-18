@@ -8,7 +8,9 @@
    Mode   (.mode-light) = flips bg/text to light
    Style  (.style-*) = shape, spacing, font, effects
 
-   No locked themes — all themes support dark and light mode.
+   LOCKED:
+   .theme-midnight = always dark  (original app look)
+   .theme-arctic   = always light (clean crisp whites)
    ============================================================ */
 
 
@@ -38,6 +40,21 @@ body {
     --transition: all 0.2s ease;
 }
 
+/* ── Arctic — crisp white, ice blue. LOCKED LIGHT. ──
+   Very deliberate: pure white cards, sky blue accent, dark navy text.
+   Nothing dark about it — maximally distinct from Midnight. */
+.theme-arctic {
+    --bg:         #e8f4ff;
+    --card-bg:    #ffffff;
+    --input-bg:   #f0f8ff;
+    --border:     #b8d8f0;
+    --text:       #0a1929;
+    --sub-text:   #4a7090;
+    --primary:    #0078d4;
+    --primary-fg: #ffffff;
+    --icon-color: #0078d4;
+    --neon-rgb:   0, 120, 212;
+}
 
 /* ── Red Alliance ── */
 .theme-red {
@@ -248,6 +265,7 @@ body.style-glass.theme-blue                   { background: radial-gradient(elli
 body.style-glass.theme-blue.mode-light        { background: radial-gradient(ellipse at 20% 10%, #f0f0f0 0%, #ffffff 70%) fixed !important; }
 body.style-glass.theme-stealth                { background: radial-gradient(ellipse at 20% 10%, #141414 0%, #000000 70%) fixed !important; }
 body.style-glass.theme-stealth.mode-light     { background: radial-gradient(ellipse at 20% 10%, #dddddd 0%, #f6f6f6 70%) fixed !important; }
+body.style-glass.theme-arctic                 { background: radial-gradient(ellipse at 20% 10%, #a8d4f5 0%, #ddf0ff 70%) fixed !important; }
 
 .style-glass .hub-card,
 .style-glass .note-card,
@@ -274,7 +292,10 @@ body.style-glass.mode-light .match-card,
 body.style-glass.mode-light .rule-card,
 body.style-glass.mode-light .rank-row,
 body.style-glass.mode-light .team-row,
-body.style-glass.mode-light .alliance-box {
+body.style-glass.mode-light .alliance-box,
+body.style-glass.theme-arctic .hub-card,
+body.style-glass.theme-arctic .note-card,
+body.style-glass.theme-arctic .event-item {
     background: rgba(255,255,255,0.62) !important;
     border: 1px solid rgba(255,255,255,0.92) !important;
     box-shadow: 0 2px 16px rgba(0,0,0,0.06) !important;
@@ -288,7 +309,8 @@ body.style-glass.mode-light .alliance-box {
     border: 1px solid rgba(255,255,255,0.16) !important;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
-body.style-glass.mode-light .dock-bar {
+body.style-glass.mode-light .dock-bar,
+body.style-glass.theme-arctic .dock-bar {
     background: rgba(255,255,255,0.68) !important;
     border: 1px solid rgba(255,255,255,0.95) !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -386,6 +408,7 @@ body.style-tactical::before {
 }
 body.style-neon           { background: #010101 !important; }
 body.style-neon.mode-light { background: #f4f4f6 !important; }
+body.style-neon.theme-arctic { background: #e8f4ff !important; }
 
 /* Dark neon cards */
 .style-neon .hub-card,
@@ -414,7 +437,14 @@ body.style-neon.mode-light .note-card,
 body.style-neon.mode-light .event-item,
 body.style-neon.mode-light .rule-card,
 body.style-neon.mode-light .rank-row,
-body.style-neon.mode-light .team-row
+body.style-neon.mode-light .team-row,
+body.style-neon.theme-arctic .hub-card,
+body.style-neon.theme-arctic .note-card,
+body.style-neon.theme-arctic .event-item {
+    border: 2px solid rgba(var(--neon-rgb),0.55) !important;
+    box-shadow: 0 0 12px rgba(var(--neon-rgb),0.12) !important;
+    background: rgba(var(--neon-rgb),0.03) !important;
+}
 /* Glow text */
 .style-neon .welcome-header h1 { text-shadow: 0 0 30px rgba(var(--neon-rgb),0.6); }
 .style-neon .hub-card b,
@@ -422,7 +452,8 @@ body.style-neon.mode-light .team-row
 .style-neon .team-number,
 .style-neon .event-item-name { text-shadow: 0 0 12px rgba(var(--neon-rgb),0.55); }
 body.style-neon.mode-light .welcome-header h1 { text-shadow: 0 0 18px rgba(var(--neon-rgb),0.45); }
-body.style-neon.mode-light .hub-card b
+body.style-neon.mode-light .hub-card b,
+body.style-neon.theme-arctic .hub-card b { text-shadow: 0 0 8px rgba(var(--neon-rgb),0.35); }
 /* Glowing active states */
 .style-neon .sort-btn.active,
 .style-neon .detail-tab.active,
@@ -438,6 +469,10 @@ body.style-neon.mode-light .dock-bar {
     background: #f0f0f2;
     border-top: 1px solid rgba(var(--neon-rgb),0.35);
     box-shadow: 0 -2px 16px rgba(var(--neon-rgb),0.14);
+}
+body.style-neon.theme-arctic .dock-bar {
+    background: #ddeeff;
+    border-top: 1px solid rgba(var(--neon-rgb),0.3);
 }
 .style-neon .dock-btn.alt { box-shadow: 0 0 16px rgba(var(--neon-rgb),0.55); }
 .style-neon input:focus,
@@ -461,7 +496,7 @@ body.style-neon.mode-light .dock-bar {
 body.style-retro {
     font-family: 'Georgia', 'Palatino', 'Times New Roman', serif;
 }
-body.style-retro:not(.mode-light) {
+body.style-retro:not(.mode-light):not(.theme-arctic) {
     background: #080604 !important;
     --bg: #080604; --card-bg: #110e08; --input-bg: #1a1610; --border: #3a3020;
 }
@@ -469,6 +504,10 @@ body.style-retro.mode-light {
     background: #f4ede0 !important;
     --bg: #f4ede0; --card-bg: #fffef6; --input-bg: #eee8d8; --border: #b8a888;
     --text: #1a1408; --sub-text: #7a6a4a;
+}
+body.style-retro.theme-arctic {
+    background: #f0f4f0 !important;
+    --card-bg: #fafffe; --border: #a8c8b8;
 }
 .style-retro .hub-card,
 .style-retro .note-card,
@@ -703,190 +742,12 @@ label {
     border-radius: var(--radius-sm); border: 1px solid var(--border);
 }
 
-
-
-
-
-
-
-/* ══════════════════════════════════════════════════════
-   SETTINGS — Separate collapsible cards (sc-*)
-   Each card is an independent hub-card-style unit.
-   ══════════════════════════════════════════════════════ */
-
-/* Outer wrapper — same feel as a hub-card when collapsed */
-.sc-wrap {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 12px;
-    overflow: hidden;
-    box-shadow: var(--card-shadow);
-    transition: var(--transition);
+/* Settings */
+.settings-section { margin-bottom: 28px; }
+.settings-label {
+    font-size: 0.68rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--sub-text); margin-bottom: 10px;
 }
-
-/* Header row — always visible, tappable */
-.sc-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 20px 22px;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-    transition: var(--transition);
-}
-.sc-header:active { opacity: 0.7; }
-
-.sc-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    color: var(--primary);
-    flex-shrink: 0;
-}
-.sc-icon svg { width: 100%; height: 100%; }
-
-.sc-title {
-    flex: 1;
-    font-size: 0.82rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text);
-}
-
-.sc-chevron {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    color: var(--sub-text);
-    transition: transform 0.25s ease;
-}
-.sc-wrap--open .sc-chevron { transform: rotate(180deg); }
-
-/* Body — hidden by default, revealed on open */
-.sc-body {
-    overflow: hidden;
-    max-height: 1200px;
-    padding: 0 22px 22px;
-    transition: max-height 0.32s ease, padding 0.32s ease, opacity 0.25s ease;
-    opacity: 1;
-    border-top: 1px solid var(--border);
-}
-.sc-body--closed {
-    max-height: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    opacity: 0;
-    border-top: none;
-}
-
-/* Divider inside a body */
-.sc-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 0;
-}
-
-/* Field section label (Appearance: Mode, Theme, Style) */
-.sc-field-label {
-    font-size: 0.63rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--sub-text);
-    margin-top: 22px;
-    margin-bottom: 12px;
-}
-.sc-field-label:first-child { margin-top: 18px; }
-
-/* Tappable row inside a body */
-.sc-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 0;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.sc-row:active { opacity: 0.7; }
-
-.sc-row-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    color: var(--icon-color, var(--sub-text));
-    flex-shrink: 0;
-}
-.sc-row-icon svg { width: 100%; height: 100%; stroke-width: 2px; }
-.sc-row-icon--danger { color: var(--red) !important; }
-
-.sc-row-content {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    flex: 1;
-}
-.sc-row-label {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--text);
-    flex: 1;
-}
-.sc-row-label--danger { color: var(--red); }
-.sc-row-desc {
-    font-size: 0.7rem;
-    color: var(--sub-text);
-}
-.sc-row-arrow {
-    font-size: 1.1rem;
-    color: var(--sub-text);
-    line-height: 1;
-}
-
-/* Account section inside body */
-.account-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 0 4px;
-}
-.account-avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    flex-shrink: 0;
-    background-size: cover;
-    background-position: center;
-}
-.account-info { flex: 1; min-width: 0; }
-.account-name {
-    font-weight: 900;
-    font-size: 0.95rem;
-    color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.account-subtitle {
-    font-size: 0.72rem;
-    color: var(--sub-text);
-    margin-top: 3px;
-}
-
 .mode-toggle {
     display: flex; background: var(--input-bg); border: 1px solid var(--border);
     border-radius: var(--radius-sm); padding: 4px; gap: 4px; margin-bottom: 20px;
@@ -931,148 +792,6 @@ label {
 .style-card .style-name { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text); }
 .style-card .style-desc  { font-size: 0.6rem; color: var(--sub-text); margin-top: 2px; }
 .style-card.active .style-name { color: var(--primary); }
-
-
-/* ══════════════════════════════════════════════════════
-   CALCULATOR — Override layout
-   ══════════════════════════════════════════════════════ */
-
-.calc-section-label {
-    font-size: 0.65rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--sub-text);
-    margin-bottom: 8px;
-}
-
-/* Alliance columns sit side-by-side with a divider */
-.calc-alliances {
-    display: flex;
-    gap: 0;
-    margin-top: 16px;
-}
-.alliance-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.calc-divider {
-    width: 1px;
-    background: var(--border);
-    margin: 0 12px;
-    flex-shrink: 0;
-}
-
-.alliance-col-header {
-    font-size: 0.7rem;
-    font-weight: 900;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 6px 0 4px;
-    text-align: center;
-}
-.alliance-col-header--red  { color: var(--red); }
-.alliance-col-header--blue { color: var(--blue); }
-
-/* Counter rows — vertical stack */
-.counter {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px;
-    box-shadow: var(--card-shadow);
-}
-.counter-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--sub-text);
-}
-.counter-icon {
-    font-size: 0.85rem;
-    line-height: 1;
-}
-
-/* Alliance subtotal bar */
-.alliance-subtotal {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    margin-top: 4px;
-    transition: var(--transition);
-}
-.subtotal-label {
-    font-size: 0.65rem;
-    font-weight: 900;
-    letter-spacing: 2px;
-    color: var(--sub-text);
-}
-.subtotal-score {
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: var(--text);
-}
-.alliance-subtotal--red.alliance-subtotal--winning  { border-color: var(--red);  }
-.alliance-subtotal--blue.alliance-subtotal--winning { border-color: var(--blue); }
-.alliance-subtotal--winning .subtotal-score { color: var(--primary); }
-
-/* Reset button */
-.btn-reset {
-    width: 100%;
-    margin-top: 16px;
-    padding: 14px;
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--sub-text);
-    font-weight: 800;
-    font-size: 0.78rem;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.btn-reset:active { opacity: 0.7; }
-
-/* Auton group */
-.auton-group {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-.auton-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 8px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--input-bg);
-    color: var(--sub-text);
-    font-weight: 800;
-    font-size: 0.7rem;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.auton-btn-icon { font-size: 1rem; line-height: 1; }
-.auton-btn.active-red  { background: var(--red);     color: #fff;              border-color: var(--red); }
-.auton-btn.active-blue { background: var(--blue);    color: #fff;              border-color: var(--blue); }
-.auton-btn.active-tie  { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
 
 /* Spinner */
 .loading-spinner {
@@ -1208,599 +927,4 @@ label {
 
 .team-org--bold {
   font-weight: 900;
-}
-
-
-/* ── Shell wrapper ─────────────────────────────────────────────────── */
-.app-shell {
-    display: contents; /* transparent on mobile — no layout effect */
-}
-
-/* ── Sidebar (hidden on mobile) ─────────────────────────────────────── */
-.sidebar {
-    display: none;
-}
-
-/* ── Desktop styles ─────────────────────────────────────────────────── */
-@media (min-width: 768px) {
-
-    /* Kill mobile chrome */
-    .dock-bar,
-    .fab-menu { display: none !important; }
-
-    /* Root body stops being a mobile scroll surface */
-    body {
-        overflow: hidden;
-        height: 100vh;
-    }
-
-    /* Shell becomes the full-screen flex container */
-    .app-shell {
-        display: flex;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    /* ── Sidebar ── */
-    .sidebar {
-        display: flex;
-        flex-direction: column;
-        width: 220px;
-        min-width: 220px;
-        height: 100vh;
-        background: var(--card-bg);
-        border-right: 1px solid var(--border);
-        overflow: hidden;
-        flex-shrink: 0;
-        z-index: 10;
-    }
-
-    .sidebar-logo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 24px 20px 20px;
-        border-bottom: 1px solid var(--border);
-    }
-    .sidebar-logo-img {
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
-        flex-shrink: 0;
-    }
-    .sidebar-logo-text {
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-        min-width: 0;
-    }
-    .sidebar-app-name {
-        font-size: 0.92rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text);
-        white-space: nowrap;
-    }
-    .sidebar-app-sub {
-        font-size: 0.58rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: var(--primary);
-        white-space: nowrap;
-    }
-
-    /* Nav list */
-    .sidebar-nav {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        padding: 14px 10px;
-        overflow-y: auto;
-    }
-
-    .sidebar-btn {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        width: 100%;
-        padding: 11px 12px;
-        border: none;
-        border-radius: var(--radius-sm);
-        background: none;
-        color: var(--sub-text);
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        cursor: pointer;
-        transition: var(--transition);
-        text-align: left;
-    }
-    .sidebar-btn svg {
-        width: 17px;
-        height: 17px;
-        flex-shrink: 0;
-        stroke-width: 2px;
-    }
-    .sidebar-btn:hover {
-        background: var(--input-bg);
-        color: var(--text);
-    }
-    .sidebar-btn.active {
-        background: var(--input-bg);
-        color: var(--primary);
-        border: 1px solid var(--border);
-    }
-    .sidebar-btn.active svg {
-        stroke: var(--primary);
-    }
-
-    /* Footer pinned at bottom of sidebar */
-    .sidebar-footer {
-        padding: 10px;
-        border-top: 1px solid var(--border);
-    }
-    .sidebar-btn--settings {
-        color: var(--sub-text);
-    }
-
-    /* ── Content area ── */
-    .container {
-        flex: 1;
-        height: 100vh;
-        overflow-y: auto;
-        max-width: none;        /* remove the 500px mobile cap */
-        padding: 32px 40px 60px;
-        box-sizing: border-box;
-    }
-
-    /* Cap content width so text doesn't stretch unreadably wide */
-    .view {
-        max-width: 740px;
-    }
-
-    /* Hub cards → 2-column grid on desktop */
-    #view-hub .hub-card-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-    #view-hub .hub-card {
-        margin-bottom: 0;
-    }
-
-    /* Welcome header sizing */
-    .welcome-header h1 {
-        font-size: 2.6rem;
-    }
-
-    /* Login view fills the content column, not the full viewport */
-    #view-login.active {
-        min-height: calc(100vh - 32px) !important;
-    }
-
-    /* Settings cards can be a touch wider */
-    .sc-wrap {
-        max-width: 560px;
-    }
-
-    /* Calculator two columns get a bit more room */
-    .calc-alliances {
-        gap: 0;
-    }
-
-    /* Event list — two columns on wide screens */
-    #event-list {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        align-items: start;
-    }
-    /* But state messages (loading, empty) span both */
-    #event-list .state-center {
-        grid-column: span 2;
-    }
-
-    /* Rankings and match cards stay single column — data-dense */
-    #tab-content .rank-row,
-    #tab-content .match-card {
-        max-width: 100%;
-    }
-}
-
-/* ── Very wide (1200px+) — give sidebar a touch more room ─────────── */
-@media (min-width: 1200px) {
-    .sidebar {
-        width: 240px;
-        min-width: 240px;
-    }
-    .container {
-        padding: 36px 52px 60px;
-    }
-    .view {
-        max-width: 860px;
-    }
-}
-
-/* ══════════════════════════════════════════════════════════════════════
-   RESPONSIVE SHELL + DESKTOP LAYOUTS
-   Mobile-first. Desktop overrides at 768px+.
-   ══════════════════════════════════════════════════════════════════════ */
-
-/* ── Mobile base ──────────────────────────────────────────────────── */
-.app-shell { display: contents; }
-.sidebar   { display: none; }
-
-.view-login-centered {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 30px 24px;
-    box-sizing: border-box;
-}
-.view-login-centered.active { display: flex !important; }
-
-/* ══════════════════════════════════════════════════════════════════════
-   DESKTOP  ≥ 768px
-   ══════════════════════════════════════════════════════════════════════ */
-@media (min-width: 768px) {
-
-    /* Kill mobile chrome */
-    .dock-bar, .fab-menu { display: none !important; }
-
-    body { overflow: hidden; height: 100vh; }
-
-    /* Shell = full-screen flex row */
-    .app-shell {
-        display: flex;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    /* ── Sidebar ──────────────────────────────────────────────────── */
-    .sidebar {
-        display: flex;
-        flex-direction: column;
-        width: 220px;
-        min-width: 220px;
-        height: 100vh;
-        flex-shrink: 0;
-        overflow: hidden;
-        background: var(--card-bg);
-        border-right: 1px solid var(--border);
-        z-index: 10;
-    }
-
-    .sidebar-logo {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        padding: 22px 18px 18px;
-        border-bottom: 1px solid var(--border);
-        flex-shrink: 0;
-    }
-    .sidebar-logo-img { width: 32px; height: 32px; border-radius: 7px; flex-shrink: 0; }
-    .sidebar-app-name {
-        display: block;
-        font-size: 0.88rem; font-weight: 900;
-        text-transform: uppercase; letter-spacing: 1.5px;
-        color: var(--text); white-space: nowrap;
-    }
-    .sidebar-app-sub {
-        display: block;
-        font-size: 0.56rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 1.5px;
-        color: var(--primary); white-space: nowrap; margin-top: 2px;
-    }
-
-    .sidebar-nav {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-        padding: 12px 8px;
-        overflow-y: auto;
-    }
-    .sidebar-footer {
-        padding: 8px;
-        border-top: 1px solid var(--border);
-        flex-shrink: 0;
-    }
-
-    .sidebar-btn {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid transparent;
-        border-radius: var(--radius-sm);
-        background: none;
-        color: var(--sub-text);
-        font-family: inherit;
-        font-size: 0.75rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 1px;
-        cursor: pointer;
-        transition: var(--transition);
-        text-align: left;
-    }
-    .sidebar-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-    .sidebar-btn:hover { background: var(--input-bg); color: var(--text); border-color: var(--border); }
-    .sidebar-btn.active {
-        background: var(--input-bg);
-        color: var(--primary);
-        border-color: var(--border);
-    }
-    .sidebar-btn.active svg { stroke: var(--primary); }
-
-    /* ── Content panel ────────────────────────────────────────────── */
-    .container {
-        flex: 1;
-        min-width: 0;
-        height: 100vh;
-        overflow-y: auto;
-        max-width: none;
-        padding: 0;          /* views manage their own padding */
-        box-sizing: border-box;
-    }
-
-    /* Every view gets breathing room and a max readable width */
-    .view {
-        padding: 36px 44px 60px;
-        max-width: 960px;
-        box-sizing: border-box;
-    }
-
-    /* Login fills the panel */
-    .view-login-centered {
-        min-height: 100vh;
-        padding: 0;
-        justify-content: center;
-    }
-
-    /* ── Welcome header ───────────────────────────────────────────── */
-    .welcome-header { margin-bottom: 28px; }
-    .welcome-header h1 { font-size: 2.2rem; }
-
-    /* ═══════════════════════════════════════════════════════════════
-       HUB — 2×3 grid of cards
-       ═══════════════════════════════════════════════════════════════ */
-    #view-hub .hub-card-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-    #view-hub .hub-card { margin-bottom: 0; }
-
-    /* ═══════════════════════════════════════════════════════════════
-       EVENTS — search + filter left, list right
-       ═══════════════════════════════════════════════════════════════ */
-    #view-events {
-        display: grid;
-        grid-template-columns: 260px 1fr;
-        grid-template-rows: auto auto 1fr;
-        column-gap: 28px;
-        align-items: start;
-        max-width: 1100px;
-    }
-    #view-events .welcome-header {
-        grid-column: 1 / -1;
-        margin-bottom: 0;
-    }
-    #view-events .search-container { grid-column: 1; }
-    #view-events .evt-filter-bar   { grid-column: 1; margin-top: 10px; flex-direction: column; align-items: stretch; gap: 6px; }
-    #view-events .evt-filter-btn   { text-align: left; }
-    #view-events #event-list        {
-        grid-column: 2;
-        grid-row: 2 / 4;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        max-height: calc(100vh - 160px);
-        overflow-y: auto;
-        padding-right: 4px;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       DETAIL — back button + title row, then tab content wide
-       ═══════════════════════════════════════════════════════════════ */
-    #view-detail { max-width: 1100px; }
-    #view-detail #detHistory { margin-top: 0; }
-
-    /* Tab content area fills available width */
-    #tab-content { width: 100%; }
-
-    /* Rankings — use more columns on wide screens */
-    #tab-content .rank-header-row,
-    #tab-content .rank-row {
-        grid-template-columns: 60px 1fr 120px 80px 80px;
-    }
-
-    /* Match schedule — two columns */
-    #tab-content .match-card { max-width: 100%; }
-
-    /* Teams — two column grid */
-    #tab-content .team-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       SCOUT NOTES — filter sidebar + note list
-       ═══════════════════════════════════════════════════════════════ */
-    #view-home {
-        display: grid;
-        grid-template-columns: 200px 1fr;
-        grid-template-rows: auto auto 1fr;
-        column-gap: 28px;
-        align-items: start;
-        max-width: 1000px;
-    }
-    #view-home .welcome-header { grid-column: 1 / -1; margin-bottom: 0; }
-    #view-home .sort-container {
-        grid-column: 1;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 6px;
-        margin-top: 10px;
-    }
-    #view-home .sort-btn { text-align: left; }
-    #view-home #noteSearch {
-        grid-column: 2;
-        grid-row: 2;
-        margin-top: 10px;
-    }
-    #view-home #noteList {
-        grid-column: 2;
-        grid-row: 3;
-        max-height: calc(100vh - 180px);
-        overflow-y: auto;
-        padding-right: 4px;
-    }
-
-    /* Note cards — 2-col grid in the list */
-    #noteList { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
-
-    /* ═══════════════════════════════════════════════════════════════
-       CALCULATOR — wider auton bar, two-col alliances more spacious
-       ═══════════════════════════════════════════════════════════════ */
-    #view-calc { max-width: 700px; }
-
-    .auton-group { gap: 12px; }
-    .auton-btn   { padding: 14px 16px; font-size: 0.78rem; }
-
-    .calc-alliances { gap: 0; }
-    .calc-divider   { margin: 0 20px; }
-    .counter        { padding: 14px; }
-    .btn-math       { width: 40px; height: 40px; font-size: 1.2rem; }
-    .val-display    { font-size: 1.8rem; min-width: 50px; }
-
-    .alliance-subtotal { padding: 14px 16px; }
-    .subtotal-score    { font-size: 2rem; }
-
-    /* ═══════════════════════════════════════════════════════════════
-       FIELD — image + draw tools side by side
-       ═══════════════════════════════════════════════════════════════ */
-    #view-field { max-width: 900px; }
-
-    #view-field .sort-container { margin-bottom: 20px; }
-
-    /* Standard view: image left, nothing to the right — just cap width */
-    #view-field #standard-view .map-frame { max-width: 600px; }
-
-    /* Draw view: canvas left, tools right */
-    #view-field #draw-view {
-        display: grid;
-        grid-template-columns: 1fr 280px;
-        gap: 24px;
-        align-items: start;
-    }
-    #view-field #draw-view .map-frame         { grid-column: 1; margin: 0; }
-    #view-field #draw-view .draw-tools        { grid-column: 2; grid-row: 1; flex-direction: column; align-items: stretch; margin: 0; }
-    #view-field #draw-view .draw-actions      { grid-column: 2; grid-row: 2; flex-direction: column; margin: 0; }
-    #view-field #draw-view .draw-actions input { flex: none; width: 100%; }
-    #view-field #view-sketches                { grid-column: 1 / -1; }
-
-    /* ═══════════════════════════════════════════════════════════════
-       FORM — two-column field layout
-       ═══════════════════════════════════════════════════════════════ */
-    #view-form { max-width: 680px; }
-
-    #view-form h2 { font-size: 1.6rem; margin-bottom: 24px; }
-
-    /* Pair up form fields where it makes sense */
-    #view-form .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       SETTINGS — narrower, cards feel focused
-       ═══════════════════════════════════════════════════════════════ */
-    #view-settings { max-width: 560px; }
-
-    /* ═══════════════════════════════════════════════════════════════
-       RULES — list gets more breathing room
-       ═══════════════════════════════════════════════════════════════ */
-    #view-rules { max-width: 860px; }
-
-    .rules-search-wrap {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 12px;
-        align-items: start;
-        margin-bottom: 20px;
-    }
-    .rules-cat-bar { flex-direction: row; flex-wrap: wrap; margin: 0; }
-
-    /* ═══════════════════════════════════════════════════════════════
-       SIDEBAR STYLE VARIANTS
-       ═══════════════════════════════════════════════════════════════ */
-
-    /* Minimal — flush, left-stripe accent */
-    body.style-minimal .sidebar {
-        background: var(--bg);
-        border-right: 1px solid var(--border);
-    }
-    body.style-minimal .sidebar-btn {
-        border-radius: 0;
-        border: none;
-        border-left: 2px solid transparent;
-        padding-left: 14px;
-    }
-    body.style-minimal .sidebar-btn:hover  { background: none; border-left-color: var(--border); color: var(--text); }
-    body.style-minimal .sidebar-btn.active { background: none; border: none; border-left: 2px solid var(--primary); color: var(--primary); border-radius: 0; }
-
-    /* Glass — frosted panel */
-    body.style-glass .sidebar {
-        background: rgba(15,13,8,0.55);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(232,178,59,0.12);
-    }
-    body.style-glass .sidebar-logo,
-    body.style-glass .sidebar-footer { border-color: rgba(232,178,59,0.12); }
-    body.style-glass .sidebar-btn:hover  { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
-    body.style-glass .sidebar-btn.active { background: rgba(232,178,59,0.1);  border-color: rgba(232,178,59,0.3); }
-
-    /* Tactical — hard edges, right-stripe on active */
-    body.style-tactical .sidebar { background: var(--bg); border-right: 2px solid var(--primary); }
-    body.style-tactical .sidebar-logo { border-left: 3px solid var(--primary); padding-left: 12px; }
-    body.style-tactical .sidebar-btn  { border-radius: 0; border: none; border-right: 2px solid transparent; letter-spacing: 2px; font-size: 0.68rem; }
-    body.style-tactical .sidebar-btn:hover  { background: var(--input-bg); border-radius: 0; border-right-color: var(--border); }
-    body.style-tactical .sidebar-btn.active { background: var(--input-bg); border-radius: 0; border: none; border-right: 2px solid var(--primary); color: var(--primary); }
-    body.style-tactical .sidebar-footer { border-top: 2px solid var(--border); }
-
-    /* Neon — glowing active */
-    body.style-neon .sidebar { background: var(--bg); border-right: 1px solid rgba(var(--neon-rgb,232,178,59),0.2); }
-    body.style-neon .sidebar-logo,
-    body.style-neon .sidebar-footer { border-color: rgba(var(--neon-rgb,232,178,59),0.15); }
-    body.style-neon .sidebar-app-sub { text-shadow: 0 0 8px var(--primary); }
-    body.style-neon .sidebar-btn:hover  { background: rgba(var(--neon-rgb,232,178,59),0.06); border-color: rgba(var(--neon-rgb,232,178,59),0.2); }
-    body.style-neon .sidebar-btn.active { background: rgba(var(--neon-rgb,232,178,59),0.1); border-color: rgba(var(--neon-rgb,232,178,59),0.4); box-shadow: 0 0 10px rgba(var(--neon-rgb,232,178,59),0.12) inset; }
-    body.style-neon .sidebar-btn.active svg { filter: drop-shadow(0 0 4px var(--primary)); }
-
-    /* Retro — serif, solid filled active */
-    body.style-retro .sidebar { background: var(--card-bg); border-right: 2px solid var(--border); }
-    body.style-retro .sidebar-logo,
-    body.style-retro .sidebar-footer { border-width: 2px; }
-    body.style-retro .sidebar-app-name { font-family: 'Georgia','Palatino',serif; text-transform: none; letter-spacing: 0.5px; font-size: 1rem; }
-    body.style-retro .sidebar-btn { font-family: 'Georgia','Palatino',serif; text-transform: none; letter-spacing: 0.3px; font-size: 0.82rem; border-radius: 4px; }
-    body.style-retro .sidebar-btn.active { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
-    body.style-retro .sidebar-btn.active svg { stroke: var(--primary-fg); }
-}
-
-/* Very wide */
-@media (min-width: 1200px) {
-    .sidebar { width: 240px; min-width: 240px; }
-    .view { padding: 40px 56px 60px; }
 }
