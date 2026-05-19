@@ -927,214 +927,275 @@ label {
    CALCULATOR — Override layout
    ══════════════════════════════════════════════════════ */
 
-/* ── Calculator ───────────────────────────────────────── */
+/* ── Calculator ─────────────────────────────────────────────────────────── */
 
-/* Score banner at top */
-.calc-totals-banner {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
+/* ── Auton card ── */
+.calc-auton-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 18px 16px;
-    margin-bottom: 10px;
+    padding: 16px;
+    margin-bottom: 8px;
 }
-.calc-banner-side {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    border-radius: var(--radius-sm);
-    padding: 6px 10px;
-    transition: var(--transition);
-}
-.calc-banner-side--red  { align-items: flex-start; }
-.calc-banner-side--blue { align-items: flex-end; }
-.calc-banner-side--winning .calc-banner-score { color: var(--primary); }
-.calc-banner-score {
-    font-size: 2.8rem;
-    font-weight: 900;
-    line-height: 1;
-    color: var(--text);
-    transition: var(--transition);
-}
-.calc-banner-label {
-    font-size: 0.6rem;
-    font-weight: 900;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--sub-text);
-}
-.calc-banner-side--red   .calc-banner-label { color: var(--red); }
-.calc-banner-side--blue  .calc-banner-label { color: var(--blue); }
-.calc-banner-divider {
-    font-size: 0.6rem;
-    font-weight: 900;
-    letter-spacing: 2px;
-    color: var(--sub-text);
-    padding: 0 8px;
-    text-transform: uppercase;
-}
-
-/* Calc blocks — card containers */
-.calc-block {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 14px 10px;
-    margin-bottom: 10px;
-}
-.calc-block-header {
+.calc-auton-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
-.calc-block-title {
-    font-size: 0.6rem;
+.calc-section-title {
+    font-size: 0.58rem;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 2.5px;
     color: var(--sub-text);
 }
-.calc-block-pts {
-    font-size: 0.55rem;
+.calc-auton-pts {
+    font-size: 0.52rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--primary);
-    border: 1px solid var(--primary);
+    border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
     border-radius: 99px;
-    padding: 2px 7px;
-    opacity: 0.8;
+    padding: 2px 9px;
 }
-
-/* Auton buttons */
 .auton-group {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 6px;
+    gap: 7px;
 }
 .auton-btn {
-    padding: 10px 4px;
+    padding: 12px 4px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: var(--input-bg);
     color: var(--sub-text);
     font-weight: 900;
-    font-size: 0.65rem;
-    letter-spacing: 1.5px;
+    font-size: 0.62rem;
+    letter-spacing: 2px;
     text-transform: uppercase;
     cursor: pointer;
     transition: var(--transition);
 }
-.auton-btn.active-red  { background: var(--red);     color: #fff; border-color: var(--red);  }
-.auton-btn.active-blue { background: var(--blue);    color: #fff; border-color: var(--blue); }
+.auton-btn.active-red  { background: var(--red);     color: #fff;              border-color: var(--red);     }
+.auton-btn.active-blue { background: var(--blue);    color: #fff;              border-color: var(--blue);    }
 .auton-btn.active-tie  { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
 
-/* Scoring grid */
-.calc-grid {
+/* ── Scoring card ── */
+.calc-scoring-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;           /* clips the full-bleed dividers */
+    margin-bottom: 8px;
+}
+.calc-scoring-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 12px 16px 10px;
+}
+.calc-alliance-col-label {
+    font-size: 0.58rem;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+}
+.calc-alliance-col-label--red  { color: var(--red);  }
+.calc-alliance-col-label--blue { color: var(--blue); text-align: right; }
+
+.calc-row-divider {
+    height: 1px;
+    background: var(--border);
+    opacity: 0.6;
+}
+
+/* One scoring row: 3 equal columns */
+.calc-scoring-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     align-items: center;
-    gap: 0;
-    padding: 9px 0;
-    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
 }
-.calc-grid:last-child { border-bottom: none; }
-.calc-grid--header { padding: 0 0 6px; }
 
-.calc-alliance-label {
-    font-size: 0.58rem;
-    font-weight: 900;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-align: center;
-}
-.calc-alliance-label--red  { color: var(--red);  text-align: left; }
-.calc-alliance-label--blue { color: var(--blue); text-align: right; }
-
-/* Side controls — number flanked by buttons */
-.calc-controls {
+/* Counter column — fixed width inner stack, centered in its cell */
+.calc-counter {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 0;
+    width: 100%;
 }
-.calc-controls--red  { justify-content: flex-start; }
-.calc-controls--blue { justify-content: flex-end; flex-direction: row-reverse; }
+/* Red counter anchors left, blue anchors right */
+.calc-counter--red  { align-items: flex-start; }
+.calc-counter--blue { align-items: flex-end;   }
 
-.calc-btn {
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
+.calc-counter-btn {
+    width: 38px;
+    height: 32px;
+    border-radius: 7px;
     border: 1px solid var(--border);
     background: var(--input-bg);
-    color: var(--text);
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: 400;
     line-height: 1;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--sub-text);
     flex-shrink: 0;
 }
-.calc-btn:active { opacity: 0.5; transform: scale(0.93); }
-.calc-btn--red  { border-color: color-mix(in srgb, var(--red)  45%, var(--border)); color: var(--red); }
-.calc-btn--blue { border-color: color-mix(in srgb, var(--blue) 45%, var(--border)); color: var(--blue); }
+.calc-counter-btn:active { opacity: 0.45; transform: scale(0.88); }
 
-.calc-num {
-    font-size: 1.3rem;
+.calc-counter-btn--red {
+    border-color: color-mix(in srgb, var(--red) 40%, var(--border));
+    color: var(--red);
+}
+.calc-counter-btn--blue {
+    border-color: color-mix(in srgb, var(--blue) 40%, var(--border));
+    color: var(--blue);
+}
+
+.calc-counter-num {
+    font-size: 1.9rem;
     font-weight: 900;
-    min-width: 24px;
+    width: 38px;
     text-align: center;
     color: var(--text);
     line-height: 1;
+    padding: 5px 0;
 }
 
-/* Center label cell */
-.calc-label-cell {
+/* Center label column */
+.calc-row-label {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    padding: 0 4px;
+    gap: 3px;
+    padding: 0 6px;
 }
-.calc-label-name {
-    font-size: 0.58rem;
+.calc-row-name {
+    font-size: 0.6rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     color: var(--text);
     text-align: center;
-    line-height: 1.2;
+    line-height: 1.35;
 }
-.calc-label-pts {
+.calc-row-pts {
     font-size: 0.5rem;
     font-weight: 700;
     color: var(--sub-text);
+    text-transform: uppercase;
     letter-spacing: 0.3px;
 }
 
-/* Reset */
+/* ── Totals ── */
+.calc-totals-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.calc-total-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 18px 10px;
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+/* Accent underline — always present in alliance color */
+.calc-total-cell::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 0 0 var(--radius) var(--radius);
+    transition: var(--transition);
+}
+.calc-total-cell--red::after  { background: color-mix(in srgb, var(--red)  55%, transparent); }
+.calc-total-cell--blue::after { background: color-mix(in srgb, var(--blue) 55%, transparent); }
+
+/* Winning state — flush fill */
+.calc-total-cell--winning.calc-total-cell--red {
+    background: color-mix(in srgb, var(--red)  12%, var(--card-bg));
+    border-color: color-mix(in srgb, var(--red)  60%, var(--border));
+}
+.calc-total-cell--winning.calc-total-cell--blue {
+    background: color-mix(in srgb, var(--blue) 12%, var(--card-bg));
+    border-color: color-mix(in srgb, var(--blue) 60%, var(--border));
+}
+.calc-total-cell--winning.calc-total-cell--red::after  { background: var(--red);  height: 4px; }
+.calc-total-cell--winning.calc-total-cell--blue::after { background: var(--blue); height: 4px; }
+
+/* Losing state — fade out */
+.calc-total-cell--losing {
+    opacity: 0.45;
+}
+
+.calc-total-num {
+    font-size: 2.6rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--text);
+    transition: var(--transition);
+}
+.calc-total-cell--winning.calc-total-cell--red  .calc-total-num { color: var(--red);  }
+.calc-total-cell--winning.calc-total-cell--blue .calc-total-num { color: var(--blue); }
+
+.calc-total-lbl {
+    font-size: 0.52rem;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--sub-text);
+}
+.calc-total-cell--winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
+.calc-total-cell--winning.calc-total-cell--blue .calc-total-lbl { color: var(--blue); }
+
+.calc-total-vs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--sub-text);
+    padding: 0 2px;
+}
+
+/* ── Reset ── */
 .btn-reset {
     width: 100%;
-    margin-top: 4px;
-    padding: 13px;
+    padding: 14px;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     color: var(--sub-text);
     font-weight: 800;
-    font-size: 0.72rem;
-    letter-spacing: 1.5px;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
     text-transform: uppercase;
     cursor: pointer;
     transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
-.btn-reset:active { opacity: 0.6; }
+.btn-reset:active { opacity: 0.55; }
 
 /* Spinner */
 .loading-spinner {
