@@ -2,8 +2,8 @@
    PARAGON CORE X — DESIGN SYSTEM v4.0
    ROLLBACK: restore original style.css from your zip file
    ============================================================
-        
-    ARCHITECTURE:
+
+   ARCHITECTURE:
    Theme  (.theme-*) = color palette
    Mode   (.mode-light) = flips bg/text to light
    Style  (.style-*) = shape, spacing, font, effects
@@ -929,7 +929,6 @@ label {
 
 /* ── Calculator ─────────────────────────────────────────────────────────── */
 
-/* ── Auton card ── */
 .calc-auton-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -941,7 +940,7 @@ label {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 .calc-section-title {
     font-size: 0.62rem;
@@ -956,7 +955,7 @@ label {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--primary);
-    border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 50%, transparent);
     border-radius: 99px;
     padding: 3px 10px;
 }
@@ -966,7 +965,7 @@ label {
     gap: 8px;
 }
 .auton-btn {
-    padding: 14px 4px;
+    padding: 15px 4px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: var(--input-bg);
@@ -992,9 +991,9 @@ label {
 }
 .calc-scoring-header {
     display: grid;
-    grid-template-columns: 80px 1fr 80px;
+    grid-template-columns: 30% 1fr 30%;
     align-items: center;
-    padding: 10px 14px;
+    padding: 10px 20px;
     border-bottom: 1px solid var(--border);
 }
 .calc-alliance-col-label {
@@ -1003,42 +1002,38 @@ label {
     letter-spacing: 2px;
     text-transform: uppercase;
 }
-.calc-alliance-col-label--red  { color: var(--red); }
-.calc-alliance-col-label--blue { color: var(--blue); text-align: right; }
+.calc-alliance-col-label--red  { color: var(--red);  text-align: center; }
+.calc-alliance-col-label--blue { color: var(--blue); text-align: center; }
 
 .calc-row-divider {
     height: 1px;
     background: var(--border);
-    opacity: 0.5;
+    opacity: 0.4;
+    margin: 0 20px;
 }
 
-/* One scoring row */
 .calc-scoring-row {
     display: grid;
-    grid-template-columns: 80px 1fr 80px;
+    grid-template-columns: 30% 1fr 30%;
     align-items: center;
-    gap: 0;
-    padding: 12px 14px;
-    min-height: 88px;
+    padding: 16px 20px;
 }
 
-/* Counter — vertical stack: + / num / − */
+/* Counter — + / num / − stacked, centered in its column */
 .calc-counter {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0;
+    gap: 2px;
 }
-.calc-counter--red  { align-items: center; }
-.calc-counter--blue { align-items: center; }
 
 .calc-counter-btn {
-    width: 44px;
-    height: 32px;
-    border-radius: 7px;
+    width: 46px;
+    height: 34px;
+    border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--input-bg);
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 300;
     line-height: 1;
     cursor: pointer;
@@ -1048,38 +1043,33 @@ label {
     justify-content: center;
     flex-shrink: 0;
 }
-.calc-counter-btn:active { opacity: 0.45; transform: scale(0.88); }
+.calc-counter-btn:active { opacity: 0.4; transform: scale(0.87); }
 .calc-counter-btn--red  {
-    border-color: color-mix(in srgb, var(--red)  40%, var(--border));
+    border-color: color-mix(in srgb, var(--red)  45%, var(--border));
     color: var(--red);
 }
 .calc-counter-btn--blue {
-    border-color: color-mix(in srgb, var(--blue) 40%, var(--border));
+    border-color: color-mix(in srgb, var(--blue) 45%, var(--border));
     color: var(--blue);
 }
 
 .calc-counter-num {
-    font-size: 2.2rem;
+    font-size: 2.6rem;
     font-weight: 900;
-    width: 44px;
+    width: 46px;
     text-align: center;
     color: var(--text);
     line-height: 1;
-    padding: 3px 0;
+    padding: 4px 0;
 }
 
-/* Center label */
+/* Center label — no borders, clean text only */
 .calc-row-label {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    padding: 0 12px;
-    border-left: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    margin: 8px 0;
-    align-self: stretch;
-    justify-content: center;
+    padding: 0 10px;
 }
 .calc-row-name {
     font-size: 0.66rem;
@@ -1088,10 +1078,10 @@ label {
     letter-spacing: 1px;
     color: var(--text);
     text-align: center;
-    line-height: 1.35;
+    line-height: 1.4;
 }
 .calc-row-pts {
-    font-size: 0.55rem;
+    font-size: 0.54rem;
     font-weight: 700;
     color: var(--sub-text);
     text-transform: uppercase;
@@ -1101,7 +1091,7 @@ label {
 /* ── Totals ── */
 .calc-totals-row {
     display: grid;
-    grid-template-columns: 1fr 36px 1fr;
+    grid-template-columns: 1fr 40px 1fr;
     align-items: stretch;
     gap: 8px;
     margin-bottom: 10px;
@@ -1127,25 +1117,24 @@ label {
     height: 3px;
     transition: var(--transition);
 }
-.calc-total-cell--red::after  { background: color-mix(in srgb, var(--red)  55%, transparent); }
-.calc-total-cell--blue::after { background: color-mix(in srgb, var(--blue) 55%, transparent); }
+.calc-total-cell--red::after  { background: color-mix(in srgb, var(--red)  60%, transparent); }
+.calc-total-cell--blue::after { background: color-mix(in srgb, var(--blue) 60%, transparent); }
 
 .calc-total-cell--winning.calc-total-cell--red {
-    background: color-mix(in srgb, var(--red)  11%, var(--card-bg));
-    border-color: color-mix(in srgb, var(--red)  65%, var(--border));
+    background: color-mix(in srgb, var(--red)  10%, var(--card-bg));
+    border-color: color-mix(in srgb, var(--red)  70%, var(--border));
 }
 .calc-total-cell--winning.calc-total-cell--blue {
-    background: color-mix(in srgb, var(--blue) 11%, var(--card-bg));
-    border-color: color-mix(in srgb, var(--blue) 65%, var(--border));
+    background: color-mix(in srgb, var(--blue) 10%, var(--card-bg));
+    border-color: color-mix(in srgb, var(--blue) 70%, var(--border));
 }
 .calc-total-cell--winning::after { height: 4px; }
 .calc-total-cell--winning.calc-total-cell--red::after  { background: var(--red);  }
 .calc-total-cell--winning.calc-total-cell--blue::after { background: var(--blue); }
-
-.calc-total-cell--losing { opacity: 0.4; }
+.calc-total-cell--losing { opacity: 0.38; }
 
 .calc-total-num {
-    font-size: 2.4rem;
+    font-size: 2.6rem;
     font-weight: 900;
     line-height: 1;
     color: var(--text);
@@ -1155,7 +1144,7 @@ label {
 .calc-total-cell--winning.calc-total-cell--blue .calc-total-num { color: var(--blue); }
 
 .calc-total-lbl {
-    font-size: 0.55rem;
+    font-size: 0.54rem;
     font-weight: 900;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -1174,9 +1163,14 @@ label {
     color: var(--sub-text);
 }
 
-/* ── Reset ── */
+/* ── Save / Reset bar ── */
+.calc-action-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    margin-bottom: 10px;
+}
 .btn-reset {
-    width: 100%;
     padding: 15px;
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -1192,8 +1186,192 @@ label {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    width: 100%;
 }
 .btn-reset:active { opacity: 0.55; }
+
+.btn-save-calc {
+    padding: 15px 18px;
+    background: var(--primary);
+    border: none;
+    border-radius: var(--radius);
+    color: var(--primary-fg);
+    font-weight: 900;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.btn-save-calc:active { opacity: 0.7; }
+
+/* Saved calcs list */
+.calc-saved-section {
+    margin-top: 4px;
+}
+.calc-saved-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.calc-saved-title {
+    font-size: 0.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--sub-text);
+}
+.calc-saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.calc-saved-empty {
+    font-size: 0.65rem;
+    color: var(--sub-text);
+    text-align: center;
+    padding: 18px;
+    background: var(--card-bg);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    opacity: 0.6;
+}
+.calc-saved-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+}
+.calc-saved-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.calc-saved-item-name {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.calc-saved-item-meta {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--sub-text);
+    display: flex;
+    gap: 8px;
+}
+.calc-saved-score-red  { color: var(--red);  }
+.calc-saved-score-blue { color: var(--blue); }
+.calc-saved-item-actions {
+    display: flex;
+    gap: 6px;
+}
+.calc-saved-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--sub-text);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.calc-saved-btn:active { opacity: 0.5; }
+.calc-saved-btn--delete:hover { border-color: var(--red); color: var(--red); }
+
+/* Save modal overlay */
+.calc-save-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+}
+.calc-save-modal.hidden { display: none; }
+.calc-save-modal-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.calc-save-modal-title {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: 0.5px;
+}
+.calc-save-modal-input {
+    padding: 12px 14px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    outline: none;
+    width: 100%;
+}
+.calc-save-modal-input:focus { border-color: var(--primary); }
+.calc-save-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.calc-save-modal-cancel {
+    padding: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--sub-text);
+    font-weight: 800;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.calc-save-modal-confirm {
+    padding: 12px;
+    background: var(--primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--primary-fg);
+    font-weight: 900;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.calc-save-modal-confirm:active { opacity: 0.7; }
 
 /* Spinner */
 .loading-spinner {
@@ -1329,4 +1507,4 @@ label {
 
 .team-org--bold {
   font-weight: 900;
-}s
+}
