@@ -219,30 +219,28 @@
     </section>
 
     <section id="view-calc" class="view">
-        <div class="welcome-header"><h1>Calculator</h1><p>High Stakes Match Scoring</p></div>
+        <div class="welcome-header"><h1>Calculator</h1><p>Override Match Scoring</p></div>
 
         <!-- Autonomous Bonus -->
         <div class="calc-auton-card">
             <div class="calc-auton-header">
                 <span class="calc-section-title">Autonomous Bonus</span>
-                <span class="calc-auton-pts">WIN 12 · TIE 6 pts</span>
+                <span class="calc-auton-pts">Win 12 · Tie 6 pts</span>
             </div>
             <div class="auton-group">
-                <button class="auton-btn" id="at-red"  onclick="Calc.setAuton('red')">RED</button>
-                <button class="auton-btn" id="at-tie"  onclick="Calc.setAuton('tie')">TIE</button>
-                <button class="auton-btn" id="at-blue" onclick="Calc.setAuton('blue')">BLUE</button>
+                <button class="auton-btn" id="at-red"  onclick="Calc.setAuton('red')">Red</button>
+                <button class="auton-btn" id="at-tie"  onclick="Calc.setAuton('tie')">Tie</button>
+                <button class="auton-btn" id="at-blue" onclick="Calc.setAuton('blue')">Blue</button>
             </div>
         </div>
 
         <!-- Scoring -->
         <div class="calc-scoring-card">
             <div class="calc-scoring-header">
-                <span class="calc-alliance-col-label calc-alliance-col-label--red">RED</span>
-                <span class="calc-section-title">Scoring</span>
-                <span class="calc-alliance-col-label calc-alliance-col-label--blue">BLUE</span>
+                <span class="calc-alliance-col-label calc-alliance-col-label--red">Red</span>
+                <span class="calc-section-title" style="text-align:center;">Scoring</span>
+                <span class="calc-alliance-col-label calc-alliance-col-label--blue">Blue</span>
             </div>
-
-            <div class="calc-row-divider"></div>
 
             <!-- Alliance Pins -->
             <div class="calc-scoring-row">
@@ -261,7 +259,6 @@
                     <button class="calc-counter-btn calc-counter-btn--blue" onclick="Calc.adjust('blue','alliancePin',-1)">−</button>
                 </div>
             </div>
-
             <div class="calc-row-divider"></div>
 
             <!-- Yellow Pins -->
@@ -281,7 +278,6 @@
                     <button class="calc-counter-btn calc-counter-btn--blue" onclick="Calc.adjust('blue','yellowPin',-1)">−</button>
                 </div>
             </div>
-
             <div class="calc-row-divider"></div>
 
             <!-- Midfield Robots -->
@@ -307,20 +303,50 @@
         <div class="calc-totals-row">
             <div class="calc-total-cell calc-total-cell--red" id="total-cell-red">
                 <span class="calc-total-num" id="tot-red">0</span>
-                <span class="calc-total-lbl">RED TOTAL</span>
+                <span class="calc-total-lbl">Red Total</span>
             </div>
             <div class="calc-total-vs">VS</div>
             <div class="calc-total-cell calc-total-cell--blue" id="total-cell-blue">
                 <span class="calc-total-num" id="tot-blue">0</span>
-                <span class="calc-total-lbl">BLUE TOTAL</span>
+                <span class="calc-total-lbl">Blue Total</span>
             </div>
         </div>
 
-        <button class="btn-reset" onclick="Calc.reset()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
-            RESET
-        </button>
+        <!-- Save / Reset -->
+        <div class="calc-action-bar">
+            <button class="btn-reset" onclick="Calc.reset()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+                Reset
+            </button>
+            <button class="btn-save-calc" onclick="Calc.openSaveModal()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save
+            </button>
+        </div>
+
+        <!-- Saved calculators -->
+        <div class="calc-saved-section">
+            <div class="calc-saved-header">
+                <span class="calc-saved-title">Saved Calculators</span>
+            </div>
+            <div class="calc-saved-list" id="calc-saved-list">
+                <div class="calc-saved-empty" id="calc-saved-empty">No saved calculators yet</div>
+            </div>
+        </div>
     </section>
+
+    <!-- Save modal -->
+    <div class="calc-save-modal hidden" id="calc-save-modal">
+        <div class="calc-save-modal-card">
+            <div class="calc-save-modal-title">Save Calculator</div>
+            <input class="calc-save-modal-input" id="calc-save-name" type="text" placeholder="e.g. Match 12 · Quals" maxlength="40" />
+            <div class="calc-save-modal-actions">
+                <button class="calc-save-modal-cancel" onclick="Calc.closeSaveModal()">Cancel</button>
+                <button class="calc-save-modal-confirm" onclick="Calc.confirmSave()">Save</button>
+            </div>
+        </div>
+    </div>
+
 
     <section id="view-home" class="view">
         <div class="welcome-header"><h1>Notes</h1><p>Database</p></div>
