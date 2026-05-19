@@ -934,45 +934,45 @@ label {
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 8px;
+    padding: 14px 16px 16px;
+    margin-bottom: 10px;
 }
 .calc-auton-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 .calc-section-title {
-    font-size: 0.58rem;
+    font-size: 0.62rem;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 2.5px;
+    letter-spacing: 2px;
     color: var(--sub-text);
 }
 .calc-auton-pts {
-    font-size: 0.52rem;
+    font-size: 0.58rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--primary);
     border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
     border-radius: 99px;
-    padding: 2px 9px;
+    padding: 3px 10px;
 }
 .auton-group {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 7px;
+    gap: 8px;
 }
 .auton-btn {
-    padding: 12px 4px;
+    padding: 14px 4px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: var(--input-bg);
     color: var(--sub-text);
     font-weight: 900;
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     letter-spacing: 2px;
     text-transform: uppercase;
     cursor: pointer;
@@ -987,71 +987,70 @@ label {
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow: hidden;           /* clips the full-bleed dividers */
-    margin-bottom: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
 }
 .calc-scoring-header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 12px 16px 10px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
 }
 .calc-alliance-col-label {
-    font-size: 0.58rem;
+    font-size: 0.62rem;
     font-weight: 900;
-    letter-spacing: 2.5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
 }
-.calc-alliance-col-label--red  { color: var(--red);  }
+.calc-alliance-col-label--red  { color: var(--red); }
 .calc-alliance-col-label--blue { color: var(--blue); text-align: right; }
 
 .calc-row-divider {
     height: 1px;
     background: var(--border);
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
-/* One scoring row: 3 equal columns */
+/* One scoring row */
 .calc-scoring-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     align-items: center;
-    padding: 14px 16px;
+    padding: 10px 18px;
+    min-height: 90px;
 }
 
-/* Counter column — fixed width inner stack, centered in its cell */
+/* Counter — vertical stack + / num / − */
 .calc-counter {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 0;
     width: 100%;
 }
-/* Red counter anchors left, blue anchors right */
 .calc-counter--red  { align-items: flex-start; }
 .calc-counter--blue { align-items: flex-end;   }
 
 .calc-counter-btn {
-    width: 38px;
-    height: 32px;
+    width: 42px;
+    height: 34px;
     border-radius: 7px;
     border: 1px solid var(--border);
     background: var(--input-bg);
-    font-size: 1.1rem;
-    font-weight: 400;
+    font-size: 1.2rem;
+    font-weight: 300;
     line-height: 1;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--sub-text);
     flex-shrink: 0;
 }
 .calc-counter-btn:active { opacity: 0.45; transform: scale(0.88); }
-
-.calc-counter-btn--red {
-    border-color: color-mix(in srgb, var(--red) 40%, var(--border));
+.calc-counter-btn--red  {
+    border-color: color-mix(in srgb, var(--red)  40%, var(--border));
     color: var(--red);
 }
 .calc-counter-btn--blue {
@@ -1060,34 +1059,34 @@ label {
 }
 
 .calc-counter-num {
-    font-size: 1.9rem;
+    font-size: 2.4rem;
     font-weight: 900;
-    width: 38px;
+    width: 42px;
     text-align: center;
     color: var(--text);
     line-height: 1;
-    padding: 5px 0;
+    padding: 4px 0;
 }
 
-/* Center label column */
+/* Center label */
 .calc-row-label {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 0 6px;
+    gap: 4px;
+    padding: 0 8px;
 }
 .calc-row-name {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 1px;
     color: var(--text);
     text-align: center;
     line-height: 1.35;
 }
 .calc-row-pts {
-    font-size: 0.5rem;
+    font-size: 0.55rem;
     font-weight: 700;
     color: var(--sub-text);
     text-transform: uppercase;
@@ -1097,10 +1096,10 @@ label {
 /* ── Totals ── */
 .calc-totals-row {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr 36px 1fr;
     align-items: stretch;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 .calc-total-cell {
     display: flex;
@@ -1108,7 +1107,7 @@ label {
     align-items: center;
     justify-content: center;
     gap: 5px;
-    padding: 18px 10px;
+    padding: 18px 12px;
     border-radius: var(--radius);
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -1116,37 +1115,32 @@ label {
     position: relative;
     overflow: hidden;
 }
-/* Accent underline — always present in alliance color */
 .calc-total-cell::after {
     content: '';
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 3px;
-    border-radius: 0 0 var(--radius) var(--radius);
     transition: var(--transition);
 }
 .calc-total-cell--red::after  { background: color-mix(in srgb, var(--red)  55%, transparent); }
 .calc-total-cell--blue::after { background: color-mix(in srgb, var(--blue) 55%, transparent); }
 
-/* Winning state — flush fill */
 .calc-total-cell--winning.calc-total-cell--red {
-    background: color-mix(in srgb, var(--red)  12%, var(--card-bg));
-    border-color: color-mix(in srgb, var(--red)  60%, var(--border));
+    background: color-mix(in srgb, var(--red)  11%, var(--card-bg));
+    border-color: color-mix(in srgb, var(--red)  65%, var(--border));
 }
 .calc-total-cell--winning.calc-total-cell--blue {
-    background: color-mix(in srgb, var(--blue) 12%, var(--card-bg));
-    border-color: color-mix(in srgb, var(--blue) 60%, var(--border));
+    background: color-mix(in srgb, var(--blue) 11%, var(--card-bg));
+    border-color: color-mix(in srgb, var(--blue) 65%, var(--border));
 }
-.calc-total-cell--winning.calc-total-cell--red::after  { background: var(--red);  height: 4px; }
-.calc-total-cell--winning.calc-total-cell--blue::after { background: var(--blue); height: 4px; }
+.calc-total-cell--winning::after { height: 4px; }
+.calc-total-cell--winning.calc-total-cell--red::after  { background: var(--red);  }
+.calc-total-cell--winning.calc-total-cell--blue::after { background: var(--blue); }
 
-/* Losing state — fade out */
-.calc-total-cell--losing {
-    opacity: 0.45;
-}
+.calc-total-cell--losing { opacity: 0.4; }
 
 .calc-total-num {
-    font-size: 2.6rem;
+    font-size: 2.4rem;
     font-weight: 900;
     line-height: 1;
     color: var(--text);
@@ -1156,9 +1150,9 @@ label {
 .calc-total-cell--winning.calc-total-cell--blue .calc-total-num { color: var(--blue); }
 
 .calc-total-lbl {
-    font-size: 0.52rem;
+    font-size: 0.55rem;
     font-weight: 900;
-    letter-spacing: 2.5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--sub-text);
 }
@@ -1169,17 +1163,16 @@ label {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.55rem;
+    font-size: 0.52rem;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     color: var(--sub-text);
-    padding: 0 2px;
 }
 
 /* ── Reset ── */
 .btn-reset {
     width: 100%;
-    padding: 14px;
+    padding: 15px;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
