@@ -1,10 +1,10 @@
 // calc.js — High Stakes 2026-2027 score calculator
 //
-// Scoring model:
-//   Alliance Pins   — 5 pts each  (alliance-colored pins placed)
-//   Yellow Pins     — 10 pts each (yellow/neutral pins owned)
-//   Midfield Robots — 8 pts each  (max 2 per alliance)
-//   Autonomous Bonus — 12 pts win / 6 pts tie
+// Scoring:
+//   Alliance Pins   — 5 pts each
+//   Yellow Pins     — 10 pts each
+//   Midfield Robots — 8 pts each (max 2 per alliance)
+//   Auton Bonus     — 12 pts win / 6 pts tie
 
 const MIDFIELD_MAX = 2;
 
@@ -26,34 +26,39 @@ const Calc = (() => {
     return total;
   }
 
-  function clamp(val, max = Infinity) {
-    return Math.min(Math.max(0, val), max);
+  function clamp(val, max) {
+    return Math.min(Math.max(0, val), max !== undefined ? max : Infinity);
   }
 
   function updateDisplay() {
     const r = score('red');
     const b = score('blue');
 
-    const maxes = { alliancePin: Infinity, yellowPin: Infinity, midfieldRobot: MIDFIELD_MAX };
-    const fields = ['alliancePin', 'yellowPin', 'midfieldRobot'];
-
+    // Counter values
     for (const [alliance, short] of [['red', 'r'], ['blue', 'b']]) {
-      for (const field of fields) {
+      for (const field of ['alliancePin', 'yellowPin', 'midfieldRobot']) {
         const el = document.getElementById(`${short}-${field}`);
         if (el) el.innerText = state[alliance][field];
       }
     }
 
+    // Totals
     const rEl = document.getElementById('tot-red');
     const bEl = document.getElementById('tot-blue');
     if (rEl) rEl.innerText = r;
     if (bEl) bEl.innerText = b;
 
-    // Winning highlight on banner sides
-    document.getElementById('tot-red')?.closest('.calc-banner-side')
-      ?.classList.toggle('calc-banner-side--winning', r > b);
-    document.getElementById('tot-blue')?.closest('.calc-banner-side')
-      ?.classList.toggle('calc-banner-side--winning', b > r);
+    // Winning highlight on total cells
+    const rCell = document.getElementById('total-cell-red');
+    const bCell = document.getElementById('total-cell-blue');
+    if (rCell) {
+      rCell.classList.toggle('calc-total-cell--winning', r > b);
+      rCell.classList.toggle('calc-total-cell--losing',  r < b);
+    }
+    if (bCell) {
+      bCell.classList.toggle('calc-total-cell--winning', b > r);
+      bCell.classList.toggle('calc-total-cell--losing',  b < r);
+    }
 
     // Auton button states
     ['red', 'tie', 'blue'].forEach(v => {
