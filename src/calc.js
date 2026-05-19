@@ -1,14 +1,17 @@
 // calc.js — Override 2026-2027 score calculator
-const MIDFIELD_MAX = 2;
-const CALC_STORAGE_KEY = 'paragon_saved_calcs';
+const MIDFIELD_MAX    = 2;
+const CALC_STORE_KEY  = 'paragon_saved_calcs';
+
+let editingCalcId = null;   // non-null when editing a saved entry
 
 const Calc = (() => {
   const state = {
     red:   { alliancePin: 0, yellowPin: 0, midfieldRobot: 0 },
     blue:  { alliancePin: 0, yellowPin: 0, midfieldRobot: 0 },
-    auton: null,
+    auton: null,   // 'red' | 'blue' | 'tie' | null
   };
 
+  // ── Scoring ────────────────────────────────────────────
   function score(alliance) {
     const s = state[alliance];
     let t = 0;
@@ -56,64 +59,62 @@ const Calc = (() => {
       btn.classList.remove('active-red','active-blue','active-tie');
       if (state.auton === v) btn.classList.add('active-' + v);
     });
+
+    // Subtitle shows "Editing: Name" when in edit mode
+    const sub = document.getElementById('calc-subtitle');
+    if (sub) {
+      if (editingCalcId) {
+        const item = loadSaved().find(c => c.id === editingCalcId);
+        sub.textContent = item ? `Editing: ${item.name}` : 'Override Match Scoring';
+      } else {
+        sub.textContent = 'Override Match Scoring';
+      }
+    }
   }
 
-  // ── Saved calcs ──────────────────────────────────────
-
+  // ── Storage ────────────────────────────────────────────
   function loadSaved() {
-    try { return JSON.parse(localStorage.getItem(CALC_STORAGE_KEY)) || []; }
+    try { return JSON.parse(localStorage.getItem(CALC_STORE_KEY)) || []; }
     catch { return []; }
   }
 
   function persistSaved(list) {
-    localStorage.setItem(CALC_STORAGE_KEY, JSON.stringify(list));
+    localStorage.setItem(CALC_STORE_KEY, JSON.stringify(list));
   }
 
+  // ── Saved list render — mirrors displayDrawing() ───────
   function renderSaved() {
-    const list  = loadSaved();
-    const el    = document.getElementById('calc-saved-list');
-    const empty = document.getElementById('calc-saved-empty');
-    if (!el) return;
+    const list = document.getElementById('calc-saved-list');
+    if (!list) return;
 
-    // Remove old items (keep the empty placeholder node)
-    el.querySelectorAll('.calc-saved-item').forEach(n => n.remove());
-
-    if (list.length === 0) {
-      if (empty) empty.style.display = '';
+    const saved = loadSaved();
+    if (saved.length === 0) {
+      list.innerHTML = `<div class="sketch-item" style="justify-content:center;opacity:0.5;font-size:0.72rem;color:var(--sub-text);">No saved calculators yet</div>`;
       return;
     }
-    if (empty) empty.style.display = 'none';
 
-    list.forEach((item, idx) => {
-      const winner = item.redScore > item.blueScore ? 'red'
-                   : item.blueScore > item.redScore ? 'blue' : 'tie';
-      const winLabel = winner === 'tie' ? 'Tie'
-                     : `<span class="calc-saved-score-${winner}">${winner.charAt(0).toUpperCase()+winner.slice(1)} wins</span>`;
-
-      const node = document.createElement('div');
-      node.className = 'calc-saved-item';
-      node.innerHTML = `
-        <div class="calc-saved-item-info">
-          <span class="calc-saved-item-name">${item.name}</span>
-          <span class="calc-saved-item-meta">
-            <span class="calc-saved-score-red">${item.redScore}</span>
-            &nbsp;–&nbsp;
-            <span class="calc-saved-score-blue">${item.blueScore}</span>
-            &nbsp;·&nbsp;${winLabel}
-          </span>
-        </div>
-        <div class="calc-saved-item-actions">
-          <button class="calc-saved-btn" title="Load" onclick="Calc.loadItem(${idx})">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
-          </button>
-          <button class="calc-saved-btn calc-saved-btn--delete" title="Delete" onclick="Calc.deleteItem(${idx})">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-          </button>
+    list.innerHTML = saved.map(item => {
+      const r = item.redScore, b = item.blueScore;
+      const winText = r > b ? `<span style="color:var(--red)">Red wins</span>`
+                    : b > r ? `<span style="color:var(--blue)">Blue wins</span>`
+                    : `<span style="color:var(--primary)">Tie</span>`;
+      return `
+        <div class="sketch-item" onclick="Calc.loadItem('${item.id}')">
+          <div class="calc-saved-scorebug">
+            <span class="calc-saved-scorebug-num" style="color:var(--red)">${r}</span>
+            <span class="calc-saved-scorebug-vs">–</span>
+            <span class="calc-saved-scorebug-num" style="color:var(--blue)">${b}</span>
+          </div>
+          <div class="sketch-info">
+            <strong class="sketch-name-label">${item.name}</strong>
+            <small class="sketch-meta">${item.date} · ${winText}</small>
+          </div>
+          <button class="btn-delete" onclick="event.stopPropagation(); Calc.deleteItem('${item.id}')">Del</button>
         </div>`;
-      el.appendChild(node);
-    });
+    }).join('');
   }
 
+  // ── Public API ─────────────────────────────────────────
   return {
     adjust(alliance, field, delta) {
       const max = field === 'midfieldRobot' ? MIDFIELD_MAX : Infinity;
@@ -130,56 +131,69 @@ const Calc = (() => {
       state.red   = { alliancePin: 0, yellowPin: 0, midfieldRobot: 0 };
       state.blue  = { alliancePin: 0, yellowPin: 0, midfieldRobot: 0 };
       state.auton = null;
+      editingCalcId = null;
       updateDisplay();
     },
 
     openSaveModal() {
-      const modal = document.getElementById('calc-save-modal');
-      const input = document.getElementById('calc-save-name');
-      if (!modal || !input) return;
-      input.value = '';
-      modal.classList.remove('hidden');
-      setTimeout(() => input.focus(), 80);
-    },
-
-    closeSaveModal() {
-      document.getElementById('calc-save-modal')?.classList.add('hidden');
-    },
-
-    confirmSave() {
-      const input = document.getElementById('calc-save-name');
-      const name  = input?.value.trim();
-      if (!name) { input?.focus(); return; }
+      const name = prompt(editingCalcId ? 'Update name:' : 'Save as:', '');
+      if (name === null) return;   // cancelled
+      const trimmed = name.trim() || (editingCalcId ? '' : 'Untitled');
+      if (!trimmed && !editingCalcId) return;
 
       const list = loadSaved();
-      list.unshift({
-        name,
-        redScore:  score('red'),
-        blueScore: score('blue'),
-        auton:     state.auton,
-        red:       { ...state.red },
-        blue:      { ...state.blue },
-        savedAt:   Date.now(),
-      });
+
+      if (editingCalcId) {
+        const idx = list.findIndex(c => c.id === editingCalcId);
+        if (idx > -1) {
+          list[idx] = {
+            ...list[idx],
+            name:      trimmed || list[idx].name,
+            redScore:  score('red'),
+            blueScore: score('blue'),
+            auton:     state.auton,
+            red:       { ...state.red },
+            blue:      { ...state.blue },
+          };
+        }
+      } else {
+        list.unshift({
+          id:        Date.now().toString(),
+          name:      trimmed,
+          redScore:  score('red'),
+          blueScore: score('blue'),
+          auton:     state.auton,
+          red:       { ...state.red },
+          blue:      { ...state.blue },
+          date:      new Date().toLocaleDateString(),
+        });
+        editingCalcId = list[0].id;
+      }
+
       persistSaved(list);
-      this.closeSaveModal();
+      updateDisplay();
       renderSaved();
     },
 
-    loadItem(idx) {
-      const item = loadSaved()[idx];
+    loadItem(id) {
+      const item = loadSaved().find(c => c.id === id);
       if (!item) return;
       Object.assign(state.red,  item.red);
       Object.assign(state.blue, item.blue);
-      state.auton = item.auton;
+      state.auton   = item.auton;
+      editingCalcId = item.id;
       updateDisplay();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setCalcMode('new');
     },
 
-    deleteItem(idx) {
-      const list = loadSaved();
-      list.splice(idx, 1);
+    deleteItem(id) {
+      if (!confirm('Delete this calculator?')) return;
+      const list = loadSaved().filter(c => c.id !== id);
       persistSaved(list);
+      if (editingCalcId === id) {
+        editingCalcId = null;
+        this.reset();
+      }
       renderSaved();
     },
 
@@ -189,5 +203,16 @@ const Calc = (() => {
     },
   };
 })();
+
+// ── Tab switching — mirrors setFieldMode() ─────────────────
+function setCalcMode(mode) {
+  document.getElementById('calc-new-view').style.display   = mode === 'new'   ? '' : 'none';
+  document.getElementById('calc-saved-view').style.display = mode === 'saved' ? '' : 'none';
+
+  document.getElementById('calc-tab-new').classList.toggle('active',   mode === 'new');
+  document.getElementById('calc-tab-saved').classList.toggle('active', mode === 'saved');
+
+  if (mode === 'saved') Calc.init();   // refresh list on switch
+}
 
 document.addEventListener('DOMContentLoaded', () => Calc.init());
