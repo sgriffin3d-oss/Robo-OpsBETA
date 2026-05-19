@@ -1373,6 +1373,30 @@ label {
 }
 .calc-save-modal-confirm:active { opacity: 0.7; }
 
+/* Calc saved scorebug */
+.calc-saved-scorebug {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    flex-shrink: 0;
+    min-width: 72px;
+    justify-content: center;
+}
+.calc-saved-scorebug-num {
+    font-size: 1.05rem;
+    font-weight: 900;
+    line-height: 1;
+}
+.calc-saved-scorebug-vs {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--sub-text);
+}
+
 /* Spinner */
 .loading-spinner {
     width: 26px; height: 26px; border: 2.5px solid var(--border);
