@@ -32,6 +32,7 @@ function switchPage(view) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + view)?.classList.add('active');
   if (view === 'home')     displayNotes();
+  if (view === 'notes')    { if (typeof initNotes === 'function') initNotes(); }
   if (view === 'rules'    && typeof initRules       === 'function') initRules();
   if (view === 'settings' && typeof updateAccountUI === 'function') {
     updateAccountUI();

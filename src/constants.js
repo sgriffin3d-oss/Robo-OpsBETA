@@ -3,6 +3,7 @@
 const STORAGE_KEYS = {
   db:           'paragon_db',
   sketches:     'paragon_sketches',
+  notes:        'paragon_notes_v1',
   settings:     'paragon_settings_v3',
   guestMode:    'paragon_guest_mode',
   installed:    'paragon_installed_v1',

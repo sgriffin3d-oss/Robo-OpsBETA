@@ -246,6 +246,8 @@ async function syncFromCloud() {
     console.error('Cloud sync error:', err);
     loadLocalData();
   }
+  // Sync notes separately (non-blocking)
+  syncNotesFromCloud();
 }
 
 function loadLocalData() {
@@ -295,4 +297,57 @@ async function cloudSaveSettings(settings) {
     mode:       settings.mode  || 'mode-dark',
     updated_at: new Date().toISOString(),
   });
+}
+
+// ─── Notes Cloud Functions ────────────────────────────────────────────────────
+
+async function cloudSaveNote(note) {
+  if (!note) return;
+  localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(notes));
+  if (isGuest || !currentUser || !_supabase) return;
+  try {
+    await _supabase.from('notes').upsert({ ...note, user_id: currentUser.id });
+  } catch (e) { console.warn('cloudSaveNote error:', e); }
+}
+
+async function cloudDeleteNote(id) {
+  localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(notes));
+  if (isGuest || !currentUser || !_supabase) return;
+  try {
+    await _supabase.from('notes').delete().eq('id', id).eq('user_id', currentUser.id);
+  } catch (e) { console.warn('cloudDeleteNote error:', e); }
+}
+
+async function uploadNotePhoto(file) {
+  if (isGuest || !currentUser || !_supabase) return null;
+  try {
+    const ext  = file.name.split('.').pop() || 'jpg';
+    const path = `${currentUser.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await _supabase.storage.from('note-photos').upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type,
+    });
+    if (error) throw error;
+    const { data } = _supabase.storage.from('note-photos').getPublicUrl(path);
+    return data?.publicUrl || null;
+  } catch (e) {
+    console.warn('uploadNotePhoto error:', e);
+    return null;
+  }
+}
+
+// Also sync notes from cloud on login
+async function syncNotesFromCloud() {
+  if (isGuest || !currentUser || !_supabase) return;
+  try {
+    const { data, error } = await _supabase.from('notes').select('*').eq('user_id', currentUser.id);
+    if (error || !data?.length) return;
+    notes = data.map(r => {
+      const { user_id, ...rest } = r;
+      return rest;
+    });
+    localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(notes));
+    if (typeof renderNotesList === 'function') renderNotesList();
+  } catch (e) { console.warn('syncNotesFromCloud error:', e); }
 }
