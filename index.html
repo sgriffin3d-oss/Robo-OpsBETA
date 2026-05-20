@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="assets/css/events.css">
     <link rel="stylesheet" href="assets/css/rules.css">
     <link rel="stylesheet" href="assets/css/install.css">
+    <link rel="stylesheet" href="assets/css/notes.css">
     <style>
         /* --- MAP FRAME & ZOOM --- */
         /* Map frame: no padding - let the image set the height naturally */
@@ -134,11 +135,11 @@
             <b>Game Rules</b>
         </div>
 
-        <div class="hub-card" onclick="switchPage('home')">
+        <div class="hub-card" onclick="switchPage('notes')">
             <span class="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </span>
-            <b>Scout Notes</b>
+            <b>Notes</b>
         </div>
 
         <div class="hub-card" onclick="switchPage('calc')">
@@ -153,13 +154,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
             </span>
             <b>Field Viewer</b>
-        </div>
-
-        <div class="hub-card" onclick="openNewNote()">
-            <span class="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </span>
-            <b>New Match Report</b>
         </div>
     </section>
 
@@ -457,6 +451,75 @@
         <div id="detHistory"></div>
     </section>
 
+    <!-- NOTES LIST VIEW -->
+    <section id="view-notes" class="view">
+        <div class="welcome-header"><h1>Notes</h1><p>Scout · Rate · Strategize</p></div>
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search notes..." oninput="onNoteSearch(this.value)">
+        </div>
+        <div class="notes-sort-bar">
+            <button class="note-sort-btn active" id="nsort-team"  onclick="setNoteSort('team')">BY TEAM</button>
+            <button class="note-sort-btn"         id="nsort-event" onclick="setNoteSort('event')">BY EVENT</button>
+            <button class="note-sort-btn"         id="nsort-type"  onclick="setNoteSort('type')">BY TYPE</button>
+        </div>
+        <div id="notesList"></div>
+        <button class="notes-new-btn" onclick="openNewNote()">+ New Note</button>
+    </section>
+
+    <!-- TEMPLATE PICKER -->
+    <section id="view-notePicker" class="view">
+        <button onclick="switchPage('notes')" style="background:none;border:none;color:var(--primary);font-weight:bold;margin-bottom:16px;">← BACK</button>
+        <div class="welcome-header"><h1>New Note</h1><p>Choose a template</p></div>
+        <div class="template-picker-grid">
+            <div class="template-card" onclick="selectTemplate('match')">
+                <span class="template-card-icon">🏆</span>
+                <div class="template-card-text">
+                    <strong>Match Report</strong>
+                    <small>Log a match — winner, scores, teams, and field notes</small>
+                </div>
+            </div>
+            <div class="template-card" onclick="selectTemplate('team')">
+                <span class="template-card-icon">🤖</span>
+                <div class="template-card-text">
+                    <strong>Team Rating</strong>
+                    <small>Rate a team on autonomous, offense, defense, driving & teamwork</small>
+                </div>
+            </div>
+            <div class="template-card" onclick="selectTemplate('strategy')">
+                <span class="template-card-icon">📋</span>
+                <div class="template-card-text">
+                    <strong>Strategy Note</strong>
+                    <small>Free-form strategy write-up with multiple sections</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOTE FORM -->
+    <section id="view-noteForm" class="view">
+        <button onclick="switchPage('notePicker')" style="background:none;border:none;color:var(--primary);font-weight:bold;margin-bottom:16px;">← BACK</button>
+        <h2 id="noteFormTitle">New Note</h2>
+        <div id="noteFormBody"></div>
+        <button id="noteFormSaveBtn" class="note-form-save-btn" onclick="saveNote()">SAVE</button>
+    </section>
+
+    <!-- NOTE DETAIL -->
+    <section id="view-noteDetail" class="view">
+        <button onclick="switchPage('notes')" style="background:none;border:none;color:var(--primary);font-weight:bold;margin-bottom:16px;">← BACK</button>
+        <h2 id="noteDetailTitle">Note</h2>
+        <div id="noteDetailBody"></div>
+        <div class="note-detail-actions">
+            <button class="btn-secondary" id="noteDetailEditBtn">Edit</button>
+            <button class="btn-delete"    id="noteDetailDeleteBtn">Delete</button>
+        </div>
+    </section>
+
+    <!-- PHOTO FULLSCREEN OVERLAY -->
+    <div id="photoFullOverlay" onclick="closePhotoFull()">
+        <button class="photo-full-close" onclick="closePhotoFull()">✕</button>
+        <img id="photoFullImg" src="" alt="Photo">
+    </div>
+
     <!-- RULES VIEW -->
     <section id="view-rules" class="view">
         <div class="welcome-header"><h1>Game Rules</h1><p>Override 2026–2027</p></div>
@@ -500,6 +563,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="src/auth.js"></script>
+    <script src="src/notes.js"></script>
     <script src="src/rules.js"></script>
     <script src="src/rules_ui.js"></script>
     <script src="src/install.js"></script>
