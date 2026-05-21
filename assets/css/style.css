@@ -238,6 +238,7 @@ body.style-minimal { line-height: 1.55; }
     --radius-sm:  14px;
     --radius-lg:  32px;
     --card-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    --input-bg:   rgba(255,255,255,0.11);
 }
 
 body.style-glass                              { background: radial-gradient(ellipse at 20% 10%, #101820 0%, #000000 70%) fixed !important; }
@@ -296,27 +297,23 @@ body.style-glass.mode-light .dock-bar {
 .style-glass .dock-btn { border-radius: 50%; width: 42px; height: 42px; background: rgba(255,255,255,0.10) !important; }
 .style-glass .dock-btn.alt { background: var(--primary) !important; }
 
-/* Glass style — inputs/search bars use transparent frosted look, not solid dark */
+/* Glass — inputs use semi-transparent bg so they don't appear as solid black boxes */
 .style-glass input,
 .style-glass textarea,
 .style-glass select {
-    background: rgba(255,255,255,0.07) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.14) !important;
+    background: rgba(255,255,255,0.11) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
 }
 body.style-glass.mode-light input,
 body.style-glass.mode-light textarea,
 body.style-glass.mode-light select {
-    background: rgba(255,255,255,0.55) !important;
-    border: 1px solid rgba(255,255,255,0.85) !important;
+    background: rgba(255,255,255,0.60) !important;
+    border: 1px solid rgba(255,255,255,0.88) !important;
 }
-/* Range inputs should never get the glass card treatment */
+/* Range + hidden inputs stay transparent — no box */
 .style-glass input[type="range"],
 .style-glass input[type="hidden"] {
     background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
     border: none !important;
 }
 
