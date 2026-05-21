@@ -454,18 +454,16 @@
     <!-- NOTES LIST VIEW -->
     <section id="view-notes" class="view">
         <div class="notes-top-bar">
-            <div>
-                <h1 class="notes-title">Notes</h1>
-                <p class="notes-subtitle">Scout · Rate · Strategize</p>
-            </div>
-            <button class="notes-new-btn" onclick="openNewNote()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                New Note
-            </button>
+            <h1 class="notes-title">Notes</h1>
+            <p class="notes-subtitle">Scout · Rate · Strategize</p>
         </div>
         <div class="search-container">
             <input type="text" class="search-bar" placeholder="Search notes..." oninput="onNoteSearch(this.value)">
         </div>
+        <button class="notes-new-btn" onclick="openNewNote()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Note
+        </button>
         <div class="notes-sort-bar">
             <button class="note-sort-btn active" id="nsort-team"  onclick="setNoteSort('team')">BY TEAM</button>
             <button class="note-sort-btn"         id="nsort-event" onclick="setNoteSort('event')">BY EVENT</button>
