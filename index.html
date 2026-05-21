@@ -453,7 +453,16 @@
 
     <!-- NOTES LIST VIEW -->
     <section id="view-notes" class="view">
-        <div class="welcome-header"><h1>Notes</h1><p>Scout · Rate · Strategize</p></div>
+        <div class="notes-top-bar">
+            <div>
+                <h1 class="notes-title">Notes</h1>
+                <p class="notes-subtitle">Scout · Rate · Strategize</p>
+            </div>
+            <button class="notes-new-btn" onclick="openNewNote()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Note
+            </button>
+        </div>
         <div class="search-container">
             <input type="text" class="search-bar" placeholder="Search notes..." oninput="onNoteSearch(this.value)">
         </div>
@@ -463,30 +472,38 @@
             <button class="note-sort-btn"         id="nsort-type"  onclick="setNoteSort('type')">BY TYPE</button>
         </div>
         <div id="notesList"></div>
-        <button class="notes-new-btn" onclick="openNewNote()">+ New Note</button>
     </section>
 
     <!-- TEMPLATE PICKER -->
     <section id="view-notePicker" class="view">
-        <button onclick="switchPage('notes')" style="background:none;border:none;color:var(--primary);font-weight:bold;margin-bottom:16px;">← BACK</button>
+        <button class="view-back-btn" onclick="switchPage('notes')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back
+        </button>
         <div class="welcome-header"><h1>New Note</h1><p>Choose a template</p></div>
         <div class="template-picker-grid">
             <div class="template-card" onclick="selectTemplate('match')">
-                <span class="template-card-icon">🏆</span>
+                <span class="template-card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                </span>
                 <div class="template-card-text">
                     <strong>Match Report</strong>
                     <small>Log a match — winner, scores, teams, and field notes</small>
                 </div>
             </div>
             <div class="template-card" onclick="selectTemplate('team')">
-                <span class="template-card-icon">🤖</span>
+                <span class="template-card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                </span>
                 <div class="template-card-text">
                     <strong>Team Rating</strong>
                     <small>Rate a team on autonomous, offense, defense, driving & teamwork</small>
                 </div>
             </div>
             <div class="template-card" onclick="selectTemplate('strategy')">
-                <span class="template-card-icon">📋</span>
+                <span class="template-card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                </span>
                 <div class="template-card-text">
                     <strong>Strategy Note</strong>
                     <small>Free-form strategy write-up with multiple sections</small>
@@ -497,7 +514,10 @@
 
     <!-- NOTE FORM -->
     <section id="view-noteForm" class="view">
-        <button onclick="switchPage('notePicker')" style="background:none;border:none;color:var(--primary);font-weight:bold;margin-bottom:16px;">← BACK</button>
+        <button class="view-back-btn" onclick="switchPage('notePicker')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back
+        </button>
         <h2 id="noteFormTitle">New Note</h2>
         <div id="noteFormBody"></div>
         <button id="noteFormSaveBtn" class="note-form-save-btn" onclick="saveNote()">SAVE</button>
@@ -505,18 +525,29 @@
 
     <!-- NOTE DETAIL -->
     <section id="view-noteDetail" class="view">
-        <button onclick="switchPage('notes')" style="background:none;border:none;color:var(--primary);font-weight:bold;margin-bottom:16px;">← BACK</button>
+        <button class="view-back-btn" onclick="switchPage('notes')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back
+        </button>
         <h2 id="noteDetailTitle">Note</h2>
         <div id="noteDetailBody"></div>
         <div class="note-detail-actions">
-            <button class="btn-secondary" id="noteDetailEditBtn">Edit</button>
-            <button class="btn-delete"    id="noteDetailDeleteBtn">Delete</button>
+            <button class="btn-secondary" id="noteDetailEditBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+            </button>
+            <button class="btn-delete" id="noteDetailDeleteBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Delete
+            </button>
         </div>
     </section>
 
     <!-- PHOTO FULLSCREEN OVERLAY -->
     <div id="photoFullOverlay" onclick="closePhotoFull()">
-        <button class="photo-full-close" onclick="closePhotoFull()">✕</button>
+        <button class="photo-full-close" onclick="event.stopPropagation(); closePhotoFull()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
         <img id="photoFullImg" src="" alt="Photo">
     </div>
 
