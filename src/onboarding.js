@@ -1,4 +1,3 @@
-// THEMES and STYLES arrays live in constants.js — no copies here
 
 let _obTheme = 'theme-gold';
 let _obStyle = 'style-classic';
