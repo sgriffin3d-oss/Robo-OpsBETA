@@ -309,15 +309,24 @@ function importData(event) {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     try {
       const raw = JSON.parse(e.target.result);
       db       = raw.db       || raw;
       sketches = raw.sketches || [];
       localStorage.setItem(STORAGE_KEYS.db,       JSON.stringify(db));
       localStorage.setItem(STORAGE_KEYS.sketches,  JSON.stringify(sketches));
+
+      // Push all imported records to cloud for the signed-in user
+      if (typeof cloudSaveReport === 'function') {
+        for (const report of db)   await cloudSaveReport(report);
+      }
+      if (typeof cloudSaveSketch === 'function') {
+        for (const sketch of sketches) await cloudSaveSketch(sketch);
+      }
+
       displayNotes();
-      alert('Import successful!');
+      alert('Import successful!' + (typeof currentUser !== 'undefined' && currentUser ? ' Data synced to cloud.' : ''));
     } catch {
       alert('Error: Invalid .paragon file.');
     }
@@ -359,6 +368,13 @@ function setCustomColor(hex) {
   applySettings(s);
 }
 
+function setCustomSecondaryColor(hex) {
+  const s = getSettings();
+  s.customColorSecondary = hex;
+  saveSettings(s);
+  applySettings(s);
+}
+
 function getSettings() {
   return JSON.parse(localStorage.getItem(STORAGE_KEYS.settings)) || {};
 }
@@ -375,13 +391,13 @@ function applySettings(s) {
   document.body.className = [theme, style, mode].filter(Boolean).join(' ');
 
   if (theme === 'theme-custom' && s.customColor) {
-    applyCustomColor(s.customColor);
+    applyCustomColor(s.customColor, s.customColorSecondary || null);
   } else {
     clearCustomColor();
   }
 }
 
-function applyCustomColor(hex) {
+function applyCustomColor(hex, secondaryHex) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
@@ -390,6 +406,18 @@ function applyCustomColor(hex) {
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
   document.documentElement.style.setProperty('--primary-fg', brightness > 128 ? '#000000' : '#ffffff');
   document.documentElement.style.setProperty('--icon-color', hex);
+
+  if (secondaryHex) {
+    const sr = parseInt(secondaryHex.slice(1, 3), 16);
+    const sg = parseInt(secondaryHex.slice(3, 5), 16);
+    const sb = parseInt(secondaryHex.slice(5, 7), 16);
+    document.documentElement.style.setProperty('--secondary',    secondaryHex);
+    document.documentElement.style.setProperty('--secondary-rgb', `${sr}, ${sg}, ${sb}`);
+    const sBrightness = (sr * 299 + sg * 587 + sb * 114) / 1000;
+    document.documentElement.style.setProperty('--secondary-fg', sBrightness > 128 ? '#000000' : '#ffffff');
+  } else {
+    clearCustomSecondaryColor();
+  }
 }
 
 function clearCustomColor() {
@@ -397,6 +425,13 @@ function clearCustomColor() {
   document.documentElement.style.removeProperty('--neon-rgb');
   document.documentElement.style.removeProperty('--primary-fg');
   document.documentElement.style.removeProperty('--icon-color');
+  clearCustomSecondaryColor();
+}
+
+function clearCustomSecondaryColor() {
+  document.documentElement.style.removeProperty('--secondary');
+  document.documentElement.style.removeProperty('--secondary-rgb');
+  document.documentElement.style.removeProperty('--secondary-fg');
 }
 
 function loadSettings() {
@@ -455,9 +490,11 @@ function renderSettingsUI() {
   const customPicker = document.getElementById('custom-color-row');
   if (customPicker) {
     customPicker.style.display = currentTheme === 'theme-custom' ? '' : 'none';
-    if (currentTheme === 'theme-custom' && s.customColor) {
+    if (currentTheme === 'theme-custom') {
       const inp = document.getElementById('custom-color-input');
-      if (inp) inp.value = s.customColor;
+      if (inp) inp.value = s.customColor || '#7c3aed';
+      const inp2 = document.getElementById('custom-color-secondary-input');
+      if (inp2) inp2.value = s.customColorSecondary || '#2563eb';
     }
   }
 }

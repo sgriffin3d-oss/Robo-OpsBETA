@@ -236,12 +236,21 @@ async function syncFromCloud() {
       id: s.id, name: s.name, date: s.date, field: s.field, img: s.img,
     }));
 
+    // Merge any local-only records that were created before sign-in
+    const localDb       = JSON.parse(localStorage.getItem('paragon_db'))       || [];
+    const localSketches = JSON.parse(localStorage.getItem('paragon_sketches')) || [];
+    const cloudIds      = new Set(db.map(r => r.id));
+    const cloudSkIds    = new Set(sketches.map(s => s.id));
+    for (const r of localDb)       { if (!cloudIds.has(r.id))   { db.push(r);       await cloudSaveReport(r); } }
+    for (const s of localSketches) { if (!cloudSkIds.has(s.id)) { sketches.push(s); await cloudSaveSketch(s); } }
+
     if (settingsRes.data) {
       const s = {
-        theme:       settingsRes.data.theme,
-        style:       settingsRes.data.style,
-        mode:        settingsRes.data.mode,
-        customColor: settingsRes.data.custom_color,
+        theme:                settingsRes.data.theme,
+        style:                settingsRes.data.style,
+        mode:                 settingsRes.data.mode,
+        customColor:          settingsRes.data.custom_color,
+        customColorSecondary: settingsRes.data.custom_color_secondary,
       };
       localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(s));
       loadSettings();
@@ -304,12 +313,13 @@ async function cloudSaveSettings(settings) {
   if (isGuest || !currentUser || !_supabase) return;
   try {
     await _supabase.from('user_settings').upsert({
-      user_id:      currentUser.id,
-      theme:        settings.theme       || 'theme-gold',
-      style:        settings.style       || 'style-classic',
-      mode:         settings.mode        || 'mode-dark',
-      custom_color: settings.customColor || null,
-      updated_at:   new Date().toISOString(),
+      user_id:               currentUser.id,
+      theme:                 settings.theme                || 'theme-gold',
+      style:                 settings.style                || 'style-classic',
+      mode:                  settings.mode                 || 'mode-dark',
+      custom_color:          settings.customColor          || null,
+      custom_color_secondary: settings.customColorSecondary || null,
+      updated_at:            new Date().toISOString(),
     });
   } catch (e) { console.warn('cloudSaveSettings:', e); }
 }
