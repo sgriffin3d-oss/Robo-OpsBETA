@@ -386,7 +386,13 @@
                 <div class="theme-grid" id="theme-grid"></div>
                 <div class="sc-field-label">Interface Style</div>
                 <div class="style-grid" id="style-grid"></div>
-
+                <div class="custom-color-row" id="custom-color-row" style="display:none;">
+                    <span class="custom-color-label">Accent Color</span>
+                    <div class="custom-color-swatch">
+                        <input type="color" id="custom-color-input" value="#7c3aed"
+                               oninput="setCustomColor(this.value)" onchange="setCustomColor(this.value)">
+                    </div>
+                </div>
             </div>
         </div>
 
