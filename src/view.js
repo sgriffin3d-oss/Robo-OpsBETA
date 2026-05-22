@@ -8,10 +8,8 @@ function toggleMap(type) {
     const path = type === 'match' ? 'assets/images/field.png' : 'assets/images/skills.png';
 
     if(img) img.src = path;
-    // Sync the draw tab's field image (canvas is transparent on top of it)
     const drawImg = document.getElementById('draw-map-img');
     if(drawImg) drawImg.src = path;
-    // Clear leftover background-image from canvas if previously set
     if(canvas) canvas.style.backgroundImage = 'none';
 
     if (type === 'match') {
@@ -31,7 +29,7 @@ function setFieldMode(mode) {
     
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    // Hide all
+    // hide all
     if(std) std.style.display = 'none';
     if(draw) draw.style.display = 'none';
     if(saved) saved.style.display = 'none';
@@ -45,16 +43,12 @@ function setFieldMode(mode) {
         document.getElementById('sub-draw').classList.add('active');
         if(subtitle) subtitle.innerText = "Draw Strategy";
         
-        // Refresh the field image for current match/skills selection
+        //refresh field image
         toggleMap(currentField);
 
-        // Sync canvas internal resolution to the field image's rendered size.
-        // Use the image as the reference - it has real dimensions at this point.
         const c   = document.getElementById('sketch-canvas');
         const ref = document.getElementById('draw-map-img');
         if (c && ref && ref.offsetWidth > 0) {
-            // Use getBoundingClientRect so we get the exact rendered pixel size
-            // of the image itself, not the frame (which includes borders/padding)
             const rect = ref.getBoundingClientRect();
             c.width  = rect.width;
             c.height = rect.height;
