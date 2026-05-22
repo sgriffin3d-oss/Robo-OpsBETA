@@ -9,13 +9,13 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#050505">
 
-    <!-- iOS / Safari PWA -->
+    <!-- iOS/safari -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Robo Ops">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 
-    <!-- Edge / general -->
+    <!-- edge/general -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Robo Ops">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -24,8 +24,7 @@
     <link rel="stylesheet" href="assets/css/install.css">
     <link rel="stylesheet" href="assets/css/notes.css">
     <style>
-        /* --- MAP FRAME & ZOOM --- */
-        /* Map frame: no padding - let the image set the height naturally */
+        /* MAP FRAME & ZOOM */
         .map-frame {
             width: 100%; border-radius: 16px; overflow: hidden;
             border: 1px solid var(--border); background: #000;
@@ -34,13 +33,11 @@
         }
         .theme-light .map-frame { background: #ffffff; }
 
-        /* Both field images fill their frame and set its natural height */
         #map-img, #draw-map-img {
             width: 100%; display: block;
             transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* Canvas is transparent and sits flush on top of #draw-map-img */
         #sketch-canvas {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
@@ -52,7 +49,7 @@
         .map-frame.zoomed #draw-map-img,
         .map-frame.zoomed #sketch-canvas { transform: scale(1.5); }
 
-        /* --- DRAWING UI FIXES --- */
+        /* DRAWING UI FIXES Number 900000000000 lk coding style sucks  */
         .draw-tools { 
             display: flex; gap: 12px; margin: 15px 0; 
             padding: 10px; background: var(--input-bg); 
@@ -76,36 +73,35 @@
 </head>
 <body class="theme-dark style-classic">
 
-<!-- LOGIN SCREEN -->
+<!-- Login -->
 <section id="view-login" class="view" style="min-height:100vh; display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px 24px;">
     <div style="width:100%; max-width:340px;">
 
-        <!-- Logo -->
+        <!-- logo -->
         <div style="text-align:center; margin-bottom:40px;">
             <div style="font-size:2.6rem; font-weight:900; letter-spacing:-1.5px; color:var(--text); line-height:1;">Robo Ops</div>
             <div style="font-size:0.7rem; font-weight:800; letter-spacing:4px; color:var(--primary); text-transform:uppercase; margin-top:6px;">VEX Command Center</div>
         </div>
 
-        <!-- Google -->
+        <!-- Google Auth -->
         <button id="btn-google" onclick="signInWithGoogle()" style="width:100%; padding:14px 16px; background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-weight:700; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:16px; transition:opacity 0.15s ease;">
             <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
             Continue with Google
         </button>
 
-        <!-- Guest — prominent, above the fold -->
+        <!-- Guest mode -->
         <button onclick="continueAsGuest()" style="width:100%; padding:14px 16px; background:var(--input-bg); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-weight:700; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:24px; transition:opacity 0.15s ease;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Continue as Guest
         </button>
-
-        <!-- Divider -->
+        
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
             <div style="flex:1; height:1px; background:var(--border);"></div>
             <span style="font-size:0.68rem; color:var(--sub-text); font-weight:700; letter-spacing:1px; text-transform:uppercase;">or</span>
             <div style="flex:1; height:1px; background:var(--border);"></div>
         </div>
 
-        <!-- Email/password form -->
+        <!-- Email password login -->
         <div id="auth-mode" data-mode="signin">
             <div id="auth-form-title" style="font-size:0.7rem; font-weight:800; letter-spacing:1.5px; color:var(--sub-text); text-transform:uppercase; margin-bottom:10px;">Sign In</div>
             <input type="email" id="auth-email" placeholder="Email address" autocomplete="email" style="margin-bottom:8px;">
@@ -214,8 +210,7 @@
 
     <section id="view-calc" class="view">
         <div class="welcome-header"><h1>Calculator</h1><p id="calc-subtitle">Override Match Scoring</p></div>
-
-        <!-- ── NEW / EDIT view ── -->
+        
         <div id="calc-new-view">
 
             <div class="calc-auton-card">
@@ -303,7 +298,7 @@
                 </div>
             </div>
 
-            <!-- Name + save row, mirrors draw-actions -->
+            <!-- name and save row-->
             <div class="draw-actions">
                 <input type="text" id="calc-save-name" placeholder="Name this match...">
                 <button class="save-btn" onclick="Calc.saveCalc()">SAVE</button>
@@ -315,12 +310,12 @@
             </button>
         </div>
 
-        <!-- ── SAVED view ── -->
+        <!-- saved view -->
         <div id="calc-saved-view" style="display:none;">
             <div id="calc-saved-list"></div>
         </div>
 
-        <!-- Sub-nav pinned at bottom — mirrors field viewer -->
+        <!-- Sub-nav-->
         <div class="sub-nav">
             <button id="calc-tab-new"   class="sub-btn active" onclick="setCalcMode('new')">NEW</button>
             <button id="calc-tab-saved" class="sub-btn"        onclick="setCalcMode('saved')">SAVED</button>
@@ -332,7 +327,7 @@
     <section id="view-settings" class="view">
         <div class="welcome-header"><h1>Settings</h1><p>Configuration</p></div>
 
-        <!-- ── Account ── -->
+        <!-- account -->
         <div class="sc-wrap" id="sc-wrap-account">
             <div class="sc-header" onclick="toggleSettingsCard('account')">
                 <span class="sc-icon">
@@ -367,7 +362,7 @@
             </div>
         </div>
 
-        <!-- ── Appearance ── -->
+        <!-- appearance -->
         <div class="sc-wrap" id="sc-wrap-appearance">
             <div class="sc-header" onclick="toggleSettingsCard('appearance')">
                 <span class="sc-icon">
@@ -396,7 +391,7 @@
             </div>
         </div>
 
-        <!-- ── Data Backup ── -->
+        <!--Data backup -->
         <div class="sc-wrap" id="sc-wrap-backup">
             <div class="sc-header" onclick="toggleSettingsCard('backup')">
                 <span class="sc-icon">
@@ -458,7 +453,7 @@
         <div id="detHistory"></div>
     </section>
 
-    <!-- NOTES LIST VIEW -->
+    <!-- List of notes -->
     <section id="view-notes" class="view">
         <div class="notes-top-bar">
             <h1 class="notes-title">Notes</h1>
@@ -479,7 +474,7 @@
         <div id="notesList"></div>
     </section>
 
-    <!-- TEMPLATE PICKER -->
+    <!-- Note template picker -->
     <section id="view-notePicker" class="view">
         <button class="view-back-btn" onclick="switchPage('notes')">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -517,7 +512,7 @@
         </div>
     </section>
 
-    <!-- NOTE FORM -->
+    <!-- Note forms -->
     <section id="view-noteForm" class="view">
         <button class="view-back-btn" onclick="switchPage('notePicker')">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -528,7 +523,7 @@
         <button id="noteFormSaveBtn" class="note-form-save-btn" onclick="saveNote()">SAVE</button>
     </section>
 
-    <!-- NOTE DETAIL -->
+    <!-- Note Details -->
     <section id="view-noteDetail" class="view">
         <button class="view-back-btn" onclick="switchPage('notes')">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -548,7 +543,7 @@
         </div>
     </section>
 
-    <!-- PHOTO FULLSCREEN OVERLAY -->
+    <!-- pPhoto fullscreen thing -->
     <div id="photoFullOverlay" onclick="closePhotoFull()">
         <button class="photo-full-close" onclick="event.stopPropagation(); closePhotoFull()">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -556,11 +551,11 @@
         <img id="photoFullImg" src="" alt="Photo">
     </div>
 
-    <!-- RULES VIEW -->
+    <!-- view rules -->
     <section id="view-rules" class="view">
         <div class="welcome-header"><h1>Game Rules</h1><p>Override 2026–2027</p></div>
 
-        <!-- Search + category filter -->
+        <!-- search and category filter -->
         <div class="rules-search-wrap">
             <input type="text" class="search-bar" placeholder="Search rules by ID or keyword..." oninput="onRulesSearch(this.value)" id="rules-search">
             <div class="rules-cat-bar" id="rules-cat-bar"></div>
@@ -586,7 +581,7 @@
 <script src="src/calc.js"></script>
 <script src="src/view.js"></script>
 <script src="src/details.js"></script> 
-<!-- RULE DETAIL OVERLAY -->
+<!-- rules details -->
 <div class="rule-overlay" id="rule-overlay" onclick="closeRule()">
     <div class="rule-overlay-sheet" onclick="event.stopPropagation()">
         <div class="rule-overlay-header">
