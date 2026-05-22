@@ -1,6 +1,6 @@
-// notes.js — Unified Notes Module
 
-// ─── Feather SVG Icons ────────────────────────────────────────────────────────
+
+// feather icons
 const ICONS = {
   chevron:   `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
   image:     `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
@@ -9,7 +9,7 @@ const ICONS = {
   x:         `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
 };
 
-// ─── State ────────────────────────────────────────────────────────────────────
+// states
 let notes           = JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || [];
 let noteSort        = 'team';
 let noteQuery       = '';
@@ -18,13 +18,12 @@ let currentTemplate = null;
 let pendingPhotos   = [];   // { dataUrl, file, url }
 let stratSections   = [];
 
-// ─── Entry Point ──────────────────────────────────────────────────────────────
 function initNotes() {
   notes = JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || [];
   renderNotesList();
 }
 
-// ─── List View ────────────────────────────────────────────────────────────────
+// List view
 function setNoteSort(sort) {
   noteSort = sort;
   document.querySelectorAll('.note-sort-btn').forEach(b => b.classList.remove('active'));
@@ -88,7 +87,7 @@ function noteCardHtml(n) {
     </div>`;
 }
 
-// ─── Detail View ──────────────────────────────────────────────────────────────
+//details View
 function openNoteDetail(id) {
   const n = notes.find(x => x.id === id);
   if (!n) return;
@@ -193,7 +192,7 @@ function closePhotoFull() {
   if (o) o.style.display = 'none';
 }
 
-// ─── Navigation ───────────────────────────────────────────────────────────────
+// Navigation
 function openNewNote() {
   editingNoteId   = null;
   currentTemplate = null;
@@ -236,7 +235,7 @@ function buildNoteForm(type, data) {
   if (type === 'team')     initSliders(data);
 }
 
-// ─── Match Form ───────────────────────────────────────────────────────────────
+// matches form
 function matchFormHtml(d) {
   const wBtn = v => `<button type="button" class="alliance-btn alliance-btn--${v}${d?.winner === v ? ' active' : ''}" onclick="setWinner('${v}')">${v.toUpperCase()}</button>`;
   const aBtn = v => `<button type="button" class="alliance-btn alliance-btn--${v}${d?.autonWinner === v ? ' active' : ''}" onclick="setAutonWinner('${v}')">${v.toUpperCase()}</button>`;
