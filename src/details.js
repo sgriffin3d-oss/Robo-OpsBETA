@@ -1,4 +1,4 @@
-// ─── Event Detail View ────────────────────────────────────────────────────────
+// event view
 
 let currentEventId = null;
 let activeTab      = 'schedule';
@@ -96,7 +96,8 @@ function renderTab(tab) {
   renderers[tab]?.(content);
 }
 
-// ─── Tab Renderers ────────────────────────────────────────────────────────────
+
+
 
 function renderSchedule(container) {
   const matches = cachedData.matches || [];
@@ -173,7 +174,6 @@ function renderSkills(container) {
   const skills = cachedData.skills || [];
   if (!skills.length) { container.innerHTML = emptyState('Skills data not available for this event.'); return; }
 
-  // Group runs by team, keeping the best score per type
   const teamMap = {};
   skills.forEach(run => {
     const name  = run.team?.name || '?';
@@ -245,15 +245,13 @@ function renderTeams(container) {
   }).join('');
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatMatchTime(iso) {
   const d = new Date(iso);
   return isNaN(d) ? '' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// loadingHTML is defined in events.js and available globally.
-// Redeclaring it here caused whichever file loaded second to silently win.
+
 
 function errorHTML(message) {
   return `
