@@ -1,22 +1,5 @@
-/* ============================================================
-   PARAGON CORE X — DESIGN SYSTEM v4.0
-   ROLLBACK: restore original style.css from your zip file
-   ============================================================
 
-   ARCHITECTURE:
-   Theme  (.theme-*) = color palette
-   Mode   (.mode-light) = flips bg/text to light
-   Style  (.style-*) = shape, spacing, font, effects
-
-   No locked themes — all themes support dark and light mode.
-   ============================================================ */
-
-
-/* ══════════════════════════════════════════════════════
-   THEMES
-   ══════════════════════════════════════════════════════ */
-
-/* ── Midnight — original app. Pure black, gold accent. LOCKED DARK. ── */
+/* ── gold ── */
 :root,
 body {
     --bg:         #050505;
@@ -39,7 +22,7 @@ body {
 }
 
 
-/* ── Red Alliance ── */
+/*red */
 .theme-red {
     --bg:         #080808;
     --card-bg:    #111111;
@@ -49,11 +32,11 @@ body {
     --sub-text:   #666666;
     --primary:    #cc2200;
     --primary-fg: #ffffff;
-    --icon-color: #cc2200;
+    --icon-color: #d1d1d1;
     --neon-rgb:   204, 34, 0;
 }
 
-/* ── Blue Alliance — neutral dark base, clean blue accent ── */
+/* Blue  */
 .theme-blue {
     --bg:         #080808;
     --card-bg:    #111111;
@@ -63,11 +46,11 @@ body {
     --sub-text:   #666666;
     --primary:    #1a6ccc;
     --primary-fg: #ffffff;
-    --icon-color: #1a6ccc;
+    --icon-color: #d1d1d1;
     --neon-rgb:   26, 108, 204;
 }
 
-/* ── Stealth — pure black, white accents ── */
+/* black and white */
 .theme-stealth {
     --bg:         #000000;
     --card-bg:    #0c0c0c;
@@ -82,11 +65,7 @@ body {
 }
 
 
-/* ══════════════════════════════════════════════════════
-   LIGHT MODE MODIFIER
-   Applied by JS on top of Red, Blue, Stealth only.
-   Midnight and Arctic are locked — JS never toggles them.
-   ══════════════════════════════════════════════════════ */
+/*light mode  */
 
 .mode-light {
     --bg:        #f4f4f6;
@@ -98,7 +77,7 @@ body {
     --icon-color: var(--primary);
 }
 
-/* Per-theme light accent tweaks */
+/* more light mode tweaks*/
 .theme-red.mode-light {
     --primary:   #b51a00;
     --neon-rgb:  181, 26, 0;
@@ -122,116 +101,16 @@ body {
 }
 
 
-/* ══════════════════════════════════════════════════════
-   STYLE: CLASSIC
-   The original app feel. Rounded cards, solid borders.
-   Baseline — everything else is measured against this.
-   ══════════════════════════════════════════════════════ */
+/* Style: classic */
 
 .style-classic {
     --radius:     14px;
     --radius-sm:  8px;
     --radius-lg:  20px;
     --card-shadow: none;
-}
 
 
-/* ══════════════════════════════════════════════════════
-   STYLE: ROUNDED
-   Pillow-soft. Extra large radii, deep shadows,
-   spacious padding, no hard edges anywhere.
-   ══════════════════════════════════════════════════════ */
-
-.style-minimal {
-    --radius:     6px;
-    --radius-sm:  4px;
-    --radius-lg:  10px;
-    --card-shadow: none;
-}
-body.style-minimal { line-height: 1.55; }
-
-.style-minimal .hub-card,
-.style-minimal .note-card,
-.style-minimal .event-item,
-.style-minimal .match-card,
-.style-minimal .rank-row,
-.style-minimal .rule-card,
-.style-minimal .team-row,
-.style-minimal .sketch-item {
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 1px solid var(--border) !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding-left: 2px !important;
-    padding-right: 2px !important;
-}
-.style-minimal .sort-container,
-.style-minimal .detail-tabs {
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid var(--border);
-    border-radius: 0;
-    padding: 0;
-    gap: 0;
-}
-.style-minimal .sort-btn,
-.style-minimal .detail-tab {
-    border-radius: 0;
-    padding-bottom: 11px;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-}
-.style-minimal .sort-btn.active,
-.style-minimal .detail-tab.active {
-    background: none;
-    color: var(--primary);
-    border-bottom: 2px solid var(--primary);
-    box-shadow: none;
-}
-.style-minimal .evt-filter-btn,
-.style-minimal .rules-cat-btn {
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    border-radius: 0;
-    padding: 6px 8px;
-    color: var(--sub-text);
-}
-.style-minimal .evt-filter-btn.active,
-.style-minimal .rules-cat-btn.active {
-    background: none;
-    color: var(--primary);
-    border-bottom: 2px solid var(--primary);
-}
-.style-minimal input,
-.style-minimal select,
-.style-minimal textarea {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    border-radius: 0;
-    padding-left: 2px;
-    padding-right: 2px;
-}
-.style-minimal .alliance-box {
-    background: var(--card-bg) !important;
-    border: none !important;
-    border-top: 3px solid var(--border) !important;
-    border-radius: var(--radius-sm) !important;
-}
-.style-minimal .alliance-box.red  { border-top-color: var(--red)  !important; }
-.style-minimal .alliance-box.blue { border-top-color: var(--blue) !important; }
-.style-minimal .dock-bar  { border-top: 1px solid var(--border); background: var(--bg); box-shadow: none; }
-.style-minimal .save-btn  { border-radius: 6px; }
-.style-minimal .fab-menu  { border-radius: 8px; }
-
-
-/* ══════════════════════════════════════════════════════
-   STYLE: GLASS
-   Frosted blur, gradient backgrounds.
-   Cards feel translucent and layered.
-   ══════════════════════════════════════════════════════ */
+/* Style: glass */
 
 .style-glass {
     --radius:     22px;
@@ -297,7 +176,6 @@ body.style-glass.mode-light .dock-bar {
 .style-glass .dock-btn { border-radius: 50%; width: 42px; height: 42px; background: rgba(255,255,255,0.10) !important; }
 .style-glass .dock-btn.alt { background: var(--primary) !important; }
 
-/* Glass — inputs use semi-transparent bg so they don't appear as solid black boxes */
 .style-glass input,
 .style-glass textarea,
 .style-glass select {
@@ -310,7 +188,7 @@ body.style-glass.mode-light select {
     background: rgba(255,255,255,0.60) !important;
     border: 1px solid rgba(255,255,255,0.88) !important;
 }
-/* Range + hidden inputs stay transparent — no box */
+
 .style-glass input[type="range"],
 .style-glass input[type="hidden"] {
     background: transparent !important;
@@ -318,11 +196,7 @@ body.style-glass.mode-light select {
 }
 
 
-/* ══════════════════════════════════════════════════════
-   STYLE: TACTICAL
-   Sharp 90° corners. Monospace font. Dense information.
-   Left-border accent on every card. HUD scanlines.
-   ══════════════════════════════════════════════════════ */
+/* style: tactical*/
 
 .style-tactical {
     --radius:     2px;
@@ -335,7 +209,7 @@ body.style-tactical {
     font-size: 0.9rem;
     letter-spacing: 0.3px;
 }
-/* Scanline overlay */
+/* line overlay */
 body.style-tactical::before {
     content: '';
     position: fixed; inset: 0; pointer-events: none; z-index: 9999;
@@ -344,7 +218,7 @@ body.style-tactical::before {
         rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px
     );
 }
-/* Boxy cards with strong left accent */
+
 .style-tactical .hub-card,
 .style-tactical .note-card,
 .style-tactical .event-item,
@@ -359,45 +233,37 @@ body.style-tactical::before {
 .style-tactical .alliance-box { border-radius: 0 !important; }
 .style-tactical .alliance-box.red  { border-left: 4px solid var(--red) !important; }
 .style-tactical .alliance-box.blue { border-left: 4px solid var(--blue) !important; }
-/* All typography: uppercase + wide spacing */
+
 .style-tactical .welcome-header h1 {
     font-size: 1.4rem; text-transform: uppercase; letter-spacing: 8px;
 }
 .style-tactical .welcome-header p { letter-spacing: 6px; }
 .style-tactical .hub-card b { letter-spacing: 4px; font-size: 0.78rem; }
-/* Segments: square tabs */
 .style-tactical .sort-container { border-radius: 0; gap: 2px; }
 .style-tactical .sort-btn { border-radius: 0; }
 .style-tactical .sort-btn.active {
     background: var(--primary); color: var(--primary-fg);
     clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
 }
-/* Square dock */
+
 .style-tactical .dock-bar {
     border-radius: 0; border-top: 3px solid var(--primary); height: 64px;
 }
 .style-tactical .dock-btn { border-radius: 0; }
 .style-tactical .dock-btn.alt { border-radius: 0; }
-/* Inputs */
 .style-tactical input,
 .style-tactical select,
 .style-tactical textarea {
     border-radius: 0; font-family: inherit; letter-spacing: 0.5px;
 }
 .style-tactical .save-btn { border-radius: 0; }
-/* Status dot on hub cards */
 .style-tactical .hub-card::after {
     content: '■'; color: var(--primary); font-size: 0.45rem;
     opacity: 0.6; margin-left: auto; align-self: flex-start; margin-top: 3px;
 }
 
 
-/* ══════════════════════════════════════════════════════
-   STYLE: NEON
-   Dark canvas, glowing colored borders.
-   Glow text on headings and key labels.
-   Works in light mode: strong color borders on white.
-   ══════════════════════════════════════════════════════ */
+/* Style: Neon */
 
 .style-neon {
     --radius:     12px;
@@ -408,7 +274,7 @@ body.style-tactical::before {
 body.style-neon           { background: #010101 !important; }
 body.style-neon.mode-light { background: #f4f4f6 !important; }
 
-/* Dark neon cards */
+/* dark neon cards */
 .style-neon .hub-card,
 .style-neon .note-card,
 .style-neon .event-item,
@@ -429,14 +295,14 @@ body.style-neon.mode-light { background: #f4f4f6 !important; }
     border-color: rgba(var(--neon-rgb),0.85) !important;
     box-shadow: 0 0 26px rgba(var(--neon-rgb),0.28) !important;
 }
-/* Light neon */
+/* light neon */
 body.style-neon.mode-light .hub-card,
 body.style-neon.mode-light .note-card,
 body.style-neon.mode-light .event-item,
 body.style-neon.mode-light .rule-card,
 body.style-neon.mode-light .rank-row,
 body.style-neon.mode-light .team-row
-/* Glow text */
+/* glowing text */
 .style-neon .welcome-header h1 { text-shadow: 0 0 30px rgba(var(--neon-rgb),0.6); }
 .style-neon .hub-card b,
 .style-neon .rule-id,
@@ -444,12 +310,12 @@ body.style-neon.mode-light .team-row
 .style-neon .event-item-name { text-shadow: 0 0 12px rgba(var(--neon-rgb),0.55); }
 body.style-neon.mode-light .welcome-header h1 { text-shadow: 0 0 18px rgba(var(--neon-rgb),0.45); }
 body.style-neon.mode-light .hub-card b
-/* Glowing active states */
+
 .style-neon .sort-btn.active,
 .style-neon .detail-tab.active,
 .style-neon .evt-filter-btn.active,
 .style-neon .rules-cat-btn.active { box-shadow: 0 0 18px rgba(var(--neon-rgb),0.5) !important; }
-/* Dock */
+/* dock bar */
 .style-neon .dock-bar {
     background: #050505;
     border-top: 1px solid rgba(var(--neon-rgb),0.25);
@@ -466,12 +332,7 @@ body.style-neon.mode-light .dock-bar {
 .style-neon textarea:focus { box-shadow: 0 0 12px rgba(var(--neon-rgb),0.3); }
 
 
-/* ══════════════════════════════════════════════════════
-   STYLE: RETRO
-   Warm serif font. Hard offset drop shadows.
-   Thick borders. Press-down button feel.
-   Completely unlike every other style.
-   ══════════════════════════════════════════════════════ */
+/* Style: Retro */
 
 .style-retro {
     --radius:     5px;
@@ -542,9 +403,7 @@ body.style-retro.mode-light {
 }
 
 
-/* ══════════════════════════════════════════════════════
-   BASE ENGINE
-   ══════════════════════════════════════════════════════ */
+
 
 * { box-sizing: border-box; }
 
@@ -567,11 +426,11 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Typography */
+/* typography */
 .welcome-header h1 { margin: 0; font-size: 2.2rem; font-weight: 900; letter-spacing: -0.5px; }
 .welcome-header p  { margin: 5px 0 25px; color: var(--sub-text); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; }
 
-/* Icon engine */
+/* icons */
 .icon {
     display: flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; margin-right: 18px;
@@ -579,7 +438,7 @@ body {
 }
 .icon svg { width: 100%; height: 100%; stroke-width: 2.2px; }
 
-/* Hub cards */
+/* hub cards */
 .hub-card {
     background: var(--card-bg); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 22px; margin-bottom: 12px;
@@ -612,7 +471,7 @@ label {
 .save-btn:active { opacity: 0.8; }
 .search-bar { width: 100%; margin-bottom: 10px !important; }
 
-/* Sort segments */
+
 .sort-container {
     display: flex; gap: 5px; margin-bottom: 15px;
     background: var(--input-bg); padding: 5px;
@@ -625,7 +484,7 @@ label {
 }
 .sort-btn.active { background: var(--primary); color: var(--primary-fg); }
 
-/* Note cards */
+/* note cards */
 .note-card {
     background: var(--card-bg); border: 1px solid var(--border);
     padding: 18px; border-radius: var(--radius); margin-bottom: 10px;
@@ -634,7 +493,7 @@ label {
 }
 .note-card:active { transform: scale(0.98); }
 
-/* Calculator */
+/* calc*/
 .side-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .alliance-box {
     background: var(--card-bg); border: 1px solid var(--border);
@@ -664,7 +523,7 @@ label {
 }
 
 
-/* Dock bar */
+/* dock bar */
 .dock-bar {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 450px; height: 75px;
@@ -681,7 +540,7 @@ label {
 .dock-btn.alt { background: var(--primary); color: var(--primary-fg) !important; }
 .dock-btn:active { transform: scale(0.9); }
 
-/* FAB menu */
+
 .fab-menu {
     position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
     background: var(--card-bg); border: 1px solid var(--border);
@@ -696,13 +555,12 @@ label {
 }
 .menu-item:hover { background: var(--input-bg); }
 
-/* Event card */
 .event-card {
     background: var(--card-bg); border: 1px solid var(--border);
     padding: 16px; border-radius: var(--radius); box-shadow: var(--card-shadow);
 }
 
-/* Sketch */
+
 .sketch-item {
     display: flex; align-items: center; gap: 14px;
     background: var(--card-bg); border: 1px solid var(--border);
@@ -720,12 +578,9 @@ label {
 
 
 
-/* ══════════════════════════════════════════════════════
-   SETTINGS — Separate collapsible cards (sc-*)
-   Each card is an independent hub-card-style unit.
-   ══════════════════════════════════════════════════════ */
+/* settings*/
 
-/* Outer wrapper — same feel as a hub-card when collapsed */
+
 .sc-wrap {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -736,7 +591,7 @@ label {
     transition: var(--transition);
 }
 
-/* Header row — always visible, tappable */
+
 .sc-header {
     display: flex;
     align-items: center;
@@ -778,7 +633,6 @@ label {
 }
 .sc-wrap--open .sc-chevron { transform: rotate(180deg); }
 
-/* Body — hidden by default, revealed on open */
 .sc-body {
     overflow: hidden;
     max-height: 1200px;
@@ -795,14 +649,12 @@ label {
     border-top: none;
 }
 
-/* Divider inside a body */
 .sc-divider {
     height: 1px;
     background: var(--border);
     margin: 16px 0;
 }
 
-/* Field section label (Appearance: Mode, Theme, Style) */
 .sc-field-label {
     font-size: 0.63rem;
     font-weight: 900;
@@ -814,7 +666,7 @@ label {
 }
 .sc-field-label:first-child { margin-top: 18px; }
 
-/* Tappable row inside a body */
+
 .sc-row {
     display: flex;
     align-items: center;
@@ -860,7 +712,6 @@ label {
     line-height: 1;
 }
 
-/* Account section inside body */
 .account-row {
     display: flex;
     align-items: center;
@@ -944,11 +795,7 @@ label {
 .style-card.active .style-name { color: var(--primary); }
 
 
-/* ══════════════════════════════════════════════════════
-   CALCULATOR — Override layout
-   ══════════════════════════════════════════════════════ */
-
-/* ── Calculator ─────────────────────────────────────────────────────────── */
+/* calculator why do I suck so bad at writing styling */
 
 .calc-auton-card {
     background: var(--card-bg);
@@ -1223,7 +1070,7 @@ label {
     color: var(--sub-text);
 }
 
-/* Spinner */
+
 .loading-spinner {
     width: 26px; height: 26px; border: 2.5px solid var(--border);
     border-top-color: var(--primary); border-radius: 50%;
@@ -1231,9 +1078,7 @@ label {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ─── Utility: State containers (loading / empty / error) ──────────────────
-   Replaces all the one-off inline styles like:
-   style="text-align:center; padding:40px; color:var(--sub-text);"  */
+
 
 .state-center {
   text-align: center;
@@ -1263,8 +1108,6 @@ label {
   margin-top: 15px;
 }
 
-/* ─── Sketch card internals ─────────────────────────────────────────────────
-   Replaces inline styles in displayDrawing() */
 
 .sketch-preview--field {
   background-size: cover;
@@ -1287,8 +1130,7 @@ label {
   color: var(--sub-text);
 }
 
-/* ─── Note card internals ───────────────────────────────────────────────────
-   Replaces inline styles in displayNotes() / showDetailView() */
+
 
 .note-card-arrow {
   color: var(--primary);
@@ -1318,8 +1160,7 @@ label {
   width: 100%;
 }
 
-/* ─── Shared button variants ────────────────────────────────────────────────
-   Replaces scattered inline button styles */
+
 
 .btn-secondary {
   flex: 1;
@@ -1344,16 +1185,13 @@ label {
   font-weight: 700;
 }
 
-/* ─── Skills table: total column highlight ──────────────────────────────────
-   Replaces style="color:var(--primary);font-weight:900;" in renderSkills() */
+
 
 .rank-col-skill--total {
   color: var(--primary);
   font-weight: 900;
 }
 
-/* ─── Team card: bold org/name ──────────────────────────────────────────────
-   Replaces style="font-weight:900" in renderTeams() */
 
 .team-org--bold {
   font-weight: 900;
@@ -1371,7 +1209,7 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
 }
 .btn-reset:active { opacity: 0.55; }
 
-/* Calc saved uses saved-card now — scorebug sits inside */
+
 .calc-saved-scorebug {
     display: flex; align-items: center; gap: 4px;
     background: var(--input-bg); border: 1px solid var(--border);
@@ -1387,9 +1225,7 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
 .sub-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
 
-/* ══════════════════════════════════════════════════════
-   MAP / FIELD VIEWER
-   ══════════════════════════════════════════════════════ */
+/* field viewer */
 
 .map-frame {
     width: 100%; border-radius: 16px; overflow: hidden;
@@ -1420,9 +1256,7 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
 .draw-actions .save-btn { flex: 1; padding: 14px; font-size: 0.8rem; margin: 0; }
 
 
-/* ══════════════════════════════════════════════════════
-   SPINNER & STATES
-   ══════════════════════════════════════════════════════ */
+
 
 .loading-spinner {
     width: 26px; height: 26px; border: 2.5px solid var(--border);
@@ -1439,9 +1273,7 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
 .state-retry         { margin-top: 15px; }
 
 
-/* ══════════════════════════════════════════════════════
-   SHARED UTILITY CLASSES
-   ══════════════════════════════════════════════════════ */
+/* shared utility */
 
 .note-card-arrow    { color: var(--primary); }
 .note-card--expanded { flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -1465,10 +1297,7 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
 .rank-col-skill--total { color: var(--primary); font-weight: 900; }
 .team-org--bold        { font-weight: 900; }
 
-/* ══════════════════════════════════════════════════════
-   SAVED CARDS — shared by Score Calc & Field Viewer
-   Matches the notes list visual style
-   ══════════════════════════════════════════════════════ */
+/*saved cards*/
 
 .saved-group {
   margin-bottom: 22px;
@@ -1536,7 +1365,7 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
 }
 .saved-card-del:active { opacity: 1; color: #e05040; }
 
-/* Thumbnail for field viewer sketches */
+/* Thumbnail for field viewer saved */
 .saved-card-thumb {
   width: 52px;
   height: 36px;
@@ -1555,7 +1384,7 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
   display: block;
 }
 
-/* Scorebug pill inside calc saved cards */
+
 .calc-saved-scorebug {
   display: flex;
   align-items: center;
@@ -1571,7 +1400,6 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
 .calc-saved-scorebug-num { font-size: 1.05rem; font-weight: 900; line-height: 1; }
 .calc-saved-scorebug-vs  { font-size: 0.65rem; font-weight: 700; color: var(--sub-text); }
 
-/* Empty state */
 .saved-empty {
   text-align: center;
   padding: 36px 20px;
@@ -1580,7 +1408,6 @@ winning.calc-total-cell--red  .calc-total-lbl { color: var(--red);  }
 .saved-empty p    { font-size: 0.88rem; font-weight: 600; margin: 0 0 6px; }
 .saved-empty small { font-size: 0.75rem; opacity: 0.6; }
 
-/* Style variant overrides */
 .style-minimal .saved-card { background: transparent; }
 .style-glass   .saved-card { backdrop-filter: blur(8px); background: rgba(255,255,255,0.06); }
 .style-tactical .saved-card { border-radius: 0; border-left: 3px solid var(--primary); }
