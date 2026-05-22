@@ -1,4 +1,3 @@
-// calc.js — Override 2026-2027 score calculator
 const MIDFIELD_MAX   = 2;
 const CALC_STORE_KEY = 'paragon_saved_calcs';
 
@@ -53,7 +52,6 @@ const Calc = (() => {
       if (state.auton === v) btn.classList.add('active-' + v);
     });
 
-    // Subtitle + pre-fill name input when editing
     const sub   = document.getElementById('calc-subtitle');
     const input = document.getElementById('calc-save-name');
     if (editingCalcId) {
@@ -61,7 +59,7 @@ const Calc = (() => {
       if (sub)   sub.textContent   = item ? `Editing: ${item.name}` : 'Override Match Scoring';
       if (input && item && !input.value) input.value = item.name;
     } else {
-      if (sub)   sub.textContent = 'Override Match Scoring';
+      if (sub) sub.textContent = 'Override Match Scoring';
     }
   }
 
@@ -79,28 +77,30 @@ const Calc = (() => {
     if (!list) return;
     const saved = loadSaved();
 
-    if (saved.length === 0) {
-      list.innerHTML = `<div class="sketch-item" style="justify-content:center;opacity:0.5;font-size:0.75rem;color:var(--sub-text);padding:24px;">No saved calculators yet</div>`;
+    if (!saved.length) {
+      list.innerHTML = `<div class="saved-empty"><p>No saved calculators yet.</p><small>Calculate a match and tap Save.</small></div>`;
       return;
     }
 
     list.innerHTML = saved.map(item => {
       const r = item.redScore, b = item.blueScore;
-      const winText = r > b ? `<span style="color:var(--red)">Red wins</span>`
-                    : b > r ? `<span style="color:var(--blue)">Blue wins</span>`
-                    :         `<span style="color:var(--primary)">Tie</span>`;
+      const winLabel = r > b ? `<span style="color:var(--red)">Red wins</span>`
+                     : b > r ? `<span style="color:var(--blue)">Blue wins</span>`
+                     :         `<span style="color:var(--primary)">Tie</span>`;
       return `
-        <div class="sketch-item" onclick="Calc.loadItem('${item.id}')">
+        <div class="saved-card" onclick="Calc.loadItem('${item.id}')">
           <div class="calc-saved-scorebug">
             <span class="calc-saved-scorebug-num" style="color:var(--red)">${r}</span>
             <span class="calc-saved-scorebug-vs">–</span>
             <span class="calc-saved-scorebug-num" style="color:var(--blue)">${b}</span>
           </div>
-          <div class="sketch-info">
-            <strong class="sketch-name-label">${item.name}</strong>
-            <small class="sketch-meta">${item.date} · ${winText}</small>
+          <div class="saved-card-info">
+            <span class="saved-card-name">${item.name}</span>
+            <span class="saved-card-meta">${item.date} · ${winLabel}</span>
           </div>
-          <button class="btn-delete" onclick="event.stopPropagation();Calc.deleteItem('${item.id}')">Del</button>
+          <button class="saved-card-del" onclick="event.stopPropagation();Calc.deleteItem('${item.id}')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
         </div>`;
     }).join('');
   }

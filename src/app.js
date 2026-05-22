@@ -1,5 +1,3 @@
-// ─── App State ────────────────────────────────────────────────────────────────
-
 let db       = JSON.parse(localStorage.getItem(STORAGE_KEYS.db))       || [];
 let sketches = JSON.parse(localStorage.getItem(STORAGE_KEYS.sketches)) || [];
 let currentSort     = 'team';
@@ -20,24 +18,19 @@ window.onload = function () {
 };
 
 function startAuth() {
-  // Don't pre-navigate to hub — initAuth decides the landing view based on
-  // session state. New users hit the login screen; returning users go to hub.
   if (typeof initAuth === 'function') initAuth();
   if (typeof updateInstallCardVisibility === 'function') updateInstallCardVisibility();
 }
-
-// ─── Navigation ───────────────────────────────────────────────────────────────
 
 function switchPage(view) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + view)?.classList.add('active');
   if (view === 'home')     displayNotes();
   if (view === 'notes')    { if (typeof initNotes === 'function') initNotes(); }
-  if (view === 'rules'    && typeof initRules       === 'function') initRules();
-  if (view === 'settings' && typeof updateAccountUI === 'function') {
+  if (view === 'rules'     && typeof initRules       === 'function') initRules();
+  if (view === 'settings'  && typeof updateAccountUI === 'function') {
     updateAccountUI();
     renderSettingsUI();
-
   }
   window.scrollTo(0, 0);
   closeMenu();
@@ -63,15 +56,11 @@ function navBack() {
 function toggleMenu() { document.getElementById('fabMenu').classList.toggle('show'); }
 function closeMenu()  { document.getElementById('fabMenu').classList.remove('show'); }
 
-// ─── Canvas ────────────────────────────────────────────────────────────────────
-
 function initCanvas() {
   canvas = document.getElementById('sketch-canvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
 
-  // Size canvas to match the field image's rendered dimensions.
-  // Falls back to 400×400 and corrects itself when setFieldMode('draw') is called.
   const fieldImg = document.getElementById('draw-map-img');
   if (fieldImg && fieldImg.offsetWidth > 0) {
     const rect    = fieldImg.getBoundingClientRect();
@@ -118,8 +107,6 @@ function initCanvas() {
 function setPenColor(color) { penColor = color; }
 function clearCanvas()      { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-// ─── Sketches ──────────────────────────────────────────────────────────────────
-
 function saveSketch() {
   const name    = document.getElementById('sketch-name').value || 'Unnamed Strategy';
   const imgData = canvas.toDataURL();
@@ -163,18 +150,25 @@ function displayDrawing() {
   const list = document.getElementById('sketch-list');
   if (!list) return;
 
+  if (!sketches.length) {
+    list.innerHTML = `<div class="saved-empty"><p>No strategies saved yet.</p><small>Draw on the field and tap Save.</small></div>`;
+    return;
+  }
+
   list.innerHTML = [...sketches].reverse().map(sketch => {
     const fieldPath = sketch.field === 'skills' ? 'assets/images/skills.png' : 'assets/images/field.png';
     return `
-      <div class="sketch-item">
-        <img src="${sketch.img}" class="sketch-preview sketch-preview--field"
-             style="background-image:url('${fieldPath}')"
-             onclick="loadSketch('${sketch.id}')" />
-        <div class="sketch-info" onclick="loadSketch('${sketch.id}')">
-          <strong class="sketch-name-label">${sketch.name}</strong>
-          <small class="sketch-meta">${sketch.date} · ${sketch.field.toUpperCase()}</small>
+      <div class="saved-card" onclick="loadSketch('${sketch.id}')">
+        <div class="saved-card-thumb" style="background-image:url('${fieldPath}')">
+          <img src="${sketch.img}" alt="${sketch.name}" />
         </div>
-        <button class="btn-delete" onclick="deleteSketch('${sketch.id}')">Del</button>
+        <div class="saved-card-info">
+          <span class="saved-card-name">${sketch.name}</span>
+          <span class="saved-card-meta">${sketch.date} · ${sketch.field.toUpperCase()}</span>
+        </div>
+        <button class="saved-card-del" onclick="event.stopPropagation();deleteSketch('${sketch.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
       </div>`;
   }).join('');
 }
@@ -185,8 +179,6 @@ function deleteSketch(id) {
   cloudDeleteSketch(id);
   displayDrawing();
 }
-
-// ─── Scout Notes ───────────────────────────────────────────────────────────────
 
 function setSortFilter(sort) {
   currentSort = sort;
@@ -240,8 +232,6 @@ function showDetailView(value) {
 
   switchPage('detail');
 }
-
-// ─── Scout Report CRUD ─────────────────────────────────────────────────────────
 
 function saveReport() {
   const id = document.getElementById('editIdx').value || Date.now().toString();
@@ -306,8 +296,6 @@ function deleteScoutReport(id, value) {
   showDetailView(value);
 }
 
-// ─── Import / Export ───────────────────────────────────────────────────────────
-
 function exportData() {
   const blob = new Blob([JSON.stringify({ db, sketches })], { type: 'text/plain' });
   const link = document.createElement('a');
@@ -326,8 +314,8 @@ function importData(event) {
       const raw = JSON.parse(e.target.result);
       db       = raw.db       || raw;
       sketches = raw.sketches || [];
-      localStorage.setItem(STORAGE_KEYS.db,      JSON.stringify(db));
-      localStorage.setItem(STORAGE_KEYS.sketches, JSON.stringify(sketches));
+      localStorage.setItem(STORAGE_KEYS.db,       JSON.stringify(db));
+      localStorage.setItem(STORAGE_KEYS.sketches,  JSON.stringify(sketches));
       displayNotes();
       alert('Import successful!');
     } catch {
@@ -336,8 +324,6 @@ function importData(event) {
   };
   reader.readAsText(file);
 }
-
-// ─── Settings ──────────────────────────────────────────────────────────────────
 
 function setTheme(theme) {
   const s = getSettings();
@@ -351,7 +337,6 @@ function setTheme(theme) {
 
 function setMode(mode) {
   const s = getSettings();
-  // Locked themes ignore mode changes
   if (LOCKED_DARK.includes(s.theme) || LOCKED_LIGHT.includes(s.theme)) return;
   s.mode = mode;
   saveSettings(s);
@@ -365,6 +350,13 @@ function setStyle(style) {
   saveSettings(s);
   applySettings(s);
   renderSettingsUI();
+}
+
+function setCustomColor(hex) {
+  const s = getSettings();
+  s.customColor = hex;
+  saveSettings(s);
+  applySettings(s);
 }
 
 function getSettings() {
@@ -381,18 +373,40 @@ function applySettings(s) {
   const style = s.style || 'style-classic';
   const mode  = (s.mode || 'mode-dark') === 'mode-light' ? 'mode-light' : '';
   document.body.className = [theme, style, mode].filter(Boolean).join(' ');
+
+  if (theme === 'theme-custom' && s.customColor) {
+    applyCustomColor(s.customColor);
+  } else {
+    clearCustomColor();
+  }
+}
+
+function applyCustomColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  document.documentElement.style.setProperty('--primary',    hex);
+  document.documentElement.style.setProperty('--neon-rgb',   `${r}, ${g}, ${b}`);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  document.documentElement.style.setProperty('--primary-fg', brightness > 128 ? '#000000' : '#ffffff');
+  document.documentElement.style.setProperty('--icon-color', hex);
+}
+
+function clearCustomColor() {
+  document.documentElement.style.removeProperty('--primary');
+  document.documentElement.style.removeProperty('--neon-rgb');
+  document.documentElement.style.removeProperty('--primary-fg');
+  document.documentElement.style.removeProperty('--icon-color');
 }
 
 function loadSettings() {
   const s = getSettings();
-  // Enforce locked modes before applying — in case saved data has the wrong mode
   if (LOCKED_DARK.includes(s.theme))  s.mode = 'mode-dark';
   if (LOCKED_LIGHT.includes(s.theme)) s.mode = 'mode-light';
   applySettings(s);
   renderSettingsUI();
 }
 
-// Legacy alias
 function updateSettings() { loadSettings(); }
 
 function renderSettingsUI() {
@@ -401,20 +415,18 @@ function renderSettingsUI() {
   const currentStyle = s.style || 'style-classic';
   const currentMode  = s.mode  || 'mode-dark';
   const isLocked     = LOCKED_DARK.includes(currentTheme) || LOCKED_LIGHT.includes(currentTheme);
-  const lockNote     = LOCKED_DARK.includes(currentTheme)  ? 'Gold is always dark'
-                     : LOCKED_LIGHT.includes(currentTheme) ? 'Arctic is always light' : '';
 
   const toggle = document.getElementById('mode-toggle');
   const noteEl = document.getElementById('mode-locked-note');
   toggle?.classList.toggle('locked', isLocked);
   if (noteEl) {
-    noteEl.textContent   = lockNote;
-    noteEl.style.display = lockNote ? 'block' : 'none';
+    noteEl.textContent   = '';
+    noteEl.style.display = 'none';
   }
+
   document.getElementById('mode-btn-dark')?.classList.toggle( 'active', currentMode === 'mode-dark');
   document.getElementById('mode-btn-light')?.classList.toggle('active', currentMode === 'mode-light');
 
-  // THEMES and STYLES come from constants.js — single source of truth
   const themeGrid = document.getElementById('theme-grid');
   if (themeGrid) {
     themeGrid.innerHTML = THEMES.map(t => `
@@ -439,18 +451,21 @@ function renderSettingsUI() {
         <div class="style-desc">${st.desc}</div>
       </div>`).join('');
   }
+
+  const customPicker = document.getElementById('custom-color-row');
+  if (customPicker) {
+    customPicker.style.display = currentTheme === 'theme-custom' ? '' : 'none';
+    if (currentTheme === 'theme-custom' && s.customColor) {
+      const inp = document.getElementById('custom-color-input');
+      if (inp) inp.value = s.customColor;
+    }
+  }
 }
-
-// switchSettingsTab removed — settings uses sc-wrap collapsible cards now.
-
-
-// ─── Settings collapse ─────────────────────────────────────────────────────────
 
 function toggleSettingsCard(name) {
   const wrap = document.getElementById('sc-wrap-' + name);
   const body = document.getElementById('sc-body-' + name);
   if (!wrap || !body) return;
-
   const isOpen = wrap.classList.contains('sc-wrap--open');
   wrap.classList.toggle('sc-wrap--open', !isOpen);
   body.classList.toggle('sc-body--closed', isOpen);
@@ -465,8 +480,5 @@ function openSettingsCard(name) {
 }
 
 function handleSignOutCard() {
-  // Both guests and signed-in users go through signOut().
-  // For guests it clears guest mode and navigates to login.
-  // For signed-in users it revokes the Supabase session and navigates to login.
   if (typeof signOut === 'function') signOut();
 }

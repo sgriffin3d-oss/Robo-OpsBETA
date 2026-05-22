@@ -1,5 +1,3 @@
-// constants.js — Single source of truth. Load order: first.
-
 const STORAGE_KEYS = {
   db:           'paragon_db',
   sketches:     'paragon_sketches',
@@ -12,25 +10,20 @@ const STORAGE_KEYS = {
   onboarded:    'paragon_onboarded_v1',
 };
 
-// VEX High Stakes 2026-2027 scoring values
 const POINTS = {
-  // Alliance-colored pins placed on the field
   alliancePin:   5,
-  // Yellow (neutral) pins owned by the alliance
   yellowPin:     10,
-  // Robots parked in the midfield zone at end of match
   midfieldRobot: 8,
-  // Autonomous period bonus
   autonBonus:    12,
   autonTie:      6,
 };
 
-// Themes — shared by onboarding.js and app.js settings renderer
 const THEMES = [
-  { id: 'theme-gold',    name: 'Gold',    tag: 'Dark & Light', accent: '#e8b23b', bg: '#060501', mode: 'mode-dark'  },
-  { id: 'theme-red',     name: 'Red',     tag: 'Dark & Light', accent: '#cc2200', bg: '#080808', mode: 'mode-dark'  },
-  { id: 'theme-blue',    name: 'Blue',    tag: 'Dark & Light', accent: '#1a6ccc', bg: '#080808', mode: 'mode-dark'  },
-  { id: 'theme-stealth', name: 'Stealth', tag: 'Dark & Light', accent: '#e0e0e0', bg: '#000000', mode: 'mode-dark'  },
+  { id: 'theme-gold',    name: 'Gold',    tag: 'Dark & Light', accent: '#e8b23b', bg: '#060501', mode: 'mode-dark' },
+  { id: 'theme-red',     name: 'Red',     tag: 'Dark & Light', accent: '#cc2200', bg: '#080808', mode: 'mode-dark' },
+  { id: 'theme-blue',    name: 'Blue',    tag: 'Dark & Light', accent: '#1a6ccc', bg: '#080808', mode: 'mode-dark' },
+  { id: 'theme-stealth', name: 'Stealth', tag: 'Dark & Light', accent: '#e0e0e0', bg: '#000000', mode: 'mode-dark' },
+  { id: 'theme-custom',  name: 'Custom',  tag: 'Pick your color', accent: '#7c3aed', bg: '#080808', mode: 'mode-dark' },
 ];
 
 const STYLES = [
@@ -42,6 +35,5 @@ const STYLES = [
   { id: 'style-retro',    name: 'Retro',    desc: 'Warm & textured', icon: '❧' },
 ];
 
-// No locked themes — gold and all others support both modes
 const LOCKED_DARK  = [];
 const LOCKED_LIGHT = [];

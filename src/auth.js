@@ -1,22 +1,18 @@
-// Supabase project credentials.
-// SUPABASE_KEY is the publishable anon key — safe to ship in client code,
-// but keep it out of version control if you can by setting it via an env var
-// and injecting it at build time. For now it lives here.
 const SUPABASE_URL = 'https://bccymltkymuokpjbrzfb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_W4DFizkRZQEHdh_xmXV4hQ_jVMMy0GX';
 
-let _supabase    = null;
-let currentUser  = null;
-let isGuest      = false;
-// Flipped to true once initAuth has run — guards showLoginScreen so it
-// can't fire before the SDK has had a chance to restore a session.
-let _authReady   = false;
+let _supabase   = null;
+let currentUser = null;
+let isGuest     = false;
+let _authReady  = false;
+let _signingOut = false;
 
 async function initAuth() {
   if (!window.supabase) {
-    console.warn('Supabase SDK not loaded — running as guest');
-    isGuest = true;
+    isGuest    = true;
+    _authReady = true;
     loadLocalData();
+    switchPage('hub');
     return;
   }
 
@@ -28,45 +24,47 @@ async function initAuth() {
 
     if (session?.user) {
       currentUser = session.user;
-      isGuest = false;
+      isGuest     = false;
+      _authReady  = true;
       updateAccountUI();
       await syncFromCloud();
       displayNotes();
       switchPage('hub');
     } else if (localStorage.getItem(STORAGE_KEYS.guestMode) === 'true') {
-      isGuest = true;
+      isGuest    = true;
+      _authReady = true;
       loadLocalData();
       switchPage('hub');
     } else {
-      // No session and not in guest mode — show the login screen.
-      // Set _authReady first so showLoginScreen's guard doesn't block it.
       _authReady = true;
       showLoginScreen();
       return;
     }
   } catch (err) {
     console.error('Auth init error:', err);
-    isGuest = true;
+    isGuest    = true;
+    _authReady = true;
     loadLocalData();
     switchPage('hub');
   }
 
-  _authReady = true;
-
   _supabase.auth.onAuthStateChange(async (event, session) => {
+    if (_signingOut) return;
+
     if (event === 'SIGNED_IN' && session?.user) {
       currentUser = session.user;
-      isGuest = false;
+      isGuest     = false;
       localStorage.removeItem(STORAGE_KEYS.guestMode);
       updateAccountUI();
       await syncFromCloud();
       displayNotes();
       switchPage('hub');
     } else if (event === 'SIGNED_OUT') {
-      // Suppress the listener firing from our own signOut() call
-      if (_signingOut) return;
       currentUser = null;
-      isGuest = false;
+      isGuest     = false;
+      db       = [];
+      sketches = [];
+      if (typeof notes !== 'undefined') notes = [];
       showLoginScreen();
     }
   });
@@ -85,12 +83,15 @@ async function signInWithGoogle() {
 
   const { error } = await _supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin },
+    options:  { redirectTo: window.location.origin },
   });
 
   if (error) {
     showAuthError(error.message);
-    if (btn) { btn.disabled = false; btn.textContent = 'Continue with Google'; }
+    if (btn) {
+      btn.disabled    = false;
+      btn.innerHTML   = `<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google`;
+    }
   }
 }
 
@@ -110,17 +111,20 @@ async function signInWithEmail() {
 
   if (error) {
     showAuthError(error.message);
-    if (btn) { btn.disabled = false; btn.textContent = isSignUp ? 'Create Account' : 'Sign In'; }
+    if (btn) {
+      btn.disabled    = false;
+      btn.textContent = isSignUp ? 'Create Account' : 'Sign In';
+    }
   }
 }
 
 function toggleAuthMode() {
-  const modeEl  = document.getElementById('auth-mode');
-  const btn     = document.getElementById('btn-email');
-  const toggle  = document.getElementById('auth-toggle');
-  const title   = document.getElementById('auth-form-title');
+  const modeEl = document.getElementById('auth-mode');
+  const btn    = document.getElementById('btn-email');
+  const toggle = document.getElementById('auth-toggle');
+  const title  = document.getElementById('auth-form-title');
   if (!modeEl) return;
-  const toSignup = modeEl.dataset.mode === 'signin';
+  const toSignup      = modeEl.dataset.mode === 'signin';
   modeEl.dataset.mode = toSignup ? 'signup' : 'signin';
   if (btn)    btn.textContent    = toSignup ? 'Create Account' : 'Sign In';
   if (toggle) toggle.textContent = toSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
@@ -130,7 +134,7 @@ function toggleAuthMode() {
 
 function continueAsGuest(save = true) {
   currentUser = null;
-  isGuest = true;
+  isGuest     = true;
   if (save) localStorage.setItem(STORAGE_KEYS.guestMode, 'true');
   loadLocalData();
   updateAccountUI();
@@ -140,22 +144,22 @@ function continueAsGuest(save = true) {
   window.scrollTo(0, 0);
 }
 
-let _signingOut = false;
 async function signOut() {
   if (_signingOut) return;
   _signingOut = true;
 
-  db = [];
-  sketches = [];
   currentUser = null;
-  isGuest = false;
+  isGuest     = false;
+  db       = [];
+  sketches = [];
+  if (typeof notes !== 'undefined') notes = [];
+
   localStorage.removeItem(STORAGE_KEYS.guestMode);
 
   if (_supabase) {
-    try { await _supabase.auth.signOut(); } catch (e) { /* ignore */ }
+    try { await _supabase.auth.signOut(); } catch (_) {}
   }
 
-  // Bypass the _authReady guard — at this point auth is definitely ready
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-login')?.classList.add('active');
   window.scrollTo(0, 0);
@@ -195,19 +199,18 @@ function updateAccountUI() {
     const avatar = currentUser?.user_metadata?.avatar_url;
     if (avatar) {
       avatarEl.style.backgroundImage = `url(${avatar})`;
-      avatarEl.style.fontSize = '0';
-      avatarEl.textContent = '';
+      avatarEl.style.fontSize        = '0';
+      avatarEl.textContent           = '';
     } else {
       avatarEl.style.backgroundImage = 'none';
-      avatarEl.style.fontSize = '1.3rem';
-      avatarEl.textContent = '👤';
+      avatarEl.style.fontSize        = '1.3rem';
+      avatarEl.textContent           = '👤';
     }
   }
 
   const installCard = document.getElementById('settings-install-card');
   if (installCard) {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                      || window.navigator.standalone === true;
+    const isStandalone      = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const isMarkedInstalled = localStorage.getItem(STORAGE_KEYS.installed) === '1';
     installCard.style.display = (isStandalone || isMarkedInstalled) ? 'none' : '';
   }
@@ -215,6 +218,7 @@ function updateAccountUI() {
 
 async function syncFromCloud() {
   if (isGuest || !currentUser || !_supabase) return;
+
   try {
     const [reportsRes, sketchesRes, settingsRes] = await Promise.all([
       _supabase.from('scout_reports').select('*').eq('user_id', currentUser.id),
@@ -222,37 +226,41 @@ async function syncFromCloud() {
       _supabase.from('user_settings').select('*').eq('user_id', currentUser.id).single(),
     ]);
 
-    if (reportsRes.data?.length) {
-      db = reportsRes.data.map(r => ({
-        id: r.id, team: r.team, event: r.event, res: r.res,
-        autores: r.autores, partner: r.partner, opp: r.opp,
-        score: r.score, oppscore: r.oppscore, notes: r.notes,
-      }));
-    }
-    if (sketchesRes.data?.length) {
-      sketches = sketchesRes.data.map(s => ({
-        id: s.id, name: s.name, date: s.date, field: s.field, img: s.img,
-      }));
-    }
+    db       = (reportsRes.data || []).map(r => ({
+      id: r.id, team: r.team, event: r.event, res: r.res,
+      autores: r.autores, partner: r.partner, opp: r.opp,
+      score: r.score, oppscore: r.oppscore, notes: r.notes,
+    }));
+
+    sketches = (sketchesRes.data || []).map(s => ({
+      id: s.id, name: s.name, date: s.date, field: s.field, img: s.img,
+    }));
+
     if (settingsRes.data) {
-      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({
-        theme: settingsRes.data.theme,
-        style: settingsRes.data.style,
-        mode:  settingsRes.data.mode,
-      }));
+      const s = {
+        theme:       settingsRes.data.theme,
+        style:       settingsRes.data.style,
+        mode:        settingsRes.data.mode,
+        customColor: settingsRes.data.custom_color,
+      };
+      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(s));
       loadSettings();
     }
   } catch (err) {
     console.error('Cloud sync error:', err);
-    loadLocalData();
+    db       = [];
+    sketches = [];
   }
-  // Sync notes separately (non-blocking)
+
   syncNotesFromCloud();
 }
 
 function loadLocalData() {
   db       = JSON.parse(localStorage.getItem(STORAGE_KEYS.db))       || [];
   sketches = JSON.parse(localStorage.getItem(STORAGE_KEYS.sketches)) || [];
+  if (typeof notes !== 'undefined') {
+    notes = JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || [];
+  }
 }
 
 async function cloudSaveReport(report) {
@@ -260,7 +268,8 @@ async function cloudSaveReport(report) {
     localStorage.setItem(STORAGE_KEYS.db, JSON.stringify(db));
     return;
   }
-  await _supabase.from('scout_reports').upsert({ ...report, user_id: currentUser.id });
+  try { await _supabase.from('scout_reports').upsert({ ...report, user_id: currentUser.id }); }
+  catch (e) { console.warn('cloudSaveReport:', e); }
 }
 
 async function cloudDeleteReport(id) {
@@ -268,7 +277,8 @@ async function cloudDeleteReport(id) {
     localStorage.setItem(STORAGE_KEYS.db, JSON.stringify(db));
     return;
   }
-  await _supabase.from('scout_reports').delete().eq('id', id).eq('user_id', currentUser.id);
+  try { await _supabase.from('scout_reports').delete().eq('id', id).eq('user_id', currentUser.id); }
+  catch (e) { console.warn('cloudDeleteReport:', e); }
 }
 
 async function cloudSaveSketch(sketch) {
@@ -277,7 +287,8 @@ async function cloudSaveSketch(sketch) {
     localStorage.setItem(STORAGE_KEYS.sketches, JSON.stringify(sketches));
     return;
   }
-  await _supabase.from('sketches').upsert({ ...sketch, user_id: currentUser.id });
+  try { await _supabase.from('sketches').upsert({ ...sketch, user_id: currentUser.id }); }
+  catch (e) { console.warn('cloudSaveSketch:', e); }
 }
 
 async function cloudDeleteSketch(id) {
@@ -285,37 +296,37 @@ async function cloudDeleteSketch(id) {
     localStorage.setItem(STORAGE_KEYS.sketches, JSON.stringify(sketches));
     return;
   }
-  await _supabase.from('sketches').delete().eq('id', id).eq('user_id', currentUser.id);
+  try { await _supabase.from('sketches').delete().eq('id', id).eq('user_id', currentUser.id); }
+  catch (e) { console.warn('cloudDeleteSketch:', e); }
 }
 
 async function cloudSaveSettings(settings) {
   if (isGuest || !currentUser || !_supabase) return;
-  await _supabase.from('user_settings').upsert({
-    user_id:    currentUser.id,
-    theme:      settings.theme || 'theme-gold',
-    style:      settings.style || 'style-classic',
-    mode:       settings.mode  || 'mode-dark',
-    updated_at: new Date().toISOString(),
-  });
+  try {
+    await _supabase.from('user_settings').upsert({
+      user_id:      currentUser.id,
+      theme:        settings.theme       || 'theme-gold',
+      style:        settings.style       || 'style-classic',
+      mode:         settings.mode        || 'mode-dark',
+      custom_color: settings.customColor || null,
+      updated_at:   new Date().toISOString(),
+    });
+  } catch (e) { console.warn('cloudSaveSettings:', e); }
 }
-
-// ─── Notes Cloud Functions ────────────────────────────────────────────────────
 
 async function cloudSaveNote(note) {
   if (!note) return;
   localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(notes));
   if (isGuest || !currentUser || !_supabase) return;
-  try {
-    await _supabase.from('notes').upsert({ ...note, user_id: currentUser.id });
-  } catch (e) { console.warn('cloudSaveNote error:', e); }
+  try { await _supabase.from('notes').upsert({ ...note, user_id: currentUser.id }); }
+  catch (e) { console.warn('cloudSaveNote:', e); }
 }
 
 async function cloudDeleteNote(id) {
   localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(notes));
   if (isGuest || !currentUser || !_supabase) return;
-  try {
-    await _supabase.from('notes').delete().eq('id', id).eq('user_id', currentUser.id);
-  } catch (e) { console.warn('cloudDeleteNote error:', e); }
+  try { await _supabase.from('notes').delete().eq('id', id).eq('user_id', currentUser.id); }
+  catch (e) { console.warn('cloudDeleteNote:', e); }
 }
 
 async function uploadNotePhoto(file) {
@@ -324,30 +335,21 @@ async function uploadNotePhoto(file) {
     const ext  = file.name.split('.').pop() || 'jpg';
     const path = `${currentUser.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await _supabase.storage.from('note-photos').upload(path, file, {
-      cacheControl: '3600',
-      upsert: false,
-      contentType: file.type,
+      cacheControl: '3600', upsert: false, contentType: file.type,
     });
     if (error) throw error;
     const { data } = _supabase.storage.from('note-photos').getPublicUrl(path);
     return data?.publicUrl || null;
-  } catch (e) {
-    console.warn('uploadNotePhoto error:', e);
-    return null;
-  }
+  } catch (e) { console.warn('uploadNotePhoto:', e); return null; }
 }
 
-// Also sync notes from cloud on login
 async function syncNotesFromCloud() {
   if (isGuest || !currentUser || !_supabase) return;
   try {
     const { data, error } = await _supabase.from('notes').select('*').eq('user_id', currentUser.id);
     if (error || !data?.length) return;
-    notes = data.map(r => {
-      const { user_id, ...rest } = r;
-      return rest;
-    });
+    notes = data.map(r => { const { user_id, ...rest } = r; return rest; });
     localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(notes));
     if (typeof renderNotesList === 'function') renderNotesList();
-  } catch (e) { console.warn('syncNotesFromCloud error:', e); }
+  } catch (e) { console.warn('syncNotesFromCloud:', e); }
 }
