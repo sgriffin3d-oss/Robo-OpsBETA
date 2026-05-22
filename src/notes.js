@@ -19,15 +19,9 @@ let pendingPhotos   = [];   // { dataUrl, file, url }
 let stratSections   = [];
 
 // ─── Entry Point ──────────────────────────────────────────────────────────────
-async function initNotes() {
-  // Always start from what's in localStorage so the list shows immediately
+function initNotes() {
   notes = JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || [];
   renderNotesList();
-  // Then pull latest from cloud (no-op for guests)
-  if (typeof syncNotesFromCloud === 'function') {
-    await syncNotesFromCloud();
-    renderNotesList();
-  }
 }
 
 // ─── List View ────────────────────────────────────────────────────────────────

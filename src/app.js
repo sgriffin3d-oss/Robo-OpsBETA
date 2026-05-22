@@ -309,24 +309,15 @@ function importData(event) {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = async e => {
+  reader.onload = e => {
     try {
       const raw = JSON.parse(e.target.result);
       db       = raw.db       || raw;
       sketches = raw.sketches || [];
       localStorage.setItem(STORAGE_KEYS.db,       JSON.stringify(db));
       localStorage.setItem(STORAGE_KEYS.sketches,  JSON.stringify(sketches));
-
-      // Push all imported records to cloud for the signed-in user
-      if (typeof cloudSaveReport === 'function') {
-        for (const report of db)   await cloudSaveReport(report);
-      }
-      if (typeof cloudSaveSketch === 'function') {
-        for (const sketch of sketches) await cloudSaveSketch(sketch);
-      }
-
       displayNotes();
-      alert('Import successful!' + (typeof currentUser !== 'undefined' && currentUser ? ' Data synced to cloud.' : ''));
+      alert('Import successful!');
     } catch {
       alert('Error: Invalid .paragon file.');
     }
@@ -361,7 +352,12 @@ function setStyle(style) {
   renderSettingsUI();
 }
 
-
+function setCustomColor(hex) {
+  const s = getSettings();
+  s.customColor = hex;
+  saveSettings(s);
+  applySettings(s);
+}
 
 function getSettings() {
   return JSON.parse(localStorage.getItem(STORAGE_KEYS.settings)) || {};
@@ -378,10 +374,30 @@ function applySettings(s) {
   const mode  = (s.mode || 'mode-dark') === 'mode-light' ? 'mode-light' : '';
   document.body.className = [theme, style, mode].filter(Boolean).join(' ');
 
-
+  if (theme === 'theme-custom' && s.customColor) {
+    applyCustomColor(s.customColor);
+  } else {
+    clearCustomColor();
+  }
 }
 
+function applyCustomColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  document.documentElement.style.setProperty('--primary',    hex);
+  document.documentElement.style.setProperty('--neon-rgb',   `${r}, ${g}, ${b}`);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  document.documentElement.style.setProperty('--primary-fg', brightness > 128 ? '#000000' : '#ffffff');
+  document.documentElement.style.setProperty('--icon-color', hex);
+}
 
+function clearCustomColor() {
+  document.documentElement.style.removeProperty('--primary');
+  document.documentElement.style.removeProperty('--neon-rgb');
+  document.documentElement.style.removeProperty('--primary-fg');
+  document.documentElement.style.removeProperty('--icon-color');
+}
 
 function loadSettings() {
   const s = getSettings();
@@ -436,7 +452,14 @@ function renderSettingsUI() {
       </div>`).join('');
   }
 
-
+  const customPicker = document.getElementById('custom-color-row');
+  if (customPicker) {
+    customPicker.style.display = currentTheme === 'theme-custom' ? '' : 'none';
+    if (currentTheme === 'theme-custom' && s.customColor) {
+      const inp = document.getElementById('custom-color-input');
+      if (inp) inp.value = s.customColor;
+    }
+  }
 }
 
 function toggleSettingsCard(name) {

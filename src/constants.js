@@ -23,6 +23,7 @@ const THEMES = [
   { id: 'theme-red',     name: 'Red',     tag: 'Dark & Light', accent: '#cc2200', bg: '#080808', mode: 'mode-dark' },
   { id: 'theme-blue',    name: 'Blue',    tag: 'Dark & Light', accent: '#1a6ccc', bg: '#080808', mode: 'mode-dark' },
   { id: 'theme-stealth', name: 'Stealth', tag: 'Dark & Light', accent: '#e0e0e0', bg: '#000000', mode: 'mode-dark' },
+  { id: 'theme-custom',  name: 'Custom',  tag: 'Pick your color', accent: '#7c3aed', bg: '#080808', mode: 'mode-dark' },
 ];
 
 const STYLES = [
