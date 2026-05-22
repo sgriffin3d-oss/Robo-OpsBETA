@@ -72,6 +72,15 @@ const Calc = (() => {
     localStorage.setItem(CALC_STORE_KEY, JSON.stringify(list));
   }
 
+  async function persistSavedCloud(list, changedItem, deleted) {
+    localStorage.setItem(CALC_STORE_KEY, JSON.stringify(list));
+    if (deleted) {
+      if (typeof cloudDeleteCalc === 'function') await cloudDeleteCalc(deleted);
+    } else if (changedItem) {
+      if (typeof cloudSaveCalc === 'function') await cloudSaveCalc(changedItem);
+    }
+  }
+
   function renderSaved() {
     const list  = document.getElementById('calc-saved-list');
     if (!list) return;
@@ -141,7 +150,7 @@ const Calc = (() => {
         editingCalcId = entry.id;
       }
 
-      persistSaved(list);
+      persistSavedCloud(list, editingCalcId ? list.find(c => c.id === editingCalcId) : list[0]);
       updateDisplay();
       renderSaved();
       setCalcMode('saved');
@@ -172,7 +181,8 @@ const Calc = (() => {
 
     deleteItem(id) {
       if (!confirm('Delete this calculator?')) return;
-      persistSaved(loadSaved().filter(c => c.id !== id));
+      const newList = loadSaved().filter(c => c.id !== id);
+      persistSavedCloud(newList, null, id);
       if (editingCalcId === id) this.reset();
       renderSaved();
     },
