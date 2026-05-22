@@ -1,4 +1,4 @@
-// ─── Events Browser ───────────────────────────────────────────────────────────
+// events
 
 let allEvents    = [];
 let activeFilter = 'all';
