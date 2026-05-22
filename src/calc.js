@@ -72,7 +72,6 @@ const Calc = (() => {
     localStorage.setItem(CALC_STORE_KEY, JSON.stringify(list));
   }
 
-  // Cloud-aware helpers — fall back gracefully if auth not ready
   function cloudSave(entry) {
     if (typeof cloudSaveCalc === 'function') cloudSaveCalc(entry);
   }
