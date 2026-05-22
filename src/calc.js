@@ -72,6 +72,14 @@ const Calc = (() => {
     localStorage.setItem(CALC_STORE_KEY, JSON.stringify(list));
   }
 
+  // Cloud-aware helpers — fall back gracefully if auth not ready
+  function cloudSave(entry) {
+    if (typeof cloudSaveCalc === 'function') cloudSaveCalc(entry);
+  }
+  function cloudDelete(id) {
+    if (typeof cloudDeleteCalc === 'function') cloudDeleteCalc(id);
+  }
+
   function renderSaved() {
     const list  = document.getElementById('calc-saved-list');
     if (!list) return;
@@ -122,12 +130,16 @@ const Calc = (() => {
       const name  = input?.value.trim() || 'Untitled';
       const list  = loadSaved();
 
+      let savedEntry;
       if (editingCalcId) {
         const idx = list.findIndex(c => c.id === editingCalcId);
-        if (idx > -1) Object.assign(list[idx], {
-          name, redScore: score('red'), blueScore: score('blue'),
-          auton: state.auton, red: { ...state.red }, blue: { ...state.blue },
-        });
+        if (idx > -1) {
+          Object.assign(list[idx], {
+            name, redScore: score('red'), blueScore: score('blue'),
+            auton: state.auton, red: { ...state.red }, blue: { ...state.blue },
+          });
+          savedEntry = list[idx];
+        }
       } else {
         const entry = {
           id: Date.now().toString(), name,
@@ -139,9 +151,11 @@ const Calc = (() => {
         };
         list.unshift(entry);
         editingCalcId = entry.id;
+        savedEntry = entry;
       }
 
       persistSaved(list);
+      if (savedEntry) cloudSave(savedEntry);
       updateDisplay();
       renderSaved();
       setCalcMode('saved');
@@ -173,6 +187,7 @@ const Calc = (() => {
     deleteItem(id) {
       if (!confirm('Delete this calculator?')) return;
       persistSaved(loadSaved().filter(c => c.id !== id));
+      cloudDelete(id);
       if (editingCalcId === id) this.reset();
       renderSaved();
     },

@@ -226,6 +226,9 @@ async function syncFromCloud() {
       _supabase.from('user_settings').select('*').eq('user_id', currentUser.id).single(),
     ]);
 
+    // Sync saved calcs
+    syncCalcsFromCloud();
+
     db       = (reportsRes.data || []).map(r => ({
       id: r.id, team: r.team, event: r.event, res: r.res,
       autores: r.autores, partner: r.partner, opp: r.opp,
@@ -312,6 +315,64 @@ async function cloudSaveSettings(settings) {
       updated_at:   new Date().toISOString(),
     });
   } catch (e) { console.warn('cloudSaveSettings:', e); }
+}
+
+async function cloudSaveCalc(calc) {
+  if (!calc) return;
+  // Always persist locally
+  try {
+    const list = JSON.parse(localStorage.getItem('paragon_saved_calcs') || '[]');
+    const idx = list.findIndex(c => c.id === calc.id);
+    if (idx > -1) list[idx] = calc; else list.unshift(calc);
+    localStorage.setItem('paragon_saved_calcs', JSON.stringify(list));
+  } catch {}
+  if (isGuest || !currentUser || !_supabase) return;
+  try {
+    await _supabase.from('saved_calcs').upsert({
+      id:         calc.id,
+      user_id:    currentUser.id,
+      name:       calc.name,
+      red_score:  calc.redScore,
+      blue_score: calc.blueScore,
+      auton:      calc.auton || null,
+      red_state:  calc.red   ? JSON.stringify(calc.red)  : null,
+      blue_state: calc.blue  ? JSON.stringify(calc.blue) : null,
+      date:       calc.date,
+    });
+  } catch (e) { console.warn('cloudSaveCalc:', e); }
+}
+
+async function cloudDeleteCalc(id) {
+  // Update local first
+  try {
+    const list = JSON.parse(localStorage.getItem('paragon_saved_calcs') || '[]');
+    localStorage.setItem('paragon_saved_calcs', JSON.stringify(list.filter(c => c.id !== id)));
+  } catch {}
+  if (isGuest || !currentUser || !_supabase) return;
+  try {
+    await _supabase.from('saved_calcs').delete().eq('id', id).eq('user_id', currentUser.id);
+  } catch (e) { console.warn('cloudDeleteCalc:', e); }
+}
+
+async function syncCalcsFromCloud() {
+  if (isGuest || !currentUser || !_supabase) return;
+  try {
+    const { data, error } = await _supabase.from('saved_calcs').select('*').eq('user_id', currentUser.id);
+    if (error || !data?.length) return;
+    const calcs = data.map(r => ({
+      id:        r.id,
+      name:      r.name,
+      redScore:  r.red_score,
+      blueScore: r.blue_score,
+      auton:     r.auton || null,
+      red:       r.red_state  ? JSON.parse(r.red_state)  : {},
+      blue:      r.blue_state ? JSON.parse(r.blue_state) : {},
+      date:      r.date,
+    }));
+    localStorage.setItem('paragon_saved_calcs', JSON.stringify(calcs));
+    // Re-render if calc saved view is visible
+    if (typeof Calc !== 'undefined' && typeof Calc.init === 'function') Calc.init();
+  } catch (e) { console.warn('syncCalcsFromCloud:', e); }
 }
 
 async function cloudSaveNote(note) {
